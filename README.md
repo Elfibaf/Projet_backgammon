@@ -7,4 +7,7 @@ http://doc.ubuntu-fr.org/git
 
 
 
-Pour commit : commit -m "commentaire" nomfichier
+Pour commit, effectuer ces 3 commandes :
+-git pull
+-git commit -m "commentaire" nomfichier
+-git push
