@@ -1,5 +1,5 @@
 //// Fichier pour la stratégie ////
-#include "backgammon.h"
+#include "bot.h"
 #include <stdio.h>
 #include <string.h>
 
