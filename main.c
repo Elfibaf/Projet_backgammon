@@ -15,7 +15,7 @@ int main()
 	
 	// Chargement de la librairie (chargement des pointeurs de fonctions des fonctions d�crites dans "backgammon.h")
 	
-	void *lib;
+	void *lib,*lib2;
 	
 	
 	pfInitLibrary j1InitLibrary;
@@ -34,6 +34,12 @@ int main()
 	pfDoubleStack j2DoubleStack;
 	pfTakeDouble j2TakeDouble;
 	pfPlayTurn j2PlayTurn;
+	
+	if ((lib2=dlopen("bot2.so",RTLD_LAZY)) == NULL)
+	{
+		//Erreur de chargement de la librairie
+		return(-1);
+	}
 	
 	if ((lib=dlopen("bot.so",RTLD_LAZY)) == NULL)
 	{
@@ -74,35 +80,35 @@ int main()
 	{
 		return(-1);
 	}
-	if ((j2InitLibrary=(pfInitLibrary)dlsym(lib,"InitLibrary")) == NULL)
+	if ((j2InitLibrary=(pfInitLibrary)dlsym(lib2,"InitLibrary")) == NULL)
 	{
 		return(-1);
 	}
-	if ((j2StartMatch=(pfStartMatch)dlsym(lib,"StartMatch")) == NULL)
+	if ((j2StartMatch=(pfStartMatch)dlsym(lib2,"StartMatch")) == NULL)
 	{
 		return(-1);
 	}
-	if ((j2StartGame=(pfStartGame)dlsym(lib,"StartGame")) == NULL)
+	if ((j2StartGame=(pfStartGame)dlsym(lib2,"StartGame")) == NULL)
 	{
 		return(-1);
 	}
-	if ((j2EndGame=(pfEndGame)dlsym(lib,"EndGame")) == NULL)
+	if ((j2EndGame=(pfEndGame)dlsym(lib2,"EndGame")) == NULL)
 	{
 		return(-1);
 	}
-	if ((j2EndMatch=(pfEndMatch)dlsym(lib,"EndMatch")) == NULL)
+	if ((j2EndMatch=(pfEndMatch)dlsym(lib2,"EndMatch")) == NULL)
 	{
 		return(-1);
 	}
-	if ((j2DoubleStack=(pfDoubleStack)dlsym(lib,"DoubleStack")) == NULL)
+	if ((j2DoubleStack=(pfDoubleStack)dlsym(lib2,"DoubleStack")) == NULL)
 	{
 		return(-1);
 	}
-	if ((j2TakeDouble=(pfTakeDouble)dlsym(lib,"TakeDouble")) == NULL)
+	if ((j2TakeDouble=(pfTakeDouble)dlsym(lib2,"TakeDouble")) == NULL)
 	{
 		return(-1);
 	}
-	if ((j2PlayTurn=(pfPlayTurn)dlsym(lib,"PlayTurn")) == NULL)
+	if ((j2PlayTurn=(pfPlayTurn)dlsym(lib2,"PlayTurn")) == NULL)
 	{
 		return(-1);
 	}
@@ -117,9 +123,11 @@ int main()
 
 		//*****// � faire pour chaque jeu
 		j1StartGame(BLACK);
+		j2StartGame(WHITE);
 			//*****// pour chaque joueur, tant que ce n'est pas fini
 			if (j1DoubleStack(&gameState))
 				j2TakeDouble(&gameState);
+			
 			j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
 		j1EndGame();
 
