@@ -109,7 +109,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 	 */
 	
 	
-	/** Maybe faire un enum dans la structure bot pour faire des etats 
+	/** Maybe faire un enum dans la structure bot pour faire des etats (allié et ennemi, peut être utile pour savoir si on double ou non la mise)
 	(debut/milieu de partie + fin de partie avec le ruch de l'ancre, plus besoin de se soucier de se faire prendre des pions) **/
 	
 	
