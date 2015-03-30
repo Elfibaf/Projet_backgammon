@@ -119,7 +119,7 @@ int main()
 	j1StartMatch(5);
 	
 	unsigned int nbMoves;
-	unsigned char dices[2];
+	unsigned char dices[2] = {5,6};
 
 		//*****// � faire pour chaque jeu
 		j1StartGame(BLACK);
