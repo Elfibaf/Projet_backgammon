@@ -69,7 +69,59 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 	int dim;
 	
 	//Pour manipuler des entiers, c'est plus pratique que des caractères
+	
 	unsigned int dice[2]={(int)dices[0],(int)dices[1]};			
+	unsigned int sizeDice = sizeof(dice)/sizeof(int);
+	
+	//Lorsque l'on est dans le bar (prison)
+	
+	if (gameState->bar[bot.color] =! 0)
+	{
+		if (gameState->bar[bot.color] >= 2)
+		{
+			if ((IsMoveRight(0,dice[0])) && (IsMoveRight(0,dice[1])))
+			{
+				*nbMove = 2;
+				moves[0].src_point = 0;
+				moves[0].dest_point = move[0].src_point + dice[0]+1;
+				
+				moves[1].src_point = 0;
+				moves[1].dest_point = move[1].src_point + dice[1]+1;
+			}
+			else if (IsMoveRight(0,dice[0]))
+			{
+				*nbMove = 1;
+				moves[0].src_point = 0;
+				moves[0].dest_point = move[0].src_point + dice[0]+1;
+			}
+			else if(IsMoveRight(0,dice[1]))
+			{
+				*nbMove = 1;
+				moves[0].src_point = 0;
+				moves[0].dest_point = move[0].src_point + dice[1]+1;
+			}
+			return;		
+		}
+		else if (gameState->bar[bot.color] == 1)
+		{
+			if (IsMoveRight(0,dice[0]))
+			{
+				*nbMove = 1;
+				moves[0].src_point = 0;
+				moves[0].dest_point = move[0].src_point + dice[0]+1;
+			}
+			else if(IsMoveRight(0,dice[1]))
+			{
+				*nbMove = 1;
+				moves[0].src_point = 0;
+				moves[0].dest_point = move[0].src_point + dice[1]+1;
+			}
+			if (*nbMove == 0)
+			{
+				return;
+			}
+		}
+	}
 	
 	//Remplissage tableau contenant les indices des cases sur lesquelles sont présents les pions du bot
 	for(i=0;i<24;i++)
@@ -119,6 +171,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 		
 	}
 	
+
 	
 	/* Sinon si possible : déplacement d'un pion de la somme des dés sur une case à nous
 	 * Déplacement de 2 pions sur 2 cases différentes à nous
