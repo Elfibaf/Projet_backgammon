@@ -77,6 +77,10 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 	
 	if (gameState->bar[bot.color] =! 0)
 	{
+		/* Si on a au moins 2 pions dans le bar (si on a pas de double aux dés) on va devoir faire obligatoirement 2 moves
+		   Soit : les 2 dés donnent des moves possible, on les fait et on return
+		   Soit : un seul des 2 dés permet un bon déplacement, donc on n'en renvoiera qu'un seul et on return 
+		   (pour pas envoyer un autre move qui ne serait pas correct puisque le bar ne sera pas vide)*/
 		if (gameState->bar[bot.color] >= 2)
 		{
 			if ((IsMoveRight(0,dice[0])) && (IsMoveRight(0,dice[1])))
@@ -102,6 +106,8 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 			}
 			return;		
 		}
+		
+		/* S'il n'y a qu'un seul pion dans le bar, on ne va effectuer que l'un des 2 moves possibles */
 		else if (gameState->bar[bot.color] == 1)
 		{
 			if (IsMoveRight(0,dice[0]))
@@ -116,6 +122,8 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				moves[0].src_point = 0;
 				moves[0].dest_point = move[0].src_point + dice[1]+1;
 			}
+			
+			// Si nbMove == 0, le pion n'est pas sorti du bar, donc on ne peut pas jouer et on return
 			if (*nbMove == 0)
 			{
 				return;
@@ -217,6 +225,8 @@ int max(int a,int b)
 }
 
 
+
+// Vérifie que la case sur laquelle le pion va se déplacer est libre, de sa couleur ou n'a qu'un pion dessus
 int IsMoveRight(int numCaseDep, int dice, const SGameState * const gameState)
 {
 	if((numCaseDep + dice) <= 23)
@@ -230,6 +240,8 @@ int IsMoveRight(int numCaseDep, int dice, const SGameState * const gameState)
 	else return 0;
 }
 
+
+// Vérifie qu'une case est bien de la couleur de l'IA
 int IsCaseOurs(int numCase, const SGameState * const gameState)
 {
 	if (gameState->board[numCase].owner == bot.color)
