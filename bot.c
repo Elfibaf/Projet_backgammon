@@ -101,23 +101,36 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				
 				moves[1].src_point = max(casesPionsBot[i],casesPionsBot[j])+1;
 				moves[1].dest_point = moves[1].src_point + min(dice[0],dice[1])+1;
+				return;
 			}
 		}
 	}
 	
-	
+	j=0;
 	// Si on a pas fait le move d'avant
-	if (*nbMove == 0)
+	
+	
+	for(i=0;i<dim;i++)
 	{
-		for(i=0;i<dim;i++)
+		if(j == 2)
 		{
-			if((IsCaseOurs(casesPionsBot[i]+dice[0])) || IsCaseOurs(casesPionsBot[i]+dice[1]))
-			{
-				
-			}
+			*nbMove = 2;
+			return;
 		}
-		
+		if(IsCaseOurs(casesPionsBot[i]+dice[0])
+		{
+			moves[j].src_point = casesPionsBot[i] + 1;
+			moves[j].dest_point = casesPionsBot[i]+dice[0] + 1;
+			j++;
+		}
+		else if(IsCaseOurs(casesPionsBot[i]+dice[1]))
+		{
+			moves[j].src_point = casesPionsBot[i] + 1;
+			moves[j].dest_point = casesPionsBot[i]+dice[1] + 1;
+			j++;
+		}
 	}
+
 	
 	
 	/* Sinon si possible : déplacement d'un pion de la somme des dés sur une case à nous
