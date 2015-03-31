@@ -10,6 +10,7 @@ int main()
 	//*****// � chaque utilisation de gameState, ne pas oublier de faire une copie de tous les �l�ments (pas fait ici)
 	SGameState gameState;
 	SMove moves[4];
+	
 
 	//*****// � faire pour chaque joueur
 	
@@ -119,8 +120,8 @@ int main()
 	j1StartMatch(5);
 	
 	unsigned int nbMoves;
-	unsigned char dices[2];
-
+	unsigned char dices[2]={1,6};
+	
 		//*****// � faire pour chaque jeu
 		j1StartGame(BLACK);
 		j2StartGame(WHITE);
@@ -134,6 +135,6 @@ int main()
 	j1EndMatch();
 	
 	dlclose(lib);
-
+	dlclose(lib2);
 	return(0);
 }
