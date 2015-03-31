@@ -66,6 +66,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 {
 	int i,j = 0;
 	int casesPionsBot[15];
+	int dim;
 	
 	//Pour manipuler des entiers, c'est plus pratique que des caractères
 	unsigned int dice[2]={(int)dices[0],(int)dices[1]};			
@@ -79,30 +80,45 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 			j++;
 		}
 	}
-	
+	dim = j;
 	
 	
 	/*** Permet, si on le peut, de faire bouger 2 pions sur la même case ***/
 	
 	/* Parcours du tableau contenant les indices des cases de nos pions
 	   On va comparer tous les indices entre eux */
-	for(i=0;i<15;i++)
+	for(i=0;i<dim;i++)
 	{
-		for(j=0;j<15;j++)
+		for(j=0;j<dim;j++)
 		{
 			
 			// Vérification : la dist entre les cases = la dist entre les dés + la case d'arrivée ne doit pas être a l'ennemi OU il ne doit y avoir qu'un seul pion dessus.
-			if((fabs(casesPionsBot[i]-casesPionsBot[j]) == fabs(dice[0]-dice[1])) && ((gameState->board[min(casesPionsBot[i],casesPionsBot[j])+max(dice[0],dice[1])].owner != bot.enemy) || (gameState->board[min(casesPionsBot[i],casesPionsBot[j])+max(dice[0],dice[1])].nbDames == 1)))
+			if((fabs(casesPionsBot[i]-casesPionsBot[j]) == fabs(dice[0]-dice[1])) && (IsMoveRight(min(casesPionsBot[i],casesPionsBot[j]),max(dice[0],dice[1]))))
 			{
 				*nbMove = 2;
-				moves[0].src_point = min(casesPionsBot[i],casesPionsBot[j]);
-				moves[0].dest_point = moves[0].src_point + max(dice[0],dice[1]);
+				moves[0].src_point = min(casesPionsBot[i],casesPionsBot[j])+1;
+				moves[0].dest_point = moves[0].src_point + max(dice[0],dice[1])+1;
 				
-				moves[1].src_point = max(casesPionsBot[i],casesPionsBot[j]);
-				moves[1].dest_point = moves[1].src_point + min(dice[0],dice[1]);
+				moves[1].src_point = max(casesPionsBot[i],casesPionsBot[j])+1;
+				moves[1].dest_point = moves[1].src_point + min(dice[0],dice[1])+1;
 			}
 		}
 	}
+	
+	
+	// Si on a pas fait le move d'avant
+	if (*nbMove == 0)
+	{
+		for(i=0;i<dim;i++)
+		{
+			if((IsCaseOurs(casesPionsBot[i]+dice[0])) || IsCaseOurs(casesPionsBot[i]+dice[1]))
+			{
+				
+			}
+		}
+		
+	}
+	
 	
 	/* Sinon si possible : déplacement d'un pion de la somme des dés sur une case à nous
 	 * Déplacement de 2 pions sur 2 cases différentes à nous
@@ -132,4 +148,27 @@ int max(int a,int b)
 	if(a>b) return a;
 	else return b;
 	
+}
+
+
+int IsMoveRight(int numCaseDep, int dice, const SGameState * const gameState)
+{
+	if((numCaseDep + dice) <= 23)
+	{
+		if ((gameState->board[(numCaseDep + dice)].owner != bot.enemy) || (gameState->board[(numCaseDep + dice)].nbDames == 1))
+		{
+			return(1);
+		}
+		else return 0;
+	}
+	else return 0;
+}
+
+int IsCaseOurs(int numCase, const SGameState * const gameState)
+{
+	if (gameState->board[numCase].owner == bot.color)
+	{
+		return 1;
+	}
+	else return 0;
 }
