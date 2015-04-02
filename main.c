@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <dlfcn.h>
-
+#include <stdlib.h>
+#include <time.h>
 
 void initPlateau(SGameState gameState);
 char* generateDices();
@@ -11,10 +12,10 @@ int verifCoup(const SGameState * const gameState, const unsigned char dices[2], 
 //void deroulement_du_jeu()
 int main()
 {
-    //initialisation du générateur de nombres aléatoire pour la génération des dés
+    //initialisation du gï¿½nï¿½rateur de nombres alï¿½atoire pour la gï¿½nï¿½ration des dï¿½s
     srand(time(NULL));
 
-	// Chargement de la librairie (chargement des pointeurs de fonctions des fonctions décrites dans "backgammon.h")
+	// Chargement de la librairie (chargement des pointeurs de fonctions des fonctions dï¿½crites dans "backgammon.h")
 
 	void *lib,*lib2;
 
@@ -123,11 +124,11 @@ int main()
 	j1InitLibrary(name);
 	j1StartMatch(5);
 
-	//*****// A chaque utilisation de gameState, ne pas oublier de faire une copie de tous les éléments (pas fait ici)
+	//*****// A chaque utilisation de gameState, ne pas oublier de faire une copie de tous les ï¿½lï¿½ments (pas fait ici)
 	SGameState gameState;
     initPlateau(SGameState gameState) // Initialisation du tableau
 
-    char dices[2] = generateDices(); // Génération des deux dés
+    char dices[2] = generateDices(); // Gï¿½nï¿½ration des deux dï¿½s
 
 	SMove moves[4];
 
@@ -153,7 +154,7 @@ int main()
 
 /*
 Fonction d'initialisation du tableau
-Prend en paramètre un SGameState
+Prend en paramï¿½tre un SGameState
 */
 void initPlateau(SGameState gameState)
 {
@@ -223,7 +224,7 @@ void initPlateau(SGameState gameState)
 
 
 /*
-Simulation d'un lancé de deux dés
+Simulation d'un lancï¿½ de deux dï¿½s
 */
 char* generateDices()
 {
