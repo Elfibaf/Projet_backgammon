@@ -134,7 +134,7 @@ int main()
     generateDices(dices); // G�n�ration des deux d�
 	SMove moves[4];
 	
-	printf("%d", (int)dices[0]);
+
 
 
 		//*****// A faire pour chaque jeu
@@ -156,7 +156,7 @@ int main()
 
 /*
 Fonction d'initialisation du tableau
-Prend en param�tre un SGameState
+Prend en parametre un SGameState
 */
 void initPlateau(SGameState gameState)
 {
@@ -231,8 +231,8 @@ Simulation d'un lanc� de deux d�s
 void generateDices(unsigned char dices[2])
 {
     
-    dices[0] = (char)(rand()%(6));
-    dices[1] = (char)(rand()%(6));
+    dices[0] = (char)(rand()%(6)+1);
+    dices[1] = (char)(rand()%(6)+1);
     
 }
 
