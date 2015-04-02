@@ -9,6 +9,13 @@
 // Dans la librairie
 //
 
+typedef enum Etat Etat;
+enum Etat
+{
+    DEPART, TRANSITION, FIN
+};
+
+
 typedef struct {
 	Player color;
 	Player enemy;
@@ -16,6 +23,7 @@ typedef struct {
 	
 } SBotInfo;
 
+Etat etatJeu;
 SBotInfo bot;
 
 
@@ -100,10 +108,6 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 		dice[0]=(int)dices[0];
 		dice[1]=(int)dices[1];
 	}
-	
-	
-	
-	
 	
 	
 	/***Lorsque l'on est dans le bar (prison) ***/
@@ -414,4 +418,30 @@ int IsCaseEmpty(int caseDep, int nbMove, SMove moves[4], const SGameState * cons
 	}
 	else return(0);
 	
+}
+
+Etat DefEtat(const SGameState * const gameState)
+{
+	int i,j;
+	int sum;
+	for(i=17;i<24;i++)
+	{
+		if((gameState->board[i].owner == bot.enemy) && (gameState->board[i].nbDames >= 2))
+		{
+			sum++;
+			if(sum > 2)
+			{
+				return TRANSITION;
+			}
+		}
+	}
+	for(j=0;j<6;j++)
+	{
+		if((gameState->board[j].owner == bot.color) && (gameState->board[j].nbDames == 15))
+		{
+			return FIN;
+		}
+	}
+	
+	return DEPART;
 }
