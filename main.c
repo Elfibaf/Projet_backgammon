@@ -81,10 +81,10 @@ int main()
 	j1StartMatch(5);
 
 	SGameState gameState;
-	initPlateau(gameState); // Initialisation du tableau
+	InitPlateau(gameState); // Initialisation du tableau
 	
     unsigned char dices[2];
-    generateDices(dices); // Génération des deux dés
+    GenerateDices(dices); // Génération des deux dés
     
     unsigned int nbMoves; // Le nombre de coup possibles que peut faire le joueur
 	SMove moves[4]; // Tableau de mouvements
@@ -108,7 +108,7 @@ int main()
                 j2TakeDouble(&gameState);
             }
             j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
-            if( winGame(&gameState, WHITE) )
+            if( WinGame(&gameState, WHITE) )
             {
                 gameState.whiteScore++;
                 break;
@@ -120,7 +120,7 @@ int main()
                 j1TakeDouble(&gameState);
             }
             j2PlayTurn(&gameState,dices,moves,&nbMoves,3);
-            if( winGame(&gameState, BLACK) )
+            if( WinGame(&gameState, BLACK) )
             {
                 gameState.blackScore++;
                 break;

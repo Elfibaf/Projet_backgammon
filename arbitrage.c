@@ -9,7 +9,7 @@
 Fonction d'initialisation du tableau
 Prend en parametre un SGameState
 */
-void initPlateau(SGameState gameState)
+void InitPlateau(SGameState gameState)
 {
     // Initialisation du board
     int i;
@@ -74,7 +74,7 @@ void initPlateau(SGameState gameState)
 /*
 Simulation d'un lancé de deux dés
 */
-void generateDices(unsigned char dices[2])
+void GenerateDices(unsigned char dices[2])
 {
     
     dices[0] = (char)(rand()%(6)+1);
@@ -83,14 +83,14 @@ void generateDices(unsigned char dices[2])
 }
 
 
-int verifCoup(const SGameState * const gameState, const unsigned char dices[2], SMove moves[4], unsigned int *nbMoves, unsigned int tries)
+int VerifCoup(const SGameState * const gameState, const unsigned char dices[2], SMove moves[4], unsigned int *nbMoves, unsigned int tries)
 {
     // Je vais faire la fonction plus tard
     return 0;
 }
 
 
-int winGame(const SGameState * const gameState, int player)
+int WinGame(const SGameState * const gameState, int player)
 {
     if(gameState.out[player] == 15) // Si tous les pions sont sortis du plateau
     {
@@ -101,7 +101,7 @@ int winGame(const SGameState * const gameState, int player)
     }
 }
 
-void modifPlateau(const SGameState * const gameState, SMove moves[4], unsigned int *nbMoves, int player) {
+void ModifPlateau(const SGameState * const gameState, SMove moves[4], unsigned int *nbMoves, int player) {
     int i;
     int x,y;
     for (i = 0; i < nbMoves; i++){
