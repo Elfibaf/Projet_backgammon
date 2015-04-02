@@ -81,7 +81,7 @@ int main()
 	j1StartMatch(5);
 
 	SGameState gameState;
-	InitPlateau(gameState); // Initialisation du tableau
+	InitPlateau(&gameState); // Initialisation du tableau
 	
     unsigned char dices[2];
     GenerateDices(dices); // Génération des deux dés
