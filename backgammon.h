@@ -1,9 +1,12 @@
-/////////// Strutures à utiliser
+#ifndef BACKGAMMON_H
+	#define BACKGAMMON_H
+
+/////////// Strutures ï¿½ utiliser
 
 /**
- * @brief Définit quel joueur contrôle la case.
+ * @brief Dï¿½finit quel joueur contrï¿½le la case.
  *
- * Les nombres sont là pour faciliter les tests.
+ * Les nombres sont lï¿½ pour faciliter les tests.
  */
 typedef enum {
     BLACK = 0,
@@ -12,17 +15,17 @@ typedef enum {
 } Player;
 
 /**
- * @brief Définit le contenu d'une case de jeu.
+ * @brief Dï¿½finit le contenu d'une case de jeu.
  */
 typedef struct {
-    Player owner;           /*!<  Joueur contrôlant la case */
-    unsigned int nbDames;   /*!<  Nombre de dames sur la case (non utilisé si
+    Player owner;           /*!<  Joueur contrï¿½lant la case */
+    unsigned int nbDames;   /*!<  Nombre de dames sur la case (non utilisï¿½ si
                                   `owner == NOBODY.`) */
 } Square;
 
 
 /**
- * @brief Contient toutes les informations relatives à une partie en cours.
+ * @brief Contient toutes les informations relatives ï¿½ une partie en cours.
  *
  * Une struct contenant toutes les informations du jeu permet des tests plus
  * faciles.
@@ -33,25 +36,25 @@ typedef struct {
 	unsigned int out[2];
     unsigned int whiteScore;    /*!< Score du joueur blanc */
     unsigned int blackScore;    /*!< Score du joueur noir */
-    unsigned int turn;          /*!< Numéro du tour en cours (initialisé à 0) */
+    unsigned int turn;          /*!< Numï¿½ro du tour en cours (initialisï¿½ ï¿½ 0) */
 	unsigned int stake;			/*!< Mise courante de la partie */
 } SGameState;
 
-// Structure de représentation d'un mouvement
+// Structure de reprï¿½sentation d'un mouvement
 typedef struct
 {
 	unsigned int src_point;
 	unsigned int dest_point;
 } SMove;
 
-/////////// Fonctions à utiliser
-// Les prototypes en commentaires sont à implémenter dans la librairie
+/////////// Fonctions ï¿½ utiliser
+// Les prototypes en commentaires sont ï¿½ implï¿½menter dans la librairie
 // Les types pointeur de fonction dans l'application
 
 /**
  * Initialiser la librairie
  * @param char name[50]
- *	nom associé à la librairie
+ *	nom associï¿½ ï¿½ la librairie
  */
 //void InitLibrary(char name[50]);
 typedef void (*pfInitLibrary)(char[50]);
@@ -85,7 +88,7 @@ typedef void (*pfEndMatch)();
 /**
  * Doubler la mise
  * @param const SGameState * const gameState
- *	l'état du jeu courant
+ *	l'ï¿½tat du jeu courant
  * @return int
  *	vrai si on propose de doubler : faux sinon
  */
@@ -95,7 +98,7 @@ typedef int (*pfDoubleStack)(const SGameState * const);
 /**
  * Accepter ou refuser la nouvelle mise
  * @param const SGameState * const gameState
- *	l'état du jeu courant
+ *	l'ï¿½tat du jeu courant
  * @return int
  *	vrai si on accepte la nouvelle mise ; faux sinon
  */
@@ -103,13 +106,16 @@ typedef int (*pfDoubleStack)(const SGameState * const);
 typedef int (*pfTakeDouble)(const SGameState * const);
 
 /**
- * Prise de décision de la part de l'IA
+ * Prise de dï¿½cision de la part de l'IA
  * @param const SGameState * const gameState
- *	l'état du jeu courant
+ *	l'ï¿½tat du jeu courant
  * @param SMove moves[4]
- *	tableau des mouvements à effectuer par l'IA
+ *	tableau des mouvements ï¿½ effectuer par l'IA
  * @param unsigned int tries
  *	nombre d'essais restants (3 initialement).
  */
 //void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], SMove moves[4], unsigned int *nbMove, unsigned int tries);
 typedef void (*pfPlayTurn)(const SGameState * const,  const unsigned char[2], SMove[4], unsigned int*, unsigned int);
+
+
+#endif
