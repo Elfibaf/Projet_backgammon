@@ -241,3 +241,47 @@ int verifCoup(const SGameState * const gameState, const unsigned char dices[2], 
     // Je vais faire la fonction tal
     return 0;
 }
+
+
+void modifPlateau(const SGameState * const gameState,  SMove moves[4], unsigned int *nbMoves, int player) {
+
+
+
+    int i;
+    int x,y; 
+    for (i = 0; i < nbMoves; i++) {
+    
+        x = moves[i].src_point; 
+        y = moves[i].dest_point;
+        
+        if (x == 0) {
+            
+            gameState.bar[player].nbDames--;
+        
+        } else {
+            
+            gameState.board[x].nbDames--;
+            
+        }
+        
+        if (y == 25) {
+        
+            gameState.out[player].nbDames++;
+            
+        } else if (gameState.board[y].owner == -1) {
+        
+            gameState.board[y].nbDames++;
+            gameState.board[y].owner == player;  
+        
+        } else if (gameState.board[y].owner != player) {
+        
+        
+            int enemy = 1 - gameState.board[y].owner;
+            gameState.board[y].owner == enemy;
+            gameState.bar[enemy].nbDames++;
+        }
+        
+    }
+
+
+}
