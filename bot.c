@@ -138,7 +138,7 @@ int IsDiceUsed(int dice)
 	else return 0;
 }
 
-
+//Indique si les dés forment un double
 int IsDiceDouble(const unsigned char dice[2])
 {
 	if (dice[0] == dice[1])
@@ -169,6 +169,7 @@ int IsCaseEmpty(int caseDep, int nbMove, SMove moves[4], const SGameState * cons
 }
 
 
+// Effectue la somme des dés non encore utilisés
 int SumDice(unsigned int *dice,int sizeDice)
 {
 	int i;
@@ -183,6 +184,7 @@ int SumDice(unsigned int *dice,int sizeDice)
 	return(sum);
 }
 
+// Retourne le nombre de dés non encore utilisés
 int NbDiceLeft(unsigned int *dice, int sizeDice)
 {
 	int i;
@@ -304,14 +306,11 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 	//Remplissage tableau contenant les indices des cases sur lesquelles sont présents les pions du bot
 	for(i=0;i<24;i++)
 	{
-		
 		if (gameState->board[i].owner == bot.color)
 		{
 			casesPionsBot[j] = i;
 			j++;
-			
 		}
-		
 	}
 	dim = j;
 	
@@ -345,6 +344,55 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 					moves[1].dest_point = moves[1].src_point + min(dice[0],dice[1])+1;
 					free(dice);
 					return;
+				}
+			}
+		}
+	}
+	
+	
+	
+	/*** Quand on a un double : on bouge 2 pions de la même case sur une autre case ***/
+	
+	if((IsDiceDouble(dices)) && (NbDiceLeft(dice,sizeDice)%2 == 0)) 
+	{
+		for(i=0;i<dim;i++)
+		{
+			numCaseInter = 0;
+			if(((gameState->board[casesPionsBot[i]].nbDames == 2) || (gameState->board[casesPionsBot[i]].nbDames > 3)) && (IsMoveRight(casesPionsBot[i],SumDice(dice,sizeDice),gameState)) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
+			{
+				if(NbDiceLeft(dice,sizeDice) == 4)
+				{
+					moves[*nbMove].src_point = casesPionsBot[i] + 1;
+					moves[*nbMove].dest_point = casesPionsBot[i]+dice[j] + 1;
+					*nbMove = *nbMove+1;
+					dice[j] = -1;
+					// A continuer (chainage de mouves)
+				}
+				// Cas où il n'y a que 2 dés de dispo
+				for(j=0;j<sizeDice;j++)
+				{
+
+					if((!IsDiceUsed(dice[j]) && (numCaseInter == 0)))
+					{
+						moves[*nbMove].src_point = casesPionsBot[i] + 1;
+						moves[*nbMove].dest_point = casesPionsBot[i]+dice[j] + 1;
+						numCaseInter = moves[*nbMove].dest_point;
+						*nbMove = *nbMove+1;
+						dice[j] = -1;
+					}
+					else if((!IsDiceUsed(dice[j]) && (numCaseInter != 0)))
+					{
+						moves[*nbMove].src_point = numCaseInter;
+						moves[*nbMove].dest_point = numCaseInter + dice[j];
+						numCaseInter = moves[*nbMove].dest_point;
+						*nbMove = *nbMove+1;
+						dice[j] = -1;
+					}
+					if (*nbMove == sizeDice)
+					{
+						free(dice);
+						return;
+					}
 				}
 			}
 		}
