@@ -133,7 +133,8 @@ int main()
 	
     generateDices(dices); // G�n�ration des deux d�
 	SMove moves[4];
-
+	
+	printf("%d", (int)dices[0]);
 
 
 		//*****// A faire pour chaque jeu
@@ -230,8 +231,8 @@ Simulation d'un lanc� de deux d�s
 void generateDices(unsigned char dices[2])
 {
     
-    dices[0] = (char)rand()%(6);
-    dices[1] = (char)rand()%(6);
+    dices[0] = (char)(rand()%(6));
+    dices[1] = (char)(rand()%(6));
     
 }
 
