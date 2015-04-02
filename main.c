@@ -243,45 +243,42 @@ int verifCoup(const SGameState * const gameState, const unsigned char dices[2], 
 }
 
 
-void modifPlateau(const SGameState * const gameState,  SMove moves[4], unsigned int *nbMoves, int player) {
+void ModifPlateau(SGameState * gameState,  SMove moves[4], unsigned int *nbMoves, Player player) {
 
 
-
+	Player enemy;
     int i;
     int x,y; 
-    for (i = 0; i < nbMoves; i++) {
+    for (i = 0; i < *nbMoves; i++) {
     
         x = moves[i].src_point; 
         y = moves[i].dest_point;
         
         if (x == 0) {
             
-            gameState.bar[player].nbDames--;
+            gameState->bar[player] = gameState->bar[player] - 1;
         
         } else {
             
-            gameState.board[x].nbDames--;
+            gameState->board[x].nbDames = gameState->board[x].nbDames - 1;
             
         }
         
         if (y == 25) {
         
-            gameState.out[player].nbDames++;
+            gameState->out[player] = gameState->out[player] + 1;
             
-        } else if (gameState.board[y].owner == -1) {
+        } else if (gameState->board[y].owner == - 1) {
         
-            gameState.board[y].nbDames++;
-            gameState.board[y].owner == player;  
+            gameState->board[y].nbDames = gameState->board[y].nbDames + 1;
+            gameState->board[y].owner = player;  
         
-        } else if (gameState.board[y].owner != player) {
+        } else if (gameState->board[y].owner != player) {
         
         
-            int enemy = 1 - gameState.board[y].owner;
-            gameState.board[y].owner == enemy;
-            gameState.bar[enemy].nbDames++;
+            enemy = 1 - gameState->board[y].owner;
+            gameState->board[y].owner = enemy;
+            gameState->bar[enemy] = gameState->bar[enemy] + 1;
         }
-        
     }
-
-
 }
