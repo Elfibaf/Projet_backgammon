@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <time.h>
 
-void initPlateau(SGameState gameState);
-char* generateDices();
-int verifCoup(const SGameState * const gameState, const unsigned char dices[2], SMove moves[4], unsigned int *nbMove, unsigned int tries);
+void initPlateau(SGameState);
+void generateDices(unsigned char[2]);
+int verifCoup(const SGameState * const, const unsigned char[2], SMove[4], unsigned int*, unsigned int);
 
 //void deroulement_du_jeu()
 int main()
@@ -126,14 +126,15 @@ int main()
 
 	//*****// A chaque utilisation de gameState, ne pas oublier de faire une copie de tous les �l�ments (pas fait ici)
 	SGameState gameState;
-    initPlateau(SGameState gameState) // Initialisation du tableau
-
-    char dices[2] = generateDices(); // G�n�ration des deux d�s
-
-	SMove moves[4];
+    initPlateau(gameState); // Initialisation du tableau
 
 	unsigned int nbMoves;
-	unsigned char dices[2]={1,6};
+	unsigned char dices[2];
+	
+    generateDices(dices); // G�n�ration des deux d�
+	SMove moves[4];
+
+
 
 		//*****// A faire pour chaque jeu
 		j1StartGame(BLACK);
@@ -226,15 +227,15 @@ void initPlateau(SGameState gameState)
 /*
 Simulation d'un lanc� de deux d�s
 */
-char* generateDices()
+void generateDices(unsigned char dices[2])
 {
-    char[2] dices;
+    
     dices[0] = (char)rand()%(6);
     dices[1] = (char)rand()%(6);
-    return dices;
+    
 }
 
-int verifCoup(const SGameState * const gameState, const unsigned char dices[2], SMove moves[4], unsigned int *nbMove, unsigned int tries)
+int verifCoup(const SGameState * const gameState, const unsigned char dices[2], SMove moves[4], unsigned int *nbMoves, unsigned int tries)
 {
     // Je vais faire la fonction tal
     return 0;
