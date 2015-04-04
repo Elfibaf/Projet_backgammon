@@ -122,7 +122,13 @@ void ModifPlateau(SGameState * gameState, SMove moves[4], unsigned int *nbMoves,
         else {
             
             gameState->board[x-1].nbDames = gameState->board[x-1].nbDames - 1;
+            if (gameState->board[x-1].nbDames == 0) {
+                
+                gameState->board[y-1].owner = -1;
+                
         }
+        
+    
         
         if (y == 25) {
             gameState->out[player] = gameState->out[player] + 1;
