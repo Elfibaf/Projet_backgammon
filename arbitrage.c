@@ -79,6 +79,7 @@ void GenerateDices(unsigned char dices[2])
     
     dices[0] = (char)(rand()%(6)+1);
     dices[1] = (char)(rand()%(6)+1);
+    printf("Dé 1 : %d    Dé 2 : %d\n",(int)dices[0],(int)dices[1]);
     
 }
 
@@ -107,7 +108,8 @@ void ModifPlateau(SGameState * gameState, SMove moves[4], unsigned int *nbMoves,
     int i;
     int x,y;
     
-    for (i = 0; i < *nbMoves; i++){
+    for (i = 0; i < *nbMoves; i++)
+    {
         
         x = moves[i].src_point;
         y = moves[i].dest_point;
@@ -119,22 +121,23 @@ void ModifPlateau(SGameState * gameState, SMove moves[4], unsigned int *nbMoves,
         
         else {
             
-            gameState->board[x].nbDames = gameState->board[x].nbDames - 1;
+            gameState->board[x-1].nbDames = gameState->board[x-1].nbDames - 1;
         }
         
         if (y == 25) {
             gameState->out[player] = gameState->out[player] + 1;
         } 
         
-        else if (gameState->board[y].owner == -1) {
-            gameState->board[y].nbDames = gameState->board[y].nbDames + 1;
-            gameState->board[y].owner = player;
+        else if (gameState->board[y-1].owner == -1) {
+            gameState->board[y-1].nbDames = gameState->board[y-1].nbDames + 1;
+            gameState->board[y-1].owner = player;
         } 
         
-        else if (gameState->board[y].owner != player) {
-            enemy = 1 - gameState->board[y].owner;
-            gameState->board[y].owner = enemy;
+        else if (gameState->board[y-1].owner != player) {
+            enemy = 1 - gameState->board[y-1].owner;
+            gameState->board[y-1].owner = enemy;
             gameState->bar[enemy] = gameState->bar[enemy] + 1;
         }
+        printf("Le joueur %d bouge de la case %d à la case %d\n",(int)player,x,y);
     }
 }

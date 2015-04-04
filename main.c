@@ -35,13 +35,13 @@ int main()
 	pfTakeDouble j2TakeDouble;
 	pfPlayTurn j2PlayTurn;
 
-	if ((lib2=dlopen("bot.so",RTLD_LAZY)) == NULL)
+	if ((lib=dlopen("bot.so",RTLD_LAZY)) == NULL)
 	{
 		//Erreur de chargement de la librairie
 		return(-1);
 	}
 
-	if ((lib=dlopen("bot2.so",RTLD_LAZY)) == NULL)
+	if ((lib2=dlopen("bot2.so",RTLD_LAZY)) == NULL)
 	{
 		//Erreur de chargement de la librairie
 		return(-1);
@@ -84,7 +84,7 @@ int main()
 	InitPlateau(&gameState); // Initialisation du tableau
 	
     unsigned char dices[2];
-    GenerateDices(dices); // Génération des deux dés
+    //GenerateDices(dices); // Génération des deux dés
     
     unsigned int nbMoves; // Le nombre de coup possibles que peut faire le joueur
 	SMove moves[4]; // Tableau de mouvements
@@ -107,14 +107,17 @@ int main()
             {
                 j2TakeDouble(&gameState);
             }
+            GenerateDices(dices);
+       
             j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
+            ModifPlateau(&gameState,moves,&nbMoves,WHITE);
             if( WinGame(&gameState, WHITE) )
             {
                 gameState.whiteScore++;
                 break;
             }
-
-            // Tour du deuxième joueur
+			getchar();
+            /*// Tour du deuxième joueur
             if(j2DoubleStack(&gameState))
             {
                 j1TakeDouble(&gameState);
@@ -124,7 +127,7 @@ int main()
             {
                 gameState.blackScore++;
                 break;
-            }
+            }*/
 
 		}
 
