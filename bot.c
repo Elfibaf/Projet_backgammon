@@ -44,8 +44,8 @@ void StartGame(Player p)
 {
 	
 	bot.color = p;
-	if(p == 1) bot.enemy = 0;
-	else bot.enemy = 1;
+	if(p == 1) bot.enemy = BLACK;
+	else bot.enemy = WHITE;
 	
 	printf("StartGame\n");
 }
@@ -494,7 +494,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 	{
 		for(j=0;j<sizeDice;j++)
 		{
-			if(*nbMove == 2)
+			if(*nbMove == sizeDice)
 			{
 				free(dice);
 				return;
