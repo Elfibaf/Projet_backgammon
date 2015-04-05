@@ -176,7 +176,7 @@ int IsValid(const SGameState * const gameState, const unsigned char dices[2], co
 	else if (nbMoves == nbMovesMax) // Si le joueur propose un nombre de mouvement égal au nombre maximum (théorique) de mouvement possible
 	{
 		
-		if ( !(IsValidDistance(dices, moves, nbMovesMax) )
+		if ( !(IsValidRange(dices, moves, nbMovesMax) )
 		{
 			// Si au moins un des mouvements ne respecte pas le résultat d'un dé ( => non valide )
 			*tries--;

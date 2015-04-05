@@ -7,11 +7,49 @@
 #include "arbitrage.h"
 #include "bot.h"
 
+#define DEFAULT_GOAL 5
+#define J1_NB_TRIES 3
+#define J2_NB_TRIES 3
+
 //void deroulement_du_jeu()
-int main()
+int main(int argc, char *argv[])
 {
     //initialisation du générateur de nombres aléatoire pour la génération des dés
     srand(time(NULL));
+    
+    int goal; // Le score a obtenir pour gagner la partie
+    
+    if (argc == 1)
+    {
+    	goal = DEFAULT_GOAL; // Si l'utilisateur ne rentre pas de paramètres
+    	printf("Vous avez choisi le mode de jeu : HUMAIN VS HUMAIN - Jeu en %d points (parametres par défaut)\n", goal);
+    }
+    else
+    {
+    	long res;
+    	char *ptr;
+    	res = strtol(argv[1], &ptr, 10);
+    	goal = (int)res; // On stocke dans goal le nombre de points pour gagner la partie
+    	
+    	if (argc == 2)
+    	{
+    		printf("Vous avez choisi le mode de jeu : HUMAIN VS HUMAIN - Jeu en %d points\n", goal);
+    	}
+    	else if (argc == 3)
+    	{
+    		printf("Vous avez choisi le mode de jeu : HUMAIN VS IA - Jeu en %d points\n", goal);
+    	}
+    	else if (argc == 4)
+    	{
+    		printf("Vous avez choisi le mode de jeu : IA VS IA - Jeu en %d points\n", goal);
+    	}
+		else
+		{
+			printf("Vous avez mis beaucoup trop de paramètres !\n");
+			printf("./nomDuProgramme [nbPointsPourGagner] [librairie1] [librairie2]\n");
+			return EXIT_FAILURE;
+		}
+	} 
 
 	// Chargement de la librairie (chargement des pointeurs de fonctions des fonctions d�crites dans "backgammon.h")
 
@@ -77,8 +115,6 @@ int main()
 	=======> avec argv et argc
 	*/
 	
-	int goal = 5; // Le score a obtenir pour gagner la partie
-	
 	char name[50];
 	j1InitLibrary(name);
 	j1StartMatch(goal);
@@ -97,10 +133,10 @@ int main()
     while( (gameState.whiteScore < goal) && (gameState.blackScore < goal) )
     {
         j1StartGame(WHITE);
-		j1NbTries = 3;
+		j1NbTries = J1_NB_TRIES;
 		
 		j2StartGame(BLACK);
-		j2NbTries = 3;
+		j2NbTries = J2_NB_TRIES;
 		
         // Tant que la partie en cours n'est pas fini
         while(1)
