@@ -48,25 +48,25 @@ int main()
 	}
 
 	if( ((j1InitLibrary=(pfInitLibrary)dlsym(lib,"InitLibrary")) == NULL)
-    || ((j1StartMatch=(pfStartMatch)dlsym(lib,"StartMatch")) == NULL)
-    || ((j1StartGame=(pfStartGame)dlsym(lib,"StartGame")) == NULL)
-    || ((j1EndGame=(pfEndGame)dlsym(lib,"EndGame")) == NULL)
-    || ((j1EndMatch=(pfEndMatch)dlsym(lib,"EndMatch")) == NULL)
-    || ((j1DoubleStack=(pfDoubleStack)dlsym(lib,"DoubleStack")) == NULL)
-    || ((j1TakeDouble=(pfTakeDouble)dlsym(lib,"TakeDouble")) == NULL)
-    || ((j1PlayTurn=(pfPlayTurn)dlsym(lib,"PlayTurn")) == NULL) )
+	|| ((j1StartMatch=(pfStartMatch)dlsym(lib,"StartMatch")) == NULL)
+	|| ((j1StartGame=(pfStartGame)dlsym(lib,"StartGame")) == NULL)
+	|| ((j1EndGame=(pfEndGame)dlsym(lib,"EndGame")) == NULL)
+	|| ((j1EndMatch=(pfEndMatch)dlsym(lib,"EndMatch")) == NULL)
+	|| ((j1DoubleStack=(pfDoubleStack)dlsym(lib,"DoubleStack")) == NULL)
+	|| ((j1TakeDouble=(pfTakeDouble)dlsym(lib,"TakeDouble")) == NULL)
+	|| ((j1PlayTurn=(pfPlayTurn)dlsym(lib,"PlayTurn")) == NULL) )
 	{
 		return(-1);
 	}
 
 	if( ((j2InitLibrary=(pfInitLibrary)dlsym(lib2,"InitLibrary")) == NULL)
-    || ((j2StartMatch=(pfStartMatch)dlsym(lib2,"StartMatch")) == NULL)
-    || ((j2StartGame=(pfStartGame)dlsym(lib2,"StartGame")) == NULL)
-    || ((j2EndGame=(pfEndGame)dlsym(lib2,"EndGame")) == NULL)
-    || ((j2EndMatch=(pfEndMatch)dlsym(lib2,"EndMatch")) == NULL)
-    || ((j2DoubleStack=(pfDoubleStack)dlsym(lib2,"DoubleStack")) == NULL)
-    || ((j2TakeDouble=(pfTakeDouble)dlsym(lib2,"TakeDouble")) == NULL)
-    || ((j2PlayTurn=(pfPlayTurn)dlsym(lib2,"PlayTurn")) == NULL) )
+	|| ((j2StartMatch=(pfStartMatch)dlsym(lib2,"StartMatch")) == NULL)
+	|| ((j2StartGame=(pfStartGame)dlsym(lib2,"StartGame")) == NULL)
+	|| ((j2EndGame=(pfEndGame)dlsym(lib2,"EndGame")) == NULL)
+	|| ((j2EndMatch=(pfEndMatch)dlsym(lib2,"EndMatch")) == NULL)
+	|| ((j2DoubleStack=(pfDoubleStack)dlsym(lib2,"DoubleStack")) == NULL)
+	|| ((j2TakeDouble=(pfTakeDouble)dlsym(lib2,"TakeDouble")) == NULL)
+	|| ((j2PlayTurn=(pfPlayTurn)dlsym(lib2,"PlayTurn")) == NULL) )
 	{
 		return(-1);
 	}
@@ -76,25 +76,31 @@ int main()
 	faire if pour savoir si c'est un bot ou pas
 	=======> avec argv et argc
 	*/
+	
+	int goal = 5; // Le score a obtenir pour gagner la partie
+	
 	char name[50];
 	j1InitLibrary(name);
-	j1StartMatch(5);
+	j1StartMatch(goal);
 
 	SGameState gameState;
 	InitPlateau(&gameState); // Initialisation du tableau
 	
-    unsigned char dices[2];
-    //GenerateDices(dices); // Génération des deux dés
-    
-    unsigned int nbMoves; // Le nombre de coup possibles que peut faire le joueur
+	unsigned char dices[2];
+
+	unsigned int nbMoves; // Le nombre de coup possibles que peut faire le joueur
 	SMove moves[4]; // Tableau de mouvements
 	
-
+	unsigned int j1NbTries, j2NbTries; // Initialisation du nombre d'erreurs possibles
+	
     // Tant qu'aucun des joueurs n'a gagné le jeu, on continue à faire des parties
-    while( (gameState.whiteScore < 5) && (gameState.blackScore < 5) )
+    while( (gameState.whiteScore < goal) && (gameState.blackScore < goal) )
     {
         j1StartGame(WHITE);
+		j1NbTries = 3;
+		
 		j2StartGame(BLACK);
+		j2NbTries = 3;
 		
         // Tant que la partie en cours n'est pas fini
         while(1)
@@ -107,10 +113,10 @@ int main()
             {
                 j2TakeDouble(&gameState);
             }
-            GenerateDices(dices);
-       
-            j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
-            ModifPlateau(&gameState,moves,&nbMoves,WHITE);
+            GenerateDices(dices); // Génération des deux dés
+            j1PlayTurn(&gameState, dices, moves, &nbMoves, &j1NbTries);
+            ///////////////////////////////////////////////////////////////////////////IsValid()
+            ModifPlateau(&gameState, moves, &nbMoves, WHITE);
             if( WinGame(&gameState, WHITE) )
             {
                 gameState.whiteScore++;
