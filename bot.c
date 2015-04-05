@@ -156,7 +156,7 @@ int IsCaseEmpty(int caseDep, int nbMove, SMove moves[4], const SGameState * cons
 	int i,j=0;
 	for(i=0;i<nbMove;i++)
 	{
-		if(moves[i].src_point == caseDep)
+		if(moves[i].src_point -1 == caseDep)
 		{
 			j++;
 		}	
@@ -205,15 +205,12 @@ Etat DefEtat(const SGameState * const gameState)
 {
 	int i,j;
 	int sum;
-	if (gameState->bar[bot.color] != 0)
-	{
-		return BAR;
-	}
+
 	for(i=18;i<24;i++)
 	{
 		if((gameState->board[i].owner == bot.enemy) && (gameState->board[i].nbDames >= 2))
 		{
-			sum++;
+			sum = sum +1;
 			if(sum > 2)
 			{
 				return TRANSITION;
@@ -292,7 +289,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 			//Etat dans lequel on ramene les pions les plus éloignés en priorité
 			case TRANSITION :
 			
-			
+				printf("Transition\n");
 				//Remplissage tableau contenant les indices des cases sur lesquelles sont présents les pions du bot
 				for(i=0;i<24;i++)
 				{
@@ -414,6 +411,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				
 				if((IsDiceDouble(dices)) && (NbDiceLeft(dice,sizeDice)%2 == 0)) 
 				{
+					printf("cond\n");
 					for(i=1;i<dim;i++)
 					{
 						numCaseInter = 0;
@@ -581,7 +579,8 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				
 				
 			case FIN :
-				
+				printf("fin");
+				break;
 				
 			
 					
