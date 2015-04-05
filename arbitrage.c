@@ -140,6 +140,11 @@ void ModifPlateau(SGameState * gameState, SMove moves[4], unsigned int *nbMoves,
             gameState->board[y-1].owner = player;
         } 
         
+        else if (gameState->board[y-1].owner == player)
+        {
+            gameState->board[y-1].nbDames = gameState->board[y-1].nbDames + 1;
+        }
+        
         else if (gameState->board[y-1].owner != player) {
             enemy = 1 - gameState->board[y-1].owner;
             gameState->board[y-1].owner = enemy;
