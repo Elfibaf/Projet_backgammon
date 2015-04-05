@@ -13,7 +13,7 @@
 typedef enum Etat Etat;
 enum Etat
 {
-    DEPART, TRANSITION, FIN
+    NORMAL, BAR, TRANSITION, FIN, SORTIE
 };
 
 
@@ -205,7 +205,11 @@ Etat DefEtat(const SGameState * const gameState)
 {
 	int i,j;
 	int sum;
-	for(i=17;i<24;i++)
+	if (gameState->bar[bot.color] != 0)
+	{
+		return BAR;
+	}
+	for(i=18;i<24;i++)
 	{
 		if((gameState->board[i].owner == bot.enemy) && (gameState->board[i].nbDames >= 2))
 		{
@@ -224,7 +228,7 @@ Etat DefEtat(const SGameState * const gameState)
 		}
 	}
 	
-	return DEPART;
+	return NORMAL;
 }
 
 
@@ -275,253 +279,317 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 	
 	printf("Nombre de dés : %d\n",NbDiceLeft(dice,sizeDice));
 	
-	/***Lorsque l'on est dans le bar (prison) ***/
+	etatJeu = DefEtat(gameState);
 	
-	if ((int)gameState->bar[bot.color] != 0)
+	
+	
+	
+	while(etatJeu != SORTIE)
 	{
-		/* On parcourt */
-		   
-		for(i=0;i<sizeBar;i++)
+	
+		switch(etatJeu)
 		{
-			for(j=0;j<sizeDice;j++)
-			{
-				if(IsMoveRight(0,dice[j],gameState))
-				{
-					moves[*nbMove].src_point = 0;
-					moves[*nbMove].dest_point = moves[0].src_point + dice[j] + 1;
-					*nbMove = *nbMove+1;
-					dice[j] = -1;
-					break;  //On a utilisé le dé courant et le pion courant donc on sort de la boucle pour passer au pion suivant
-				}
-			}
-		}
-		if((*nbMove <= sizeBar) || (*nbMove == sizeDice))
-		{
-			free(dice);
-			return;
-		}
-		
-	}
-	
-	
-	
-	
-	
-	//Remplissage tableau contenant les indices des cases sur lesquelles sont présents les pions du bot
-	for(i=0;i<24;i++)
-	{
-		if (gameState->board[i].owner == bot.color)
-		{
-			casesPionsBot[j] = i;
-			j++;
-		}
-	}
-	dim = j;
-	
-	
-	
-
-	
-	
-	
-	/*** Permet, si on le peut, de faire bouger 2 pions sur la même case ***/
-	
-	/* Parcours du tableau contenant les indices des cases de nos pions
-	   On va comparer tous les indices entre eux */
-	   
-	if((*nbMove == 0) && (!IsDiceDouble(dices)))
-	{
-
-		for(i=1;i<dim;i++)
-		{
-			for(j=1;j<dim;j++)
-			{
-
-				
-				// Vérification : la dist entre les cases = la dist entre les dés + la case d'arrivée ne doit pas être a l'ennemi OU il ne doit y avoir qu'un seul pion dessus.
-				if(((int)fabs(casesPionsBot[i]-casesPionsBot[j]) == (int)fabs(dice[0]-dice[1])) && (IsMoveRight(min(casesPionsBot[i],casesPionsBot[j]),max(dice[0],dice[1]),gameState)))
-				{
-					*nbMove = 2;
-					moves[0].src_point = min(casesPionsBot[i],casesPionsBot[j])+1;
-					moves[0].dest_point = moves[0].src_point + max(dice[0],dice[1]);
-					
-					moves[1].src_point = max(casesPionsBot[i],casesPionsBot[j])+1;
-					moves[1].dest_point = moves[1].src_point + min(dice[0],dice[1]);
-					printf("Move Safe 2 pions\n");
-					free(dice);
-					return;
-					
-				}
-			}
-		}
-	}
-	
-	
-	
-	/*** QUAND ON A UN DOUBLE : on bouge 2 pions de la même case sur une autre case ***/
-	
-	if((IsDiceDouble(dices)) && (NbDiceLeft(dice,sizeDice)%2 == 0)) 
-	{
-		for(i=1;i<dim;i++)
-		{
-			numCaseInter = 0;
-			if(((gameState->board[casesPionsBot[i]].nbDames == 2) || (gameState->board[casesPionsBot[i]].nbDames > 3)) && (NbDiceLeft(dice,sizeDice) == 4) && (IsMoveRight(casesPionsBot[i],((int)dices[0])*2,gameState)) && (IsMoveRight(casesPionsBot[i],(int)dices[0],gameState)) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
-			{
-
-
-				moves[*nbMove].src_point = casesPionsBot[i] + 1;
-				moves[*nbMove].dest_point = casesPionsBot[i]+dice[0] + 1;
-				*nbMove = *nbMove+1;
-				dice[0] = -1;
-
-				moves[*nbMove].src_point = moves[*nbMove-1].dest_point;
-				moves[*nbMove].dest_point = moves[*nbMove-1].dest_point + dice[1];
-				*nbMove = *nbMove+1;
-				dice[1] = -1;
-				
-				moves[*nbMove].src_point = casesPionsBot[i] + 1;
-				moves[*nbMove].dest_point = casesPionsBot[i]+dice[2] + 1;
-				*nbMove = *nbMove+1;
-				dice[2] = -1;
-
-				moves[*nbMove].src_point = moves[*nbMove-1].dest_point;
-				moves[*nbMove].dest_point = moves[*nbMove-1].dest_point + dice[3];
-				*nbMove = *nbMove+1;
-				dice[3] = -1;
-				
-				free(dice);
-				return;
-				
+			//Etat dans lequel on ramene les pions les plus éloignés en priorité
+			case TRANSITION :
 			
-			}
-			else if(((gameState->board[casesPionsBot[i]].nbDames == 2) || (gameState->board[casesPionsBot[i]].nbDames > 3)) && (NbDiceLeft(dice,sizeDice) == 2) && (IsMoveRight(casesPionsBot[i],(int)dices[0],gameState)) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
-			{
-				moves[*nbMove].src_point = casesPionsBot[i] + 1;
-				moves[*nbMove].dest_point = casesPionsBot[i] + (int)dices[0] + 1;
-				*nbMove = *nbMove+1;
-				
-				moves[*nbMove].src_point = casesPionsBot[i] + 1;
-				moves[*nbMove].dest_point = casesPionsBot[i] + (int)dices[0] + 1;
-				*nbMove = *nbMove+1;
-				
-				free(dice);
-				return;
-			}
-		}
-	}
-	
-	
-	/***** A FAIRE : EN BOUGER UN SUR UNE LONGUE DISTANCE, BETTER *****/
-	
-	for(i=1;i<dim;i++)
-	{
-		nbMoveInter = 0;
-		numCaseInter = 0;
-		if((IsCaseOurs(casesPionsBot[i]+SumDice(dice,sizeDice),gameState)) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
-		{
-			for(j=0;j<sizeDice;j++)
-			{
-				if(IsMoveRight(casesPionsBot[i],dice[j],gameState))
+			
+				//Remplissage tableau contenant les indices des cases sur lesquelles sont présents les pions du bot
+				for(i=0;i<24;i++)
 				{
-					nbMoveInter++;
+					if (gameState->board[i].owner == bot.color)
+					{
+						casesPionsBot[j] = i;
+						j++;
+					}
 				}
-			}
-			if(nbMoveInter == NbDiceLeft(dice,sizeDice))
-			{
+				dim = j;
+				
+				
+				
+				//On bouge l'ancre en priorité
+				
 				for(j=0;j<sizeDice;j++)
 				{
-					if((!IsDiceUsed(dice[j])) && (numCaseInter == 0))
+					if((IsMoveRight(casesPionsBot[0],dice[j],gameState)) && (!IsCaseEmpty(casesPionsBot[0],*nbMove,moves,gameState)))
 					{
-						moves[*nbMove].src_point = casesPionsBot[i] + 1;
-						moves[*nbMove].dest_point = casesPionsBot[i]+dice[j] + 1;
-						numCaseInter = moves[*nbMove].dest_point;
-						*nbMove = *nbMove+1;
-						dice[j] = -1;
-						printf("Longue dist\n");
-						
-					}
-					else if((!IsDiceUsed(dice[j])) && (numCaseInter != 0))
-					{
-						moves[*nbMove].src_point = numCaseInter;
-						moves[*nbMove].dest_point = numCaseInter + dice[j];
-						numCaseInter = moves[*nbMove].dest_point;
-						*nbMove = *nbMove+1;
+						moves[*nbMove].src_point = casesPionsBot[0] + 1;
+						moves[*nbMove].dest_point = casesPionsBot[0] + dice[j] + 1;
+						*nbMove = *nbMove + 1;
 						dice[j] = -1;
 					}
-					if (*nbMove == sizeDice)
+				}
+				
+				if(*nbMove == sizeDice)
+				{
+					free(dice);
+					return;
+				}
+				etatJeu = NORMAL;
+				break;
+				
+				
+				
+				
+			case NORMAL :
+					
+				/***Lorsque l'on est dans le bar (prison) ***/
+				
+				if (gameState->bar[bot.color] != 0)
+				{
+					/* On parcourt */
+					   
+					for(i=0;i<sizeBar;i++)
+					{
+						for(j=0;j<sizeDice;j++)
+						{
+							if(IsMoveRight(0,dice[j],gameState))
+							{
+								moves[*nbMove].src_point = 0;
+								moves[*nbMove].dest_point = moves[0].src_point + dice[j] + 1;
+								*nbMove = *nbMove+1;
+								dice[j] = -1;
+								break;  //On a utilisé le dé courant et le pion courant donc on sort de la boucle pour passer au pion suivant
+							}
+						}
+					}
+					if((*nbMove <= sizeBar) || (*nbMove == sizeDice))
 					{
 						free(dice);
 						return;
 					}
 				}
-			}
+				
+				
+				
+			
+				//Remplissage tableau contenant les indices des cases sur lesquelles sont présents les pions du bot
+				for(i=0;i<24;i++)
+				{
+					if (gameState->board[i].owner == bot.color)
+					{
+						casesPionsBot[j] = i;
+						j++;
+					}
+				}
+				dim = j;
+				
+				
+				
+				
+				/*** Permet, si on le peut, de faire bouger 2 pions sur la même case ***/
+		
+				/* Parcours du tableau contenant les indices des cases de nos pions
+				   On va comparer tous les indices entre eux */
+				   
+				if((*nbMove == 0) && (!IsDiceDouble(dices)))
+				{
+			
+					for(i=1;i<dim;i++)
+					{
+						for(j=1;j<dim;j++)
+						{
+			
+							
+							// Vérification : la dist entre les cases = la dist entre les dés + la case d'arrivée ne doit pas être a l'ennemi OU il ne doit y avoir qu'un seul pion dessus.
+							if(((int)fabs(casesPionsBot[i]-casesPionsBot[j]) == (int)fabs(dice[0]-dice[1])) && (IsMoveRight(min(casesPionsBot[i],casesPionsBot[j]),max(dice[0],dice[1]),gameState)))
+							{
+								*nbMove = 2;
+								moves[0].src_point = min(casesPionsBot[i],casesPionsBot[j])+1;
+								moves[0].dest_point = moves[0].src_point + max(dice[0],dice[1]);
+								
+								moves[1].src_point = max(casesPionsBot[i],casesPionsBot[j])+1;
+								moves[1].dest_point = moves[1].src_point + min(dice[0],dice[1]);
+								printf("Move Safe 2 pions\n");
+								free(dice);
+								return;
+								
+							}
+						}
+					}
+				}
+				
+				
+				
+				/*** QUAND ON A UN DOUBLE : on bouge 2 pions de la même case sur une autre case ***/
+				
+				if((IsDiceDouble(dices)) && (NbDiceLeft(dice,sizeDice)%2 == 0)) 
+				{
+					for(i=1;i<dim;i++)
+					{
+						numCaseInter = 0;
+						if(((gameState->board[casesPionsBot[i]].nbDames == 2) || (gameState->board[casesPionsBot[i]].nbDames > 3)) && (NbDiceLeft(dice,sizeDice) == 4) && (IsMoveRight(casesPionsBot[i],((int)dices[0])*2,gameState)) && (IsMoveRight(casesPionsBot[i],(int)dices[0],gameState)) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
+						{
+			
+			
+							moves[*nbMove].src_point = casesPionsBot[i] + 1;
+							moves[*nbMove].dest_point = casesPionsBot[i]+dice[0] + 1;
+							*nbMove = *nbMove+1;
+							dice[0] = -1;
+			
+							moves[*nbMove].src_point = moves[*nbMove-1].dest_point;
+							moves[*nbMove].dest_point = moves[*nbMove-1].dest_point + dice[1];
+							*nbMove = *nbMove+1;
+							dice[1] = -1;
+							
+							moves[*nbMove].src_point = casesPionsBot[i] + 1;
+							moves[*nbMove].dest_point = casesPionsBot[i]+dice[2] + 1;
+							*nbMove = *nbMove+1;
+							dice[2] = -1;
+			
+							moves[*nbMove].src_point = moves[*nbMove-1].dest_point;
+							moves[*nbMove].dest_point = moves[*nbMove-1].dest_point + dice[3];
+							*nbMove = *nbMove+1;
+							dice[3] = -1;
+							
+							free(dice);
+							return;
+							
+						
+						}
+						else if(((gameState->board[casesPionsBot[i]].nbDames == 2) || (gameState->board[casesPionsBot[i]].nbDames > 3)) && (NbDiceLeft(dice,sizeDice) == 2) && (IsMoveRight(casesPionsBot[i],(int)dices[0],gameState)) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
+						{
+							moves[*nbMove].src_point = casesPionsBot[i] + 1;
+							moves[*nbMove].dest_point = casesPionsBot[i] + (int)dices[0] + 1;
+							*nbMove = *nbMove+1;
+							
+							moves[*nbMove].src_point = casesPionsBot[i] + 1;
+							moves[*nbMove].dest_point = casesPionsBot[i] + (int)dices[0] + 1;
+							*nbMove = *nbMove+1;
+							
+							free(dice);
+							return;
+						}
+					}
+				}
+				
+				
+				/***** A FAIRE : EN BOUGER UN SUR UNE LONGUE DISTANCE, BETTER *****/
+				
+				for(i=1;i<dim;i++)
+				{
+					nbMoveInter = 0;
+					numCaseInter = 0;
+					if((IsCaseOurs(casesPionsBot[i]+SumDice(dice,sizeDice),gameState)) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
+					{
+						for(j=0;j<sizeDice;j++)
+						{
+							if(IsMoveRight(casesPionsBot[i],dice[j],gameState))
+							{
+								nbMoveInter++;
+							}
+						}
+						if(nbMoveInter == NbDiceLeft(dice,sizeDice))
+						{
+							for(j=0;j<sizeDice;j++)
+							{
+								if((!IsDiceUsed(dice[j])) && (numCaseInter == 0))
+								{
+									moves[*nbMove].src_point = casesPionsBot[i] + 1;
+									moves[*nbMove].dest_point = casesPionsBot[i]+dice[j] + 1;
+									numCaseInter = moves[*nbMove].dest_point;
+									*nbMove = *nbMove+1;
+									dice[j] = -1;
+									printf("Longue dist\n");
+									
+								}
+								else if((!IsDiceUsed(dice[j])) && (numCaseInter != 0))
+								{
+									moves[*nbMove].src_point = numCaseInter;
+									moves[*nbMove].dest_point = numCaseInter + dice[j];
+									numCaseInter = moves[*nbMove].dest_point;
+									*nbMove = *nbMove+1;
+									dice[j] = -1;
+								}
+								if (*nbMove == sizeDice)
+								{
+									free(dice);
+									return;
+								}
+							}
+						}
+					}
+				}
+				
+				
+				
+				/*** Mouvement de pions sur une case alliée si on a pas pu faire le coup d'avant ***/
+				
+				for(i=1;i<dim;i++)
+				{
+					for(j=0;j<sizeDice;j++)
+					{
+						if(*nbMove == sizeDice)
+						{
+							free(dice);
+							return;
+						}
+						if((IsCaseOurs(casesPionsBot[i]+dice[j],gameState)) && (!IsDiceUsed(dice[j])) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
+						{
+						moves[*nbMove].src_point = casesPionsBot[i] + 1;
+						moves[*nbMove].dest_point = casesPionsBot[i]+dice[j] + 1;
+						*nbMove = *nbMove+1;
+						dice[j] = -1;
+						printf("Move safe 1 pion\n");
+						}
+					}
+				}
+					
+				
+				
+					/*** Si on a réussi à faire aucun des moves d'avant ou s'il reste des moves à faire, on va bouger le ou les pions les plus éloignés 
+					(en partant de l'avant derniere case de notre couleur pour garder une ancre) sur une case dispo où une case où il n'y a qu'un pion  ***/
+					
+					
+					
+					
+				for(i=1;i<dim;i++)
+				{
+					for(j=0;j<sizeDice;j++)
+					{
+						if(*nbMove == sizeDice)
+						{
+							free(dice);
+							return;
+						}
+						if((IsMoveRight(casesPionsBot[i],dice[j],gameState)) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
+						{
+							moves[*nbMove].src_point = casesPionsBot[i] + 1;
+							moves[*nbMove].dest_point = casesPionsBot[i] + dice[j] + 1;
+							*nbMove = *nbMove + 1;
+							dice[j] = -1;
+							printf("Normal\n");
+						}
+					}
+				}
+				
+				
+				//Mouv de l'ancre si vraiment on ne peut rien faire d'autre
+				for(j=0;j<sizeDice;j++)
+				{
+					if((IsMoveRight(casesPionsBot[0],dice[j],gameState)) && (!IsCaseEmpty(casesPionsBot[0],*nbMove,moves,gameState)))
+					{
+						moves[*nbMove].src_point = casesPionsBot[0] + 1;
+						moves[*nbMove].dest_point = casesPionsBot[0] + dice[j] + 1;
+						*nbMove = *nbMove + 1;
+						dice[j] = -1;
+					}
+				}
+				
+				etatJeu = SORTIE;
+				break;
+				
+				
+				
+			case FIN :
+				
+				
+			
+					
 		}
 	}
+	////////////////////////////////////////////////////////////////////////////////////////
 	
-	
-	
-	/*** Mouvement de pions sur une case alliée si on a pas pu faire le coup d'avant ***/
-	
-	for(i=1;i<dim;i++)
-	{
-		for(j=0;j<sizeDice;j++)
-		{
-			if(*nbMove == sizeDice)
-			{
-				free(dice);
-				return;
-			}
-			if((IsCaseOurs(casesPionsBot[i]+dice[j],gameState)) && (!IsDiceUsed(dice[j])) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
-			{
-			moves[*nbMove].src_point = casesPionsBot[i] + 1;
-			moves[*nbMove].dest_point = casesPionsBot[i]+dice[j] + 1;
-			*nbMove = *nbMove+1;
-			dice[j] = -1;
-			printf("Move safe 1 pion\n");
-			}
-		}
-	}
-		
-	
-	
-		/*** Si on a réussi à faire aucun des moves d'avant ou s'il reste des moves à faire, on va bouger le ou les pions les plus éloignés 
-		(en partant de l'avant derniere case de notre couleur pour garder une ancre) sur une case dispo où une case où il n'y a qu'un pion  ***/
-		
-		
-		
-		
-	for(i=1;i<dim;i++)
-	{
-		for(j=0;j<sizeDice;j++)
-		{
-			if(*nbMove == sizeDice)
-			{
-				free(dice);
-				return;
-			}
-			if((IsMoveRight(casesPionsBot[i],dice[j],gameState)) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
-			{
-				moves[*nbMove].src_point = casesPionsBot[i] + 1;
-				moves[*nbMove].dest_point = casesPionsBot[i] + dice[j] + 1;
-				*nbMove = *nbMove + 1;
-				dice[j] = -1;
-				printf("Normal\n");
-			}
-		}
-	}
-	
-	
-	//Mouv de l'ancre si vraiment on ne peut rien faire d'autre
-	for(j=0;j<sizeDice;j++)
-	{
-		if((IsMoveRight(casesPionsBot[0],dice[j],gameState)) && (!IsCaseEmpty(casesPionsBot[0],*nbMove,moves,gameState)))
-		{
-			moves[*nbMove].src_point = casesPionsBot[0] + 1;
-			moves[*nbMove].dest_point = casesPionsBot[0] + dice[j] + 1;
-			*nbMove = *nbMove + 1;
-			dice[j] = -1;
-		}
-	}
+
 	
 		
 		
@@ -543,6 +611,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 	printf("bot : %d\n",(int)bot.color);
 	
 	printf("PlayTurn\n");
+	return;
 }
 
 
