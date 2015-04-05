@@ -273,7 +273,7 @@ int IsValidRange(const unsigned char dices[2], const SMove moves[4], const unsig
 void ModifPlateau(SGameState * gameState, SMove moves[4], unsigned int *nbMoves, Player player)
 {
     
-    Player enemy;
+    Player enemy = 1 - player;
     int i;
     int x,y;
     
@@ -314,8 +314,8 @@ void ModifPlateau(SGameState * gameState, SMove moves[4], unsigned int *nbMoves,
         }
         
         else if (gameState->board[y-1].owner != player) {
-            enemy = 1 - gameState->board[y-1].owner;
-            gameState->board[y-1].owner = enemy;
+            
+            gameState->board[y-1].owner = player;
             gameState->bar[enemy] = gameState->bar[enemy] + 1;
         }
         printf("Le joueur %d bouge de la case %d à la case %d\n",(int)player,x,y);

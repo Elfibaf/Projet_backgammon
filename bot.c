@@ -204,7 +204,7 @@ int NbDiceLeft(int *dice, int sizeDice)
 Etat DefEtat(const SGameState * const gameState)
 {
 	int i,j;
-	int sum1 = 0, sum2 = 0;
+	int sum1 = 0, sum2 = gameState->out[bot.color];
 
 	for(i=0;i<6;i++)
 	{
@@ -224,14 +224,12 @@ Etat DefEtat(const SGameState * const gameState)
 		if(gameState->board[j].owner == bot.color)
 		{
 			sum2 = sum2 + gameState->board[j].nbDames;
-			printf("\nCase %d\n",j+1);
 			if(sum2 == 15)
 			{
 				return FIN;	
 			}
 		}
 	}
-	printf("Somme : %d\n\n",sum2);
 	return NORMAL;
 }
 
@@ -246,8 +244,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 	int dim;
 	unsigned int sizeDice;
 	unsigned int sizeBar = sizeof(gameState->bar[bot.color])/sizeof(int);
-	int nbMoveInter;
-	int numCaseInter;
+	int nbMoveInter, numCaseInter, sumInter;
 	
 	
 	*nbMove = 0;
@@ -474,11 +471,13 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				{
 					nbMoveInter = 0;
 					numCaseInter = 0;
+					sumInter = 0;
 					if((IsCaseOurs(casesPionsBot[i]+SumDice(dice,sizeDice),gameState)) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
 					{
 						for(j=0;j<sizeDice;j++)
 						{
-							if(IsMoveRight(casesPionsBot[i],dice[j],gameState))
+							sumInter += dice[j];
+							if(IsMoveRight(casesPionsBot[i],sumInter,gameState))
 							{
 								nbMoveInter++;
 							}
@@ -589,9 +588,63 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				
 			case FIN :
 			
-				printf("FIN\n");
 				
 				
+				//Remplissage tableau contenant les indices des cases sur lesquelles sont présents les pions du bot
+				for(i=0;i<24;i++)
+				{
+					if (gameState->board[i].owner == bot.color)
+					{
+						casesPionsBot[j] = i;
+						j++;
+					}
+				}
+				dim = j;
+				
+				
+				for(i=0;i<dim;i++)
+				{
+					printf("Case %d : %d \n",casesPionsBot[i]+1,gameState->board[casesPionsBot[i]].nbDames );
+					for(j=0;j<sizeDice;j++)
+					{
+						if((!IsDiceUsed(dice[j])) && (!IsCaseEmpty(casesPionsBot[i],*nbMove, moves,gameState) && (casesPionsBot[i]+dice[j] == 24)))
+						{
+							moves[*nbMove].src_point = casesPionsBot[i] + 1;
+							moves[*nbMove].dest_point = 25;
+							*nbMove = *nbMove + 1;
+							dice[j] = -1;
+						}
+					}
+				}
+				
+				for(i=dim-1;i>=0;i--)
+				{
+					for(j=0;j<sizeDice;j++)
+					{
+						if((!IsDiceUsed(dice[j])) && (!IsCaseEmpty(casesPionsBot[i],*nbMove, moves,gameState)) && (casesPionsBot[i]+dice[j] <= 24) && (IsMoveRight(casesPionsBot[i],dice[j],gameState)))
+						{
+							moves[*nbMove].src_point = casesPionsBot[i] + 1;
+							moves[*nbMove].dest_point = casesPionsBot[i] + dice[j] + 1;
+							*nbMove = *nbMove + 1;
+							dice[j] = -1;
+						}
+					}
+				}
+				
+				for(i=0;i<dim;i++)
+				{
+					for(j=0;j<sizeDice;j++)
+					{
+						if((!IsDiceUsed(dice[j])) && (!IsCaseEmpty(casesPionsBot[i],*nbMove, moves,gameState) && (casesPionsBot[i]+dice[j] >= 24)))
+						{
+							moves[*nbMove].src_point = casesPionsBot[i] + 1;
+							moves[*nbMove].dest_point = 25;
+							*nbMove = *nbMove + 1;
+							dice[j] = -1;
+						}
+					}
+				}
+				etatJeu = SORTIE;
 				break;
 				
 			
