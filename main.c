@@ -108,18 +108,12 @@ int main(int argc, char *argv[])
 	{
 		return(-1);
 	}
-
-	// Initialisation de la librairie
-	/*
-	faire if pour savoir si c'est un bot ou pas
-	=======> avec argv et argc
-	*/
 	
 	char name[50];
 	j1InitLibrary(name);
 	j1StartMatch(goal);
 
-	SGameState gameState;
+	SGameState gameState, copyGameState;
 	InitPlateau(&gameState); // Initialisation du tableau
 	
 	unsigned char dices[2];
@@ -127,7 +121,7 @@ int main(int argc, char *argv[])
 	unsigned int nbMoves; // Le nombre de coup possibles que peut faire le joueur
 	SMove moves[4]; // Tableau de mouvements
 	
-	unsigned int j1NbTries, j2NbTries; // Initialisation du nombre d'erreurs possibles
+	unsigned int j1NbTries, j2NbTries; // variables pour gérer le nombre d'essais de chaque joueur
 	
     // Tant qu'aucun des joueurs n'a gagné le jeu, on continue à faire des parties
     while( (gameState.whiteScore < goal) && (gameState.blackScore < goal) )
@@ -141,25 +135,56 @@ int main(int argc, char *argv[])
         // Tant que la partie en cours n'est pas fini
         while(1)
         {
-            // Mise à jour du nombre de tour de la partie en cours
-            gameState.turn++;
-
-            // Tour du premier joueur
+            gameState.turn++; // Mise à jour du nombre de tour de la partie en cours
+            
+            // **********************************************************
+            // TOUR DU PREMIER JOUEUR (WHITE)
+            // **********************************************************            
             if(j1DoubleStack(&gameState))
             {
                 j2TakeDouble(&gameState);
             }
+            
             GenerateDices(dices); // Génération des deux dés
-            j1PlayTurn(&gameState, dices, moves, &nbMoves, &j1NbTries);
-            ///////////////////////////////////////////////////////////////////////////IsValid()
-            ModifPlateau(&gameState, moves, &nbMoves, WHITE);
-            if( WinGame(&gameState, WHITE) )
+            
+            j1PlayTurn(&gameState, dices, moves, &nbMoves, &j1NbTries); // Le joueur 1 joue
+            
+            //*****************************************
+            //*****************************************
+            //*****************************************
+            // FAIRE UNE COPIE DE GAMESTATE POUR LA VERIF
+            // ( la je ne sais pas si ca marche, je pense que ca fait deux pointers vers le meme objet )
+            //*****************************************
+            //*****************************************
+            //*****************************************
+            *copyGameState = *gameState;
+            if ( IsValid(&copyGameState, dices, moves[4], nbMoves, WHITE) ) // Vérification des coups
             {
-                gameState.whiteScore++;
-                break;
+            	ModifPlateau(&gameState, moves, &nbMoves, WHITE); // Mise à jour du plateau
+            	
+            	if( WinGame(&gameState, WHITE) ) // On regarde si le joueur à gagner
+		        {
+		            gameState.whiteScore++;
+		            break;
+		        }
             }
+            else // Les coups n'étaient pas valides
+            {
+            	j1NbTries--; // On décremente le nombre d'essais restant
+            	if( j1NbTries == 0 ) // Si le joueur n'a plus d'essais, il perd automatiquement
+            	{
+            		gameState.blackScore++;
+		            break;
+            	}
+            }
+            
+            
 			getchar();
-            /*// Tour du deuxième joueur
+            // **********************************************************
+            // TOUR DU DEUXIEME JOUEUR (BLACK)
+            // **********************************************************
+            
+            /*
             if(j2DoubleStack(&gameState))
             {
                 j1TakeDouble(&gameState);
