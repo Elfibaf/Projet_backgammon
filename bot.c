@@ -110,7 +110,7 @@ int IsMoveRight(int numCaseDep, int dice, const SGameState * const gameState)
 // Vérifie qu'une case est bien de la couleur de l'IA
 int IsCaseOurs(int numCase, const SGameState * const gameState)
 {
-	if (gameState->board[numCase].owner == bot.color)
+	if ((gameState->board[numCase].owner == bot.color) && (numCase < 24) && (numCase >= 0))
 	{
 		return 1;
 	}
@@ -204,27 +204,34 @@ int NbDiceLeft(int *dice, int sizeDice)
 Etat DefEtat(const SGameState * const gameState)
 {
 	int i,j;
-	int sum;
+	int sum1 = 0, sum2 = 0;
 
-	for(i=18;i<24;i++)
+	for(i=0;i<6;i++)
 	{
 		if((gameState->board[i].owner == bot.enemy) && (gameState->board[i].nbDames >= 2))
 		{
-			sum = sum +1;
-			if(sum > 2)
+			sum1 = sum1 +1;
+			if(sum1 > 2)
 			{
 				return TRANSITION;
 			}
 		}
 	}
-	for(j=0;j<6;j++)
+	
+	
+	for(j=18;j<24;j++)
 	{
-		if((gameState->board[j].owner == bot.color) && (gameState->board[j].nbDames == 15))
+		if(gameState->board[j].owner == bot.color)
 		{
-			return FIN;
+			sum2 = sum2 + gameState->board[j].nbDames;
+			printf("\nCase %d\n",j+1);
+			if(sum2 == 15)
+			{
+				return FIN;	
+			}
 		}
 	}
-	
+	printf("Somme : %d\n\n",sum2);
 	return NORMAL;
 }
 
@@ -544,11 +551,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				{
 					for(j=0;j<sizeDice;j++)
 					{
-						if(*nbMove == sizeDice)
-						{
-							free(dice);
-							return;
-						}
+
 						if((IsMoveRight(casesPionsBot[i],dice[j],gameState)) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
 						{
 							moves[*nbMove].src_point = casesPionsBot[i] + 1;
@@ -557,6 +560,12 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 							dice[j] = -1;
 							printf("Normal\n");
 						}
+						if(*nbMove == sizeDice)
+						{
+							free(dice);
+							return;
+						}
+						
 					}
 				}
 				
@@ -579,7 +588,10 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				
 				
 			case FIN :
-				printf("fin");
+			
+				printf("FIN\n");
+				
+				
 				break;
 				
 			
