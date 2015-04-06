@@ -183,11 +183,14 @@ int main(int argc, char *argv[])
             	}
             }*/
             GenerateDices(dices);
+            //dices[0]=1;
+            //dices[1]=4;
             if(j1DoubleStack(&gameState))
             {
                 j2TakeDouble(&gameState);
             }
             j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
+            ModifPlateau(&gameState, moves, nbMoves, WHITE);
             if( WinGame(&gameState, WHITE) )
             {
                 gameState.blackScore++;
