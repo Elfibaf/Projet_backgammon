@@ -206,9 +206,14 @@ Etat DefEtat(const SGameState * const gameState)
 	int i,j;
 	int sum1 = 0, sum2 = gameState->out[bot.color];
 
+	if(gameState->bar[bot.color] != 0)
+	{
+		return(NORMAL);
+	}
+	
 	for(i=0;i<6;i++)
 	{
-		if((gameState->board[i].owner == bot.enemy) && (gameState->board[i].nbDames >= 2))
+		if(((gameState->board[i].owner == bot.enemy) && (gameState->board[i].nbDames >= 2)))
 		{
 			sum1 = sum1 +1;
 			if(sum1 > 2)
@@ -223,13 +228,22 @@ Etat DefEtat(const SGameState * const gameState)
 	{
 		if(gameState->board[j].owner == bot.color)
 		{
+			
 			sum2 = sum2 + gameState->board[j].nbDames;
-			if(sum2 == 15)
-			{
-				return FIN;	
-			}
+			
 		}
 	}
+	
+	if(sum2 == 15)
+	{
+		return FIN;	
+	
+	}
+	else if(sum2 >= 11)
+	{
+		return TRANSITION;
+	}
+	
 	return NORMAL;
 }
 
@@ -293,7 +307,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 			//Etat dans lequel on ramene les pions les plus éloignés en priorité
 			case TRANSITION :
 			
-				printf("Transition\n");
+				printf("\n Etat TRANSITION\n");
 				//Remplissage tableau contenant les indices des cases sur lesquelles sont présents les pions du bot
 				for(i=0;i<24;i++)
 				{
@@ -309,6 +323,55 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				
 				//On bouge l'ancre en priorité
 				
+				nbMoveInter = 0;
+				numCaseInter = 0;
+				sumInter = 0;
+				if((IsMoveRight(casesPionsBot[0],SumDice(dice,sizeDice),gameState)) && (!IsCaseEmpty(casesPionsBot[0],*nbMove,moves,gameState)))
+				{
+					for(j=0;j<sizeDice;j++)
+					{
+						if(!IsDiceUsed(dice[j]))
+						{
+							sumInter += dice[j];
+						}
+							
+						if(IsMoveRight(casesPionsBot[0],sumInter,gameState))
+						{
+							nbMoveInter++;
+						}
+					}
+					if(nbMoveInter == NbDiceLeft(dice,sizeDice))
+					{
+						for(j=0;j<sizeDice;j++)
+						{
+							if((!IsDiceUsed(dice[j])) && (numCaseInter == 0))
+							{
+								moves[*nbMove].src_point = casesPionsBot[0] + 1;
+								moves[*nbMove].dest_point = casesPionsBot[0]+dice[j] + 1;
+								numCaseInter = moves[*nbMove].dest_point;
+								*nbMove = *nbMove+1;
+								dice[j] = -1;
+								printf("Longue dist move 1\n");
+								
+							}
+							else if((!IsDiceUsed(dice[j])) && (numCaseInter != 0))
+							{
+								moves[*nbMove].src_point = numCaseInter;
+								moves[*nbMove].dest_point = numCaseInter + dice[j];
+								numCaseInter = moves[*nbMove].dest_point;
+								*nbMove = *nbMove+1;
+								dice[j] = -1;
+								printf("Longue dist move 2\n");
+							}
+							if (*nbMove == sizeDice)
+							{
+								free(dice);
+								return;
+							}
+						}
+					}
+				}
+				
 				for(j=0;j<sizeDice;j++)
 				{
 					if((IsMoveRight(casesPionsBot[0],dice[j],gameState)) && (!IsCaseEmpty(casesPionsBot[0],*nbMove,moves,gameState)))
@@ -317,6 +380,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 						moves[*nbMove].dest_point = casesPionsBot[0] + dice[j] + 1;
 						*nbMove = *nbMove + 1;
 						dice[j] = -1;
+						printf("Move ancre\n");
 					}
 				}
 				
@@ -334,6 +398,9 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 			case NORMAL :
 					
 				/***Lorsque l'on est dans le bar (prison) ***/
+				
+				
+				printf("\nEtat NORMAL\n");
 				
 				if (gameState->bar[bot.color] != 0)
 				{
@@ -476,7 +543,11 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 					{
 						for(j=0;j<sizeDice;j++)
 						{
-							sumInter += dice[j];
+							if(IsDiceUsed(dice[j]))
+							{
+								sumInter += dice[j];
+							}
+							
 							if(IsMoveRight(casesPionsBot[i],sumInter,gameState))
 							{
 								nbMoveInter++;
@@ -522,11 +593,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				{
 					for(j=0;j<sizeDice;j++)
 					{
-						if(*nbMove == sizeDice)
-						{
-							free(dice);
-							return;
-						}
+
 						if((IsCaseOurs(casesPionsBot[i]+dice[j],gameState)) && (!IsDiceUsed(dice[j])) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
 						{
 						moves[*nbMove].src_point = casesPionsBot[i] + 1;
@@ -534,6 +601,12 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 						*nbMove = *nbMove+1;
 						dice[j] = -1;
 						printf("Move safe 1 pion\n");
+						}
+						
+						if(*nbMove == sizeDice)
+						{
+							free(dice);
+							return;
 						}
 					}
 				}
@@ -588,7 +661,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				
 			case FIN :
 			
-				
+				printf("\n Etat FIN\n");
 				
 				//Remplissage tableau contenant les indices des cases sur lesquelles sont présents les pions du bot
 				for(i=0;i<24;i++)
@@ -644,6 +717,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 						}
 					}
 				}
+				
 				etatJeu = SORTIE;
 				break;
 				
