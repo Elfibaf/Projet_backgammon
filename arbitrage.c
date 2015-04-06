@@ -98,12 +98,17 @@ void GenerateDices(unsigned char dices[2])
 //
 // Retourne 0 si le tour n'est pas valide, 1 sinon
 // ****************************************************************************************************
-int IsValid(const SGameState * const gameState, const unsigned char dices[2], const SMove moves[4], const unsigned int nbMoves, const Player player)
+int IsValid(SGameState * gameState, const unsigned char dices[2], const SMove moves[4], const unsigned int nbMoves, const Player player)
 {
-	unsigned int i, nbMovesMax;
-	nbMovesMax = (dices[0] == dices[1]) ? 4 : 2; // est égale à 4 si les deux dés sont égaux, 2 sinon	
+	Player ennemi = (1 - player); // Pour connaitre la couleur de l'ennemi
+	unsigned int i, nbMovesTheoretic;
+	nbMovesTheoretic = (dices[0] == dices[1]) ? 4 : 2; // est égale à 4 si les deux dés sont égaux, 2 sinon
 	
-	if (nbMoves > nbMovesMax)
+	// Attribut pour la mise à jour de la copie plateau
+	SMove copyMoves[4];
+	
+	
+	if (nbMoves > nbMovesTheoretic)
 	{
 		// Si le joueur propose un nombre de mouvement supérieur au nombre maximum (théorique) de mouvement possible ( => non valide )
 		return 0;
@@ -112,67 +117,98 @@ int IsValid(const SGameState * const gameState, const unsigned char dices[2], co
 	{
 		if ( !(IsInBoardBarOut(moves, nbMoves)) )
 		{
-			// Si au moins un des attributs du mouvement (src ou dest) n'est pas valide ( => non valide)
+			// Si au moins un des attributs du mouvement (src ou dest) n'est pas valide ( ##### NOK ##### )
 			return 0;
 		}
 		if ( !(IsValidDistance(dices, moves, nbMoves)) )
 		{
-			// Si au moins un des mouvements ne respecte pas le résultat d'un dé ( => non valide )
+			// Si au moins un des mouvements ne respecte pas le résultat d'un dé ( ##### NOK ##### )
 			return 0;
 		}
 		
 		
-		if (nbMoves == nbMovesMax) // Si le joueur propose un nombre de mouvement égal au nombre maximum (théorique) de mouvement possible
+		if (nbMoves == nbMovesTheoretic)
 		{
-		
+			// Si le joueur propose un nombre de mouvement égal au nombre maximum (théorique) de mouvement possible
 			for (i = 0; i < nbMoves; i++)
 			{
 				if (gameState->bar[player] != 0) // Si le "bar" n'est pas vide, il faut jouer une dame du "bar"
 				{
-					if (moves[i].src_point != 0) // Si le joueur veut bouger un pion qui n'est pas dans le "bar" ( => non valide )
+					if (moves[i].src_point != 0)
 					{
+						// Si le joueur veut bouger un pion qui n'est pas dans le "bar" ( ##### NOK ##### )
 						return 0;
 					}
 					else
 					{
-						if ((gameState->board[moves[i].dest_point-1].owner == ennemi) && (gameState->board[moves[i].dest_point-1].nbDames > 1))
+						if ( (gameState->board[moves[i].dest_point-1].owner == ennemi)
+						&& (gameState->board[moves[i].dest_point-1].nbDames > 1) )
 						{
-							// Le mouvement fait que la dame tombe sur une case ennemi avec plus de deux dames ( => non valide )
+							// Le mouvement fait que la dame tombe sur une case ennemi avec plus de deux dames ( ##### NOK ##### )
 							return 0;
+						}
+						else
+						{
+							// Le mouvement est valide ( !!!!!! OK !!!!!! )
+							copyMoves[i].src_point = moves[i].src_point;
+							copyMoves[i].dest_point = moves[i].dest_point;
+							ModifPlateau(gameState, copyMoves, 1, player);
 						}
 					}	
 				}
 				else // Si le bar est vide
 				{
-					if (moves[i].src_point == 0) // Si la source du mouvement est le "bar" ( => non valide )
+					if (moves[i].src_point == 0)
 					{
+						// Si la source du mouvement est le "bar" ( ##### NOK ##### )
 						return 0;
 					}
 					else // Si la source du mouvement est dans le "board"
 					{
-						if ((gameState->board[moves[i].dest_point-1].owner == ennemi) && (gameState->board[moves[i].dest_point-1].nbDames > 1))
+						if ( (gameState->board[moves[i].dest_point-1].owner == ennemi)
+						&& (gameState->board[moves[i].dest_point-1].nbDames > 1) )
 						{
-							// Le mouvement fait que la dame tombe sur une case ennemi avec plus de deux dames ( => non valide )
+							// Le mouvement fait que la dame tombe sur une case ennemi avec plus de deux dames ( ##### NOK ##### )
 							return 0;
 						}
-					}	
+						else
+						{
+							if (moves[i].dest_point == 25) // Si le joueur veut sortir un pion
+							{
+								// Il faut vérifier que toutes ses dames sont dans les 6 dernieres cases du plateau
+								unsigned int numSquare; // pour connaitre le numéro de la case du plateau en cours
+								for (numSquare = 0; numSquare < 24; numSquare++)
+								{
+									if ( (gameState->board[numSquare].owner == player)
+									&& ( (numSquare >= 18) || (numSquare <= 23) ) )
+									{
+										// Le mouvement est valide ( !!!!!! OK !!!!!! )
+										copyMoves[i].src_point = moves[i].src_point;
+										copyMoves[i].dest_point = moves[i].dest_point;
+										ModifPlateau(gameState, copyMoves, 1, player);
+									}
+								}
+							}
+							else // Le joueur veut déplacer son pion dans une case du "board"
+							{
+								// Le mouvement est valide ( !!!!!! OK !!!!!! )
+								copyMoves[i].src_point = moves[i].src_point;
+								copyMoves[i].dest_point = moves[i].dest_point;
+								ModifPlateau(gameState, copyMoves, 1, player);
+							}
+						}
+					}
 				}
 			}
 		}
 		else // Si le joueur propose un nombre de mouvement inférieur au nombre maximum (théorique) de mouvement possible 
 		{
-			unsigned int i, nbMovesTheoretic;
+			// ******************************************************************************************
+			// On commence d'abord par vérifier qu'il a fait le plus grand nombre de mouvements possibles
+			// ******************************************************************************************
+			unsigned int i;
 			char *tabDices = NULL; // Tableau pour générer les dés qu'on pourra utiliser
 			char *dicesUsed = NULL; // Permet de retenir les dés qui ont déjà été pris en compte (1 pris en compte, 0 sinon)
-			
-			if (dices[0] == dices[1])
-			{
-				nbMovesTheoretic = 4;
-			}
-			else
-			{
-				nbMovesTheoretic = 2;
-			}
 			
 			// On réserve de la place pour seulement nbMovesTheoretic valeurs
 			tabDices = (char*)malloc(nbMovesTheoretic * sizeof(char));
@@ -196,12 +232,97 @@ int IsValid(const SGameState * const gameState, const unsigned char dices[2], co
 				dicesUsed[i] = 0;
 			}
 			
+			// On cherche le plus grand nombre de mouvements possibles
 			
-
+			unsigned int nbMovesMax;
+			nbMovesMax = getMaxNumberPossibleMoves(gameState, nbMovesTheoretic, tabDices, dicesUsed, player);
 			
+			// ******************************************************************************************
+			// Puis on vérifie la validité de chacun de ses coups
+			// ******************************************************************************************
 			
+			if (nbMoves == nbMovesMax) // Le joueur a proposé une solution ayant un nombre de mouvements maximal
+			{
+				for (i = 0; i < nbMoves; i++)
+				{
+					if (gameState->bar[player] != 0) // Si le "bar" n'est pas vide, il faut jouer une dame du "bar"
+					{
+						if (moves[i].src_point != 0)
+						{
+							// Si le joueur veut bouger un pion qui n'est pas dans le "bar" ( ##### NOK ##### )
+							return 0;
+						}
+						else
+						{
+							if ( (gameState->board[moves[i].dest_point-1].owner == ennemi)
+							&& (gameState->board[moves[i].dest_point-1].nbDames > 1) )
+							{
+								// Le mouvement fait que la dame tombe sur une case ennemi avec plus de deux dames ( ##### NOK ##### )
+								return 0;
+							}
+							else
+							{
+								// Le mouvement est valide ( !!!!!! OK !!!!!! )
+								copyMoves[i].src_point = moves[i].src_point;
+								copyMoves[i].dest_point = moves[i].dest_point;
+								ModifPlateau(gameState, copyMoves, 1, player);
+							}
+						}	
+					}
+					else // Si le bar est vide
+					{
+						if (moves[i].src_point == 0)
+						{
+							// Si la source du mouvement est le "bar" ( ##### NOK ##### )
+							return 0;
+						}
+						else // Si la source du mouvement est dans le "board"
+						{
+							if ( (gameState->board[moves[i].dest_point-1].owner == ennemi)
+							&& (gameState->board[moves[i].dest_point-1].nbDames > 1) )
+							{
+								// Le mouvement fait que la dame tombe sur une case ennemi avec plus de deux dames ( ##### NOK ##### )
+								return 0;
+							}
+							else
+							{
+								if (moves[i].dest_point == 25) // Si le joueur veut sortir un pion
+								{
+									// Il faut vérifier que toutes ses dames sont dans les 6 dernieres cases du plateau
+									unsigned int numSquare; // pour connaitre le numéro de la case du plateau en cours
+									for (numSquare = 0; numSquare < 24; numSquare++)
+									{
+										if ( (gameState->board[numSquare].owner == player)
+										&& ( (numSquare >= 18) || (numSquare <= 23) ) )
+										{
+											// Le mouvement est valide ( !!!!!! OK !!!!!! )
+											copyMoves[i].src_point = moves[i].src_point;
+											copyMoves[i].dest_point = moves[i].dest_point;
+											ModifPlateau(gameState, copyMoves, 1, player);
+										}
+									}
+								}
+								else // Le joueur veut déplacer son pion dans une case du "board"
+								{
+									// Le mouvement est valide ( !!!!!! OK !!!!!! )
+									copyMoves[i].src_point = moves[i].src_point;
+									copyMoves[i].dest_point = moves[i].dest_point;
+									ModifPlateau(gameState, copyMoves, 1, player);
+								}
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				// Le joueur aura pu faire mieux ( ##### NOK ##### )
+				return 0;
+			}			
 		}
 	}
+	
+	return 1; // On est passé dans aucun des cas invalide, les mouvements sont donc bons
 }
 
 
@@ -220,11 +341,8 @@ int IsInBoardBarOut(const SMove moves[4], const unsigned int nbMoves)
 		{
 			return 0;
 		}
-		else
-		{
-			return 1;
-		}
 	}
+	return 1;
 }
 
 
@@ -309,14 +427,13 @@ int IsValidDistance(const unsigned char dices[2], const SMove moves[4], const un
 //
 // Renvoit le nombre maximum de mouvements qu'il est possible de faire
 // ****************************************************************************************************
-int getMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMovesTheoretic, const unsigned char * tabDices, unsigned char * dicesUsed, const Player player)
+int GetMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMovesTheoretic, const unsigned char * tabDices, unsigned char * dicesUsed, const Player player)
 {
-	Player ennemi = (1 - player) // Pour connaitre la couleur de l'ennemi
+	Player ennemi = (1 - player); // Pour connaitre la couleur de l'ennemi
 	unsigned int numDice; // pour connaitre le numéro du dé en cours
 	
 	// Attributs pour la mise à jour de la copie du plateau
-	SMoves moves[4];
-	unsigned int nbMoves;
+	SMove moves[4];
 	
 	if (gameState->bar[player] != 0) // Si le bar n'est pas vide
 	{
@@ -334,7 +451,7 @@ int getMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMoves
 				{
 					moves[0].src_point = 0;
 					moves[0].dest_point = tabDices[numDice];
-					ModifPlateau(gameState, moves, nbMoves, player);
+					ModifPlateau(gameState, moves, 1, player);
 					
 					dicesUsed[numDice] = 1; // On retient lequel des dés a été joué
 					return (1 + getMaxNumberPossibleMoves(gameState, nbMovesTheoretic, tabDices, dicesUsed, player));
@@ -354,7 +471,7 @@ int getMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMoves
 				{
 					moves[0].src_point = 0;
 					moves[0].dest_point = tabDices[numDice];
-					ModifPlateau(gameState, moves, nbMoves, player);
+					ModifPlateau(gameState, moves, 1, player);
 					
 					dicesUsed[numDice] = 1; // On retient lequel des dés a été joué
 					return (1 + getMaxNumberPossibleMoves(gameState, nbMovesTheoretic, tabDices, dicesUsed, player));
@@ -381,12 +498,16 @@ int getMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMoves
 					{
 						moves[0].src_point = numSquare+1;
 						moves[0].dest_point = numSquare+1+numDice;
-						ModifPlateau(gameState, moves, nbMoves, player);
+						ModifPlateau(gameState, moves, 1, player);
 					
 						dicesUsed[numDice] = 1; // On retient lequel des dés a été joué
 						return (1 + getMaxNumberPossibleMoves(gameState, nbMovesTheoretic, tabDices, dicesUsed, player));
 					}
 				}
+			}
+			else
+			{
+				return 0;
 			}
 		}
 	}
@@ -396,14 +517,14 @@ int getMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMoves
 // ****************************************************************************************************
 // Fonction qui permet de mettre à jour le tableau
 // ****************************************************************************************************
-void ModifPlateau(SGameState * gameState, SMove moves[4], unsigned int *nbMoves, Player player)
+void ModifPlateau(SGameState * gameState, SMove moves[4], unsigned int nbMoves, Player player)
 {
     
     Player enemy = 1 - player;
     int i;
     int x,y;
     
-    for (i = 0; i < *nbMoves; i++)
+    for (i = 0; i < nbMoves; i++)
     {
         
         x = moves[i].src_point;

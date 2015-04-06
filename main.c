@@ -147,20 +147,15 @@ int main(int argc, char *argv[])
             
             GenerateDices(dices); // Génération des deux dés
             
-            j1PlayTurn(&gameState, dices, moves, &nbMoves, &j1NbTries); // Le joueur 1 joue
+            copyGameState = gameState;
             
-            //*****************************************
-            //*****************************************
-            //*****************************************
-            // FAIRE UNE COPIE DE GAMESTATE POUR LA VERIF
-            // ( la je ne sais pas si ca marche, je pense que ca fait deux pointers vers le meme objet )
-            //*****************************************
-            //*****************************************
-            //*****************************************
-            *copyGameState = *gameState;
-            if ( IsValid(&copyGameState, dices, moves[4], nbMoves, WHITE) ) // Vérification des coups
+            j1PlayTurn(&copyGameState, dices, moves, &nbMoves, j1NbTries); // Le joueur 1 joue
+            
+            copyGameState = gameState; // Re-copie pour envoyer une copie du tableau avant de valider les changements (si valide)
+            
+            if ( IsValid(&copyGameState, dices, moves, nbMoves, WHITE) ) // Vérification des coups
             {
-            	ModifPlateau(&gameState, moves, &nbMoves, WHITE); // Mise à jour du plateau
+            	ModifPlateau(&gameState, moves, nbMoves, WHITE); // Mise à jour du plateau
             	
             	if( WinGame(&gameState, WHITE) ) // On regarde si le joueur à gagner
 		        {
