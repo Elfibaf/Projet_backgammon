@@ -91,7 +91,7 @@ void GenerateDices(unsigned char dices[2])
 // - Si le joueur propose un nombre de mouvement supérieur au nombre maximum (théorique) de mouvement possible
 //		=> ce n'est pas valide
 // - Si le joueur propose un nombre de mouvement égal au nombre maximum (théorique) de mouvement possible
-//		=> on vérifie que chaque mouvement est valide
+//		=> on vérifie la validité de chacun de ses coups
 // - Si le joueur propose un nombre de mouvement inférieur au nombre maximum (théorique) de mouvement possible
 //		=> on vérifie que le joueur ne pouvait pas faire une plus grande suite de mouvements
 //		=> puis on vérifie la validité de chacun de ses coups
@@ -161,6 +161,44 @@ int IsValid(const SGameState * const gameState, const unsigned char dices[2], co
 		}
 		else // Si le joueur propose un nombre de mouvement inférieur au nombre maximum (théorique) de mouvement possible 
 		{
+			unsigned int i, nbMovesTheoretic;
+			char *tabDices = NULL; // Tableau pour générer les dés qu'on pourra utiliser
+			char *dicesUsed = NULL; // Permet de retenir les dés qui ont déjà été pris en compte (1 pris en compte, 0 sinon)
+			
+			if (dices[0] == dices[1])
+			{
+				nbMovesTheoretic = 4;
+			}
+			else
+			{
+				nbMovesTheoretic = 2;
+			}
+			
+			// On réserve de la place pour seulement nbMovesTheoretic valeurs
+			tabDices = (char*)malloc(nbMovesTheoretic * sizeof(char));
+			dicesUsed = (char*)malloc(nbMovesTheoretic * sizeof(char));
+			if ( (tabDices == NULL) || (dicesUsed == NULL) )
+			{
+				exit(0);
+			}
+	
+			// On remplit tabDices avec les valeurs de chaque dés
+			for (i = 0; i < nbMovesTheoretic; i++)
+			{
+				if (nbMovesTheoretic == 4)
+				{
+					tabDices[i] = dices[0]; // On remplit 4 fois avec la meme valeur (on double car les dés sont égaux)s
+				}
+				else
+				{
+					tabDices[i] = dices[i];
+				}
+				dicesUsed[i] = 0;
+			}
+			
+			
+
+			
 			
 		}
 	}
@@ -271,105 +309,87 @@ int IsValidDistance(const unsigned char dices[2], const SMove moves[4], const un
 //
 // Renvoit le nombre maximum de mouvements qu'il est possible de faire
 // ****************************************************************************************************
-int getMaxNumberPossibleMoves(const SGameState * const gameState, const unsigned char dices[2], const Player player)
+int getMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMovesTheoretic, const unsigned char * tabDices, unsigned char * dicesUsed, const Player player)
 {
-	unsigned int i, nbMovesTheoretic;
-	int *tabDices = NULL; // Tableau pour générer les dés qu'on pourra utiliser
-	int *dicesUsed = NULL; // Permet de retenir les dés qui ont déjà été pris en compte (1 pris en compte, 0 sinon)
+	Player ennemi = (1 - player) // Pour connaitre la couleur de l'ennemi
+	unsigned int numDice; // pour connaitre le numéro du dé en cours
 	
-	if (dices[0] == dices[1])
+	// Attributs pour la mise à jour de la copie du plateau
+	SMoves moves[4];
+	unsigned int nbMoves;
+	
+	if (gameState->bar[player] != 0) // Si le bar n'est pas vide
 	{
-		nbMovesTheoretic = 4;
-		// On réserve la place pour chaque mouvement possibles (ici 4 car les deux dés sont égaux)
-		tabDices = (int*)malloc(nbMovesTheoretic * sizeof(int));
-		dicesUsed = (int*)malloc(nbMovesTheoretic * sizeof(int));
-		if ( (tabDices == NULL) || (dicesUsed == NULL) )
+		if (nbMovesTheoretic == 4)
 		{
-			exit(0);
-		}
-		
-		// On remplit tabDices avec les memes valeurs (car les dés sont égaux)
-		for (i = 0; i < nbMovesTheoretic; i++)
-		{
-			tabDices[i] = dices[0];
-			dicesUsed[i] = 0;
-		}
-	}
-	else
-	{
-		nbMovesTheoretic = 2;
-		// On réserve de la place pour seulement 2 valeurs (les valeurs des deux dés)
-		tabDices = (int*)malloc(nbMovesTheoretic * sizeof(int));
-		dicesUsed = (int*)malloc(nbMovesTheoretic * sizeof(int));
-		if ( (tabDices == NULL) || (dicesUsed == NULL) )
-		{
-			exit(0);
-		}
-		
-		// On remplit tabDices avec les valeurs de chaque dés (car les dés ne sont pas égaux)
-		for (i = 0; i < nbMovesTheoretic; i++)
-		{
-			tabDices[i] = dices[i];
-			dicesUsed[i] = 0;
-		}
-	}
-	
-	
-	unsigned int ennemi, nbMovesMax =0;
-	ennemi = (player == WHITE) ? BLACK : WHITE; // Pour connaitre la couleur de l'ennemi (BLACK si le joueur est WHITE, et inversement)	
-	
-	// ###################################################
-	// ###################################################
-	// ###################################################
-	// ###################################################
-	// Je suis arrivé ici, le code qui suit est une ébauche
-	// Il faut que je trouve un algo qui permet de chercher toutes les facons possibles d'utiliser les dés
-	// et qui retient à chaque appel (si récursif) / tour de boucle (si je peux faire en itératif)
-	// le nombre maximum de mouvements qu'il est possible de faire
-	// cette fonction sera utilisée dans la fonction IsValide(....) afin de savoir si le joueur aura pu jouer
-	// d'une autre facon et utiliser faire plus de mouvements
-	// (il est obligé de jouer de telle facon qu'il joue le plus de mouvements possibles)
-	// ###################################################
-	// ###################################################
-	// ###################################################
-	// ###################################################
-	
-	
-	
-	// On cherche toutes les solutions
-	int j, k;
-	for( j = 0; j < nbMovesTheoretic; j++ ) // On boucle tant que le nombre maximal théorique de mouvement n'est pas atteint
-	{
-		if (gameState->bar[player] != 0) // Si le bar n'est pas vide
-		{
-			for (k = 0; k < nbMovesMax; k++)
+			// Il faut d'abord vérifier pour 1 dé (les 4 dés ayant la meme valeur)
+			if ( (gameState->board[tabDices[0]-1].owner == ennemi) && (gameState->board[tabDices[0]-1].nbDames > 1) )
 			{
-				if (dicesUsed[k] == 0) // Si on trouve un dé qui n'a pas déjà été utilisé
+				// Si aucune dame ne peut être sortie du bar
+				return 0;
+			}
+			else
+			{
+				for (numDice = 0; numDice < nbMovesTheoretic; numDice++) // Pour chacun des dés
 				{
-					// Si aucune dame ne peut être sortie du bar
-					if ( (gameState->board[tabDices[k]-1].owner == ennemi) && (gameState->board[tabDices[k]-1].nbDames > 1) )
+					moves[0].src_point = 0;
+					moves[0].dest_point = tabDices[numDice];
+					ModifPlateau(gameState, moves, nbMoves, player);
+					
+					dicesUsed[numDice] = 1; // On retient lequel des dés a été joué
+					return (1 + getMaxNumberPossibleMoves(gameState, nbMovesTheoretic, tabDices, dicesUsed, player));
+				}
+			}
+		}
+		else // Si on peut faire que 2 mouvements maximum (théorique)
+		{
+			for (numDice = 0; numDice < nbMovesTheoretic; numDice++) // Pour chacun des dés
+			{
+				if ( (gameState->board[tabDices[numDice]-1].owner == ennemi) && (gameState->board[tabDices[numDice]-1].nbDames > 1) )
+				{
+					// Si la dame ne peut être sortie du bar
+					return 0;
+				}
+				else
+				{
+					moves[0].src_point = 0;
+					moves[0].dest_point = tabDices[numDice];
+					ModifPlateau(gameState, moves, nbMoves, player);
+					
+					dicesUsed[numDice] = 1; // On retient lequel des dés a été joué
+					return (1 + getMaxNumberPossibleMoves(gameState, nbMovesTheoretic, tabDices, dicesUsed, player));
+				}
+			}
+		}
+	}
+	else // Si le bar est vide
+	{
+		unsigned int numSquare; // pour connaitre le numéro de la case du plateau en cours
+		for (numSquare = 0; numSquare < 24; numSquare++)
+		{
+			if (gameState->board[numSquare].owner == player)
+			{
+				for (numDice = 0; numDice < nbMovesTheoretic; numDice++) // Pour chacun des dés
+				{
+					if ( (gameState->board[tabDices[numDice]+numSquare].owner == ennemi)
+					&& (gameState->board[tabDices[numDice]+numSquare].nbDames > 1) )
 					{
+						// Si la dame ne peut pas bouger, car la case est occupée par au moins 2 dames ennemies
 						return 0;
 					}
 					else
 					{
+						moves[0].src_point = numSquare+1;
+						moves[0].dest_point = numSquare+1+numDice;
+						ModifPlateau(gameState, moves, nbMoves, player);
 					
+						dicesUsed[numDice] = 1; // On retient lequel des dés a été joué
+						return (1 + getMaxNumberPossibleMoves(gameState, nbMovesTheoretic, tabDices, dicesUsed, player));
 					}
 				}
 			}
 		}
-		else // Si le bar est vide
-		{
-			for (k = 0; k < 24; k ++) // On parcout tout le plateau
-			{
-				if (gameState->board[k].owner == player)
-				{
-					
-				}
-			}
-		}	
 	}
-    return 0;
 }
 
 
