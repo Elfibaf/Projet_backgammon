@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 		return(-1);
 	}
 
-	if( ((j1InitLibrary=(pfInitLibrary)dlsym(lib,"InitLibrary")) == NULL)
+	if ( ((j1InitLibrary=(pfInitLibrary)dlsym(lib,"InitLibrary")) == NULL)
 	|| ((j1StartMatch=(pfStartMatch)dlsym(lib,"StartMatch")) == NULL)
 	|| ((j1StartGame=(pfStartGame)dlsym(lib,"StartGame")) == NULL)
 	|| ((j1EndGame=(pfEndGame)dlsym(lib,"EndGame")) == NULL)
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
 		return(-1);
 	}
 
-	if( ((j2InitLibrary=(pfInitLibrary)dlsym(lib2,"InitLibrary")) == NULL)
+	if ( ((j2InitLibrary=(pfInitLibrary)dlsym(lib2,"InitLibrary")) == NULL)
 	|| ((j2StartMatch=(pfStartMatch)dlsym(lib2,"StartMatch")) == NULL)
 	|| ((j2StartGame=(pfStartGame)dlsym(lib2,"StartGame")) == NULL)
 	|| ((j2EndGame=(pfEndGame)dlsym(lib2,"EndGame")) == NULL)
@@ -109,94 +109,133 @@ int main(int argc, char *argv[])
 		return(-1);
 	}
 	
-	char name[50];
-	j1InitLibrary(name);
+	char name1[50];
+	j1InitLibrary(name1);
 	j1StartMatch(goal);
+	
+	char name2[50];
+	j2InitLibrary(name2);
+	j2StartMatch(goal);
 
 	SGameState gameState, copyGameState;
 	InitPlateau(&gameState); // Initialisation du tableau
 	
 	unsigned char dices[2];
 
-	unsigned int nbMoves; // Le nombre de coup possibles que peut faire le joueur
-	SMove moves[4]; // Tableau de mouvements
+	unsigned int nbMoves;
+	SMove moves[4];
 	
 	unsigned int j1NbTries, j2NbTries; // variables pour gérer le nombre d'essais de chaque joueur
 	
-    // Tant qu'aucun des joueurs n'a gagné le jeu, on continue à faire des parties
-    while( (gameState.whiteScore < goal) && (gameState.blackScore < goal) )
+	
+    while ( (gameState.whiteScore < goal) && (gameState.blackScore < goal) ) // Tant qu'aucun des joueurs n'a gagné le jeu
     {
-        j1StartGame(WHITE);
-		j1NbTries = J1_NB_TRIES;
-		
+    	j1StartGame(WHITE);
 		j2StartGame(BLACK);
-		j2NbTries = J2_NB_TRIES;
 		
-        // Tant que la partie en cours n'est pas fini
-        while(1)
+		Player player;
+    	if (gameState.turn == 0)
+    	{
+    		// Pour savoir qui commence, on lance deux dés, si le premier est plus petit que le deuxième,
+    		// le joueur 1 est le WHITE
+    		// sinon c'est le joueur 2
+    		do
+    		{
+    			GenerateDices(dices); // Génération des deux dés
+    			if (dices[0] < dices[1])
+    			{
+    				player = WHITE;
+    			}
+    			else
+    			{
+    				player = BLACK;
+    			}
+    		} while (dices[0] == dices[1]);
+    		
+    		// On détermine le nombre d'essais possibles
+    		j1NbTries = J1_NB_TRIES;
+    		j2NbTries = J2_NB_TRIES;
+    	}
+		
+        while ( ! WinGame(&gameState, player) ) // Tant que la partie en cours n'est pas fini
         {
-            gameState.turn++; // Mise à jour du nombre de tour de la partie en cours
-            
-            // **********************************************************
-            // TOUR DU PREMIER JOUEUR (WHITE)
-            // **********************************************************            
-            if(j1DoubleStack(&gameState))
-            {
-                j2TakeDouble(&gameState);
-            }
-            
-            GenerateDices(dices); // Génération des deux dés
-            
-            copyGameState = gameState;
-            
-            j1PlayTurn(&copyGameState, dices, moves, &nbMoves, j1NbTries); // Le joueur 1 joue
-            
-            copyGameState = gameState; // Re-copie pour envoyer une copie du tableau avant de valider les changements (si valide)
-            
-            if ( IsValid(&copyGameState, dices, moves, nbMoves, WHITE) ) // Vérification des coups
-            {
-            	ModifPlateau(&gameState, moves, nbMoves, WHITE); // Mise à jour du plateau
-            	
-            	if( WinGame(&gameState, WHITE) ) // On regarde si le joueur à gagner
+        	if (player == WHITE)
+        	{
+        	
+        	}
+        	gameState.turn++; // Mise à jour du nombre de tour de la partie en cours
+        	GenerateDices(dices); // Génération des deux dés
+        	
+        	if (player == WHITE)
+        	{
+        		if (j1DoubleStack(&gameState))
 		        {
-		            gameState.whiteScore++;
-		            break;
+		            j2TakeDouble(&gameState);
 		        }
-            }
-            else // Les coups n'étaient pas valides
-            {
-            	j1NbTries--; // On décremente le nombre d'essais restant
-            	if( j1NbTries == 0 ) // Si le joueur n'a plus d'essais, il perd automatiquement
-            	{
-            		gameState.blackScore++;
-		            break;
-            	}
-            }
+		        
+		        copyGameState = gameState;
+		        j1PlayTurn(&copyGameState, dices, moves, &nbMoves, j1NbTries);
+		        
+		        copyGameState = gameState; // Re-copie pour envoyer une copie du tableau avant de valider les changements (si valide)
+		        
+		        if (CheckTurn(&copyGameState, dices, moves, nbMoves, WHITE)) // Vérification des coups
+		        {            	
+		        	if (WinGame(&gameState, WHITE)) // On regarde si le joueur à gagner la partie
+				    {
+				        gameState.whiteScore++;
+				    }
+		        }
+		        else // Les coups n'étaient pas valides
+		        {
+		        	j1NbTries--; // On décremente le nombre d'essais restant
+		        	if (j1NbTries == 0) // Si le joueur n'a plus d'essais, il perd automatiquement
+		        	{
+		        		gameState.blackScore++;
+		        	}
+		        }
+		        
+		        player = BLACK; // Mise à jour du joueur	
+        	}
+        	else
+        	{
+        		if (j2DoubleStack(&gameState))
+		        {
+		            j1TakeDouble(&gameState);
+		        }
+		        
+		        copyGameState = gameState;
+		        j2PlayTurn(&copyGameState, dices, moves, &nbMoves, j2NbTries);
+		        
+		        copyGameState = gameState; // Re-copie pour envoyer une copie du tableau avant de valider les changements (si valide)
+		        
+		        if (CheckTurn(&copyGameState, dices, moves, nbMoves, BLACK)) // Vérification des coups
+		        {            	
+		        	if (WinGame(&gameState, BLACK)) // On regarde si le joueur à gagner la partie
+				    {
+				        gameState.blackScore++;
+				    }
+		        }
+		        else // Les coups n'étaient pas valides
+		        {
+		        	j2NbTries--; // On décremente le nombre d'essais restant
+		        	if (j2NbTries == 0) // Si le joueur n'a plus d'essais, il perd automatiquement
+		        	{
+		        		gameState.whiteScore++;
+		        	}
+		        }
+		        
+		        player = WHITE; // Mise à jour du joueur
+        	}
             
-            
-			getchar();
-            // **********************************************************
-            // TOUR DU DEUXIEME JOUEUR (BLACK)
-            // **********************************************************
-            
-            /*
-            if(j2DoubleStack(&gameState))
-            {
-                j1TakeDouble(&gameState);
-            }
-            j2PlayTurn(&gameState,dices,moves,&nbMoves,3);
-            if( WinGame(&gameState, BLACK) )
-            {
-                gameState.blackScore++;
-                break;
-            }*/
 
 		}
 
 		j1EndGame();
+		j2EndGame();
     }
 
 	j1EndMatch();
+	j2EndMatch();
 
 	dlclose(lib);
 	dlclose(lib2);
