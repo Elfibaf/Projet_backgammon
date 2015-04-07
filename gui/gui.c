@@ -1,6 +1,438 @@
-#include <SDL2/SDL.h>
-#include <stdio.h>
 #include "gui.h"
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <SDL2/SDL.h>
+ 
+ 
+ 
+ void initHitBoxesTab(Hitbox *hitboxesTab, SDL_Surface* screen)
+{
+
+    int i,y1 = 645, y2= 50, width1 = 64, height = 600; // A MODIFIER
+
+
+    for(i = 0; i < 28; i++){
+
+        hitboxesTab[i].rectHB = (SDL_Rect*) malloc (1*sizeof(SDL_Rect)); // PENSER A LIBERER LE rectHB
+
+        if(i == 0)
+        {
+            hitboxesTab[i].rectHB->x = 1080;
+            hitboxesTab[i].rectHB->y = y1;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 1)
+        {
+            hitboxesTab[i].rectHB->x = 1007;
+            hitboxesTab[i].rectHB->y = y1;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 2)
+        {
+            hitboxesTab[i].rectHB->x = 936;
+            hitboxesTab[i].rectHB->y = y1;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 3)
+        {
+            hitboxesTab[i].rectHB->x = 865;
+            hitboxesTab[i].rectHB->y = y1;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 4)
+        {
+            hitboxesTab[i].rectHB->x = 794;
+            hitboxesTab[i].rectHB->y = y1;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 5)
+        {
+            hitboxesTab[i].rectHB->x = 722;
+            hitboxesTab[i].rectHB->y = y1;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 6)
+        {
+            hitboxesTab[i].rectHB->x = 573;
+            hitboxesTab[i].rectHB->y = y1;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 7)
+        {
+            hitboxesTab[i].rectHB->x = 501;
+            hitboxesTab[i].rectHB->y = y1;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 8)
+        {
+            hitboxesTab[i].rectHB->x = 430;
+            hitboxesTab[i].rectHB->y = y1;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 9)
+        {
+            hitboxesTab[i].rectHB->x = 359;
+            hitboxesTab[i].rectHB->y = y1;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 10)
+        {
+            hitboxesTab[i].rectHB->x = 287;
+            hitboxesTab[i].rectHB->y = y1;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 11)
+        {
+            hitboxesTab[i].rectHB->x = 215;
+            hitboxesTab[i].rectHB->y = y1;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 12)
+        {
+            hitboxesTab[i].rectHB->x = 215;
+            hitboxesTab[i].rectHB->y = y2;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 13)
+        {
+            hitboxesTab[i].rectHB->x = 287;
+            hitboxesTab[i].rectHB->y = y2;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 14)
+        {
+            hitboxesTab[i].rectHB->x = 359;
+            hitboxesTab[i].rectHB->y = y2;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 15)
+        {
+            hitboxesTab[i].rectHB->x = 430;
+            hitboxesTab[i].rectHB->y = y2;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 16)
+        {
+            hitboxesTab[i].rectHB->x = 501;
+            hitboxesTab[i].rectHB->y = y2;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 17)
+        {
+            hitboxesTab[i].rectHB->x = 573;
+            hitboxesTab[i].rectHB->y = y2;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 18)
+        {
+            hitboxesTab[i].rectHB->x = 722;
+            hitboxesTab[i].rectHB->y = y2;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 19)
+        {
+            hitboxesTab[i].rectHB->x = 794;
+            hitboxesTab[i].rectHB->y = y2;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 20)
+        {
+            hitboxesTab[i].rectHB->x = 865;
+            hitboxesTab[i].rectHB->y = y2;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 21)
+        {
+            hitboxesTab[i].rectHB->x = 936;
+            hitboxesTab[i].rectHB->y = y2;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 22)
+        {
+            hitboxesTab[i].rectHB->x = 1007;
+            hitboxesTab[i].rectHB->y = y2;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+
+        else if(i == 23)
+        {
+            hitboxesTab[i].rectHB->x = 1080;
+            hitboxesTab[i].rectHB->y = y2;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+        }
+	//bar BLACK
+	else if (i == 24)                               // A COMPLETER
+	{
+	    hitboxesTab[i].rectHB->x = 490;
+            hitboxesTab[i].rectHB->y = y2;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+	}
+	//bar WHITE
+	else if (i == 25)
+	{
+            hitboxesTab[i].rectHB->x = 490;
+            hitboxesTab[i].rectHB->y = y1;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+	}
+	//out WHITE
+	else if (i == 26)
+	{
+            hitboxesTab[i].rectHB->x = 1045;
+            hitboxesTab[i].rectHB->y = y2;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+	}
+	//out BLACK
+	else if (i == 27)
+	{
+            hitboxesTab[i].rectHB->x = 1045;
+            hitboxesTab[i].rectHB->y = y1;
+            hitboxesTab[i].rectHB->w = width1;
+            hitboxesTab[i].rectHB->h = height;
+	}
+
+       //SDL_FillRect(screen, hitboxesTab[i].rectHB, SDL_MapRGB(screen->format, 255, 0, 0));
+
+    }
+
+}
+
+
+
+
+int detectClickIntoHitbox(Hitbox *hitboxesTab, int x, int y)
+{
+    int i;
+
+    for(i = 0; i < 28; i++)
+    {
+        
+        
+        // On vérifie si l'abscisse de la hitbox récupérée est comprise entre les coordonnées de la hitbox courante
+        if((x >= hitboxesTab[i].rectHB->x) && (x <= hitboxesTab[i].rectHB->x + hitboxesTab[i].rectHB->w))
+        {
+            if((y >= hitboxesTab[i].rectHB->y) && (y <= hitboxesTab[i].rectHB->y + hitboxesTab[i].rectHB->h))
+            {
+                //printf("Hitbox numéro : %d atteinte\n", i);
+                return i;
+            }
+        }
+    }
+    printf("Aucune hitbox atteinte\n");
+    return -1;
+
+}
+
+
+
+void clickToSMoves(int* indiceHBTab, SMove* moves,unsigned int *nbMoves, Player curPlayer)
+{
+    if(*nbMoves < 4)
+    {
+        int i; // normalisation des indices
+        for (i = 0; i < 2; i++)
+        {
+            if(indiceHBTab[i]>=0 && indiceHBTab[i] <= 23) indiceHBTab[i] += 1;
+            else if(indiceHBTab[i] == 24 || indiceHBTab[i] == 25) indiceHBTab[i] = 0;
+            else if(indiceHBTab[i] == 26 || indiceHBTab[i] == 27) indiceHBTab[i] = 25;
+
+        }
+
+        printf("indiceHBTab[0] %d | indiceHBTab[1] %d | nbMoves %d\n",indiceHBTab[0],indiceHBTab[1], *nbMoves);
+        if(curPlayer == WHITE)
+        {
+
+            moves[*nbMoves].src_point = indiceHBTab[0];
+            moves[*nbMoves].dest_point = indiceHBTab[1];
+        }
+
+        else if(curPlayer == BLACK)
+        {
+
+            if(indiceHBTab[0]!=0 && indiceHBTab[0]!=25)
+            {
+                moves[*nbMoves].src_point = 24-indiceHBTab[0]+1;
+            }
+            else
+            {
+                moves[*nbMoves].src_point = indiceHBTab[0];
+            }
+
+            if(indiceHBTab[1]!=0 && indiceHBTab[1]!=25)
+            {
+                moves[*nbMoves].dest_point = 24-indiceHBTab[1]+1;
+            }
+            else
+            {
+                moves[*nbMoves].dest_point = indiceHBTab[1];
+            }
+
+        }
+
+        printf("moves added between %d and %d\n",moves[*nbMoves].src_point,moves[*nbMoves].dest_point);
+        *nbMoves += 1; // on incrémente le compteur de moves
+        indiceHBTab[0] = -1;
+        indiceHBTab[1] = -1;
+    }
+    else
+    {
+        printf("erreur segmentation fault out of SMoves[4]");
+    }
+
+
+}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+void pause();
+ 
+int main(int argc, char *argv[])
+{
+	//pointeur utilisé par SDL pour l'allocation mémoire nécessaire à la fenetre
+	SDL_Surface *screen = NULL, *imageDeFond = NULL;; 
+    SDL_Rect positionFond;
+
+	positionFond.x = 0;
+    positionFond.y = 0;
+
+    if (SDL_Init(SDL_INIT_VIDEO) == -1) // Démarrage de la SDL. Si erreur :
+    {
+        fprintf(stderr, "Erreur d'initialisation de la SDL : %s\n", SDL_GetError()); 
+        exit(EXIT_FAILURE);
+    }
+ 
+    screen = SDL_SetVideoMode(1360, 760, 32, SDL_HWSURFACE); // Ouverture de la fenêtre
+	
+	if (screen == NULL) // Si l'ouverture s'est mal passée :
+    {
+        fprintf(stderr, "Erreur d'initialisation de la SDL : %s\n", SDL_GetError());
+        exit(EXIT_FAILURE);
+    }
+	
+	SDL_WM_SetCaption("Backgammon", NULL);
+
+	imageDeFond = SDL_LoadBMP("plateau.bmp");
+    /* On blitte par-dessus l'écran */
+    SDL_BlitSurface(imageDeFond, NULL, screen, &positionFond);
+	
+	SDL_Flip(screen);
+	
+    pause(); // Mise en pause du programme
+ 	
+	SDL_FreeSurface(imageDeFond); //Liberation de la surface
+    SDL_Quit(); // Arrêt de la SDL
+ 
+    return EXIT_SUCCESS; // Fermeture du programme
+}
+ 
+void pause()
+{
+    int continuer = 1;
+    SDL_Event event;
+ 
+    while (continuer)
+    {
+        SDL_WaitEvent(&event);
+        switch(event.type)
+        {
+            case SDL_QUIT:
+                continuer = 0;
+        }
+    }
+}
+
 
 void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rect rouges[15])
 {
