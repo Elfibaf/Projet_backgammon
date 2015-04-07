@@ -21,7 +21,7 @@
 //****************************
 
 
-void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rect rouges[15], SDL_Renderer *renderer, SDL_Texture *texture_jeton_noir, SDL_Texture *texture_jeton_rouge)
+void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rect rouges[15])
 {
     //Tableau d'equivalence entre les cases et leurs positions en pixels
     int equivalence_x[12] = {1080, 1022, 962, 902, 842, 722, 558, 500, 385, 327, 270, 212};
@@ -64,7 +64,7 @@ void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rec
     }
 }
 
-void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface *surfJetonBlanc, SDL_Rect noirs[15] , SDL_Rect blancs[15], SDL_Rect *rectPlateau, SDL_Surface *screen)
+void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface *surfJetonBlanc, SDL_Rect noirs[15] , SDL_Rect blancs[15], SDL_Rect *rectPlateau, SDL_Surface *screen, SDL_Window *pWindow)
 {
 	int i = 0, j = 0;
 
@@ -102,11 +102,6 @@ int main(int argc, char *argv[])
 	SDL_Surface * surfJetonNoir;
 	SDL_Surface * surfJetonBlanc;
 	SDL_Surface * screen;
-
-	SDL_Texture * texture;
-	SDL_Texture * texture_jeton_noir;
-	SDL_Texture * texture_jeton_rouge;
-
 	
     //initialisation du générateur de nombres aléatoire pour la génération des dés
     srand(time(NULL));
@@ -443,8 +438,9 @@ int main(int argc, char *argv[])
 		            j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
 		            ModifPlateau(&gameState, moves, nbMoves, WHITE);
 					
-					setBoardTokens(&gameState, noirs, blancs, renderer, texture_jeton_noir, texture_jeton_rouge);
-					afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, screen);
+					setBoardTokens(&gameState, noirs, blancs);
+					
+					afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, screen, pWindow);
 
 		            if( WinGame(&gameState, WHITE) )
 		            {
@@ -482,8 +478,6 @@ int main(int argc, char *argv[])
 		j1EndGame();
     }
 	j1EndMatch();
-
-	SDL_DestroyTexture(texture);
 
 	SDL_FreeSurface(surfPlateau);
 	SDL_FreeSurface(surfJetonNoir);
