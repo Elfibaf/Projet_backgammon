@@ -42,9 +42,9 @@ int GetMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMoves
 
 
 // ========================================================================================================================
-// Fonction qui permet de mettre à jour le tableau
+// Fonction qui permet de mettre à jour le plateau
 // ========================================================================================================================
-void ModifPlateau(SGameState * gameState, SMove moves[4], unsigned int nbMoves, Player player);
+void UpdateGameState(SGameState * gameState, SMove moves[4], const unsigned int nbMoves, const Player player)
 
 
 // ========================================================================================================================
