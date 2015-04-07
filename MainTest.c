@@ -12,6 +12,19 @@
 #define J2_NB_TRIES 3
 
 
+/* ============****** VARIABLES ******============ */
+int continuer = 1;
+SDL_Event event;
+
+SDL_Renderer * renderer;
+SDL_Window* pWindow = NULL;
+SDL_Surface * image;
+SDL_Surface * jeton_noir;
+SDL_Surface * jeton_rouge;
+SDL_Texture * texture;
+SDL_Texture * texture_jeton_noir;
+SDL_Texture * texture_jeton_rouge;
+
 //****************************
 //
 //Fichier pour le test du bot 
