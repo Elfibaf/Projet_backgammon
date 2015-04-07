@@ -145,76 +145,100 @@ int main(int argc, char *argv[])
         // Tant que la partie en cours n'est pas fini
         while(1)
         {
-            gameState.turn++; // Mise à jour du nombre de tour de la partie en cours
-            
-            // **********************************************************
-            // TOUR DU PREMIER JOUEUR (WHITE)
-            // **********************************************************            
-            /*if(j1DoubleStack(&gameState))
-            {
-                j2TakeDouble(&gameState);
-            }
-            
-            GenerateDices(dices); // Génération des deux dés
-            
-            copyGameState = gameState;
-            
-            j1PlayTurn(&copyGameState, dices, moves, &nbMoves, j1NbTries); // Le joueur 1 joue
-            
-            copyGameState = gameState; // Re-copie pour envoyer une copie du tableau avant de valider les changements (si valide)
-            
-            if ( IsValid(&copyGameState, dices, moves, nbMoves, WHITE) ) // Vérification des coups
-            {
-            	ModifPlateau(&gameState, moves, nbMoves, WHITE); // Mise à jour du plateau
-            	
-            	if( WinGame(&gameState, WHITE) ) // On regarde si le joueur à gagner
+        	init();
+    
+		    /* ============****** GESTIONNAIRE DES EVENEMENTS DE LA FENETRE ******============ */
+		    if(pWindow)
+		    {
+		        while (continuer == 1)
 		        {
-		            gameState.whiteScore++;
-		            break;
+		            SDL_PollEvent(&event);
+		            
+		            switch(event.type)
+		            {
+		                case SDL_QUIT:
+		                    continuer = 0;
+		                    break;
+		            }
+		            gameState.turn++; // Mise à jour du nombre de tour de la partie en cours
+            
+		            // **********************************************************
+		            // TOUR DU PREMIER JOUEUR (WHITE)
+		            // **********************************************************            
+		            /*if(j1DoubleStack(&gameState))
+		            {
+		                j2TakeDouble(&gameState);
+		            }
+		            
+		            GenerateDices(dices); // Génération des deux dés
+		            
+		            copyGameState = gameState;
+		            
+		            j1PlayTurn(&copyGameState, dices, moves, &nbMoves, j1NbTries); // Le joueur 1 joue
+		            
+		            copyGameState = gameState; // Re-copie pour envoyer une copie du tableau avant de valider les changements (si valide)
+		            
+		            if ( IsValid(&copyGameState, dices, moves, nbMoves, WHITE) ) // Vérification des coups
+		            {
+		            	ModifPlateau(&gameState, moves, nbMoves, WHITE); // Mise à jour du plateau
+		            	
+		            	if( WinGame(&gameState, WHITE) ) // On regarde si le joueur à gagner
+				        {
+				            gameState.whiteScore++;
+				            break;
+				        }
+		            }
+		            else // Les coups n'étaient pas valides
+		            {
+		            	j1NbTries--; // On décremente le nombre d'essais restant
+		            	if( j1NbTries == 0 ) // Si le joueur n'a plus d'essais, il perd automatiquement
+		            	{
+		            		gameState.blackScore++;
+				            break;
+		            	}
+		            }*/
+		            GenerateDices(dices);
+		            //dices[0]=1;
+		            //dices[1]=4;
+		            if(j1DoubleStack(&gameState))
+		            {
+		                j2TakeDouble(&gameState);
+		            }
+		            j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
+		            ModifPlateau(&gameState, moves, nbMoves, WHITE);
+		            if( WinGame(&gameState, WHITE) )
+		            {
+		                gameState.blackScore++;
+		                break;
+		            }
+		            
+		            
+					getchar();
+		            // **********************************************************
+		            // TOUR DU DEUXIEME JOUEUR (BLACK)
+		            // **********************************************************
+		            
+		            /*
+		            if(j2DoubleStack(&gameState))
+		            {
+		                j1TakeDouble(&gameState);
+		            }
+		            j2PlayTurn(&gameState,dices,moves,&nbMoves,3);
+		            if( WinGame(&gameState, BLACK) )
+		            {
+		                gameState.blackScore++;
+		                break;
+		            }*/
+	
+			        SDL_RenderPresent(renderer);
 		        }
-            }
-            else // Les coups n'étaient pas valides
-            {
-            	j1NbTries--; // On décremente le nombre d'essais restant
-            	if( j1NbTries == 0 ) // Si le joueur n'a plus d'essais, il perd automatiquement
-            	{
-            		gameState.blackScore++;
-		            break;
-            	}
-            }*/
-            GenerateDices(dices);
-            //dices[0]=1;
-            //dices[1]=4;
-            if(j1DoubleStack(&gameState))
-            {
-                j2TakeDouble(&gameState);
-            }
-            j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
-            ModifPlateau(&gameState, moves, nbMoves, WHITE);
-            if( WinGame(&gameState, WHITE) )
-            {
-                gameState.blackScore++;
-                break;
-            }
-            
-            
-			getchar();
-            // **********************************************************
-            // TOUR DU DEUXIEME JOUEUR (BLACK)
-            // **********************************************************
-            
-            /*
-            if(j2DoubleStack(&gameState))
-            {
-                j1TakeDouble(&gameState);
-            }
-            j2PlayTurn(&gameState,dices,moves,&nbMoves,3);
-            if( WinGame(&gameState, BLACK) )
-            {
-                gameState.blackScore++;
-                break;
-            }*/
-
+		    }
+		    else
+		    {
+		        fprintf(stderr,"Erreur de création de la fenêtre: %s\n",SDL_GetError());
+		    }
+		    
+		    quitter();
 		}
 
 		j1EndGame();
