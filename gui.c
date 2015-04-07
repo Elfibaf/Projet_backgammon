@@ -15,11 +15,11 @@ int main(int argc, char *argv[])
 
     if (SDL_Init(SDL_INIT_VIDEO) == -1) // Démarrage de la SDL. Si erreur :
     {
-        fprintf(stderr, "Erreur d'initialisation de la SDL : %s\n", SDL_GetError()); // Écriture de l'erreur
-        exit(EXIT_FAILURE); // On quitte le programme
+        fprintf(stderr, "Erreur d'initialisation de la SDL : %s\n", SDL_GetError()); 
+        exit(EXIT_FAILURE);
     }
  
-    screen = SDL_SetVideoMode(640, 480, 32, SDL_HWSURFACE); // Ouverture de la fenêtre
+    screen = SDL_SetVideoMode(1360, 760, 32, SDL_HWSURFACE); // Ouverture de la fenêtre
 	
 	if (screen == NULL) // Si l'ouverture s'est mal passée :
     {
@@ -28,9 +28,8 @@ int main(int argc, char *argv[])
     }
 	
 	SDL_WM_SetCaption("Backgammon", NULL);
-	//SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 17, 206, 112));
 
-	imageDeFond = SDL_LoadBMP("lac_en_montagne.bmp");
+	imageDeFond = SDL_LoadBMP("plateau.bmp");
     /* On blitte par-dessus l'écran */
     SDL_BlitSurface(imageDeFond, NULL, screen, &positionFond);
 	
