@@ -20,7 +20,7 @@
 //****************************
 
 
-void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rect rouges[15], SDL_Renderer *renderer, SDL_Texture *texture_jeton_noir, SDL_Texture *texture_jeton_rouge)
+void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rect rouges[15], SDL_Window *pWindow, SDL_Renderer *renderer, SDL_Texture *texture_jeton_noir, SDL_Texture *texture_jeton_rouge)
 {
     //Tableau d'equivalence entre les cases et leurs positions en pixels
     int equivalence_x[12] = {1080, 1022, 962, 902, 842, 722, 558, 500, 385, 327, 270, 212};
@@ -371,7 +371,7 @@ int main(int argc, char *argv[])
 		            }
 		            j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
 		            ModifPlateau(&gameState, moves, nbMoves, WHITE);
-					setBoardTokens(&gameState, noirs, rouges, renderer, texture_jeton_noir, texture_jeton_rouge);
+					setBoardTokens(&gameState, noirs, rouges, pWindow, renderer, texture_jeton_noir, texture_jeton_rouge);
 		            if( WinGame(&gameState, WHITE) )
 		            {
 		                gameState.blackScore++;
