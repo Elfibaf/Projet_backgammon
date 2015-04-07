@@ -81,7 +81,7 @@ void GenerateDices(unsigned char dices[2])
 	printf("Dé 1 : %d    Dé 2 : %d\n",(int)dices[0],(int)dices[1]);
 }
 
-
+/*
 // ====================================================================================================
 // Fonction qui vérifie si le tour du joueur est valide
 //
@@ -393,6 +393,7 @@ int GetMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMoves
 	}
 }
 
+*/
 
 // ========================================================================================================================
 // Fonction qui permet de mettre à jour le plateau

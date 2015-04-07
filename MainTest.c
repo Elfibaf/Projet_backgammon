@@ -23,12 +23,13 @@
 
 void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rect rouges[15])
 {
+	printf("Calcul des coordonnees des jetons ... \n");
     //Tableau d'equivalence entre les cases et leurs positions en pixels
-    int equivalence_x[12] = {1080, 1022, 962, 902, 842, 722, 558, 500, 385, 327, 270, 212};
+    int equivalence_x[12] = {1087, 1014, 944, 872, 802, 730, 581, 509, 438, 367, 296, 224};
     
     //Tableau d'equivalence entre la position sur une case et la position en pixel correspondante
-    int equivalence_y[5] = {645, 581, 517, 453, 389};
-    int equivalence_y2[5] = {50, 114, 178, 242, 306};
+    int equivalence_y[6] = {662, 625, 588, 551, 514, 477};
+    int equivalence_y2[6] = {50, 87, 124, 161, 198, 235};
     
     int i = 0, j = 0, cptN = 0, cptR = 0;
     
@@ -44,7 +45,8 @@ void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rec
                 
                 if(i<12) noirs[cptN].y = equivalence_y[j];
                 else noirs[cptN].y = equivalence_y2[j];
-
+				
+				printf("X : %d, Y : %d \n", noirs[cptN].x, noirs[cptN].y);
                 cptN++;
             }
         }
@@ -57,19 +59,20 @@ void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rec
                 
                 if(i<12) rouges[cptR].y = equivalence_y[j];
 				else rouges[cptR].y = equivalence_y2[j];
-
+				
+				printf("X : %d, Y : %d \n", rouges[cptR].x, rouges[cptR].y);
                 cptR ++;
             }
         }
     }
 }
 
-void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface *surfJetonBlanc, SDL_Rect noirs[15] , SDL_Rect blancs[15], SDL_Rect *rectPlateau, SDL_Surface *screen, SDL_Window *pWindow)
+void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface *surfJetonBlanc, SDL_Rect noirs[15] , SDL_Rect blancs[15], SDL_Rect *rectPlateau, SDL_Surface *screen)
 {
 	int i = 0, j = 0;
-
+	printf("Affichage ... \n");
 	//Afficher un ecran noir
-	SDL_FillRect(surfPlateau, NULL, SDL_MapRGB(surfPlateau->format, 0,0,0));
+	SDL_FillRect(screen, NULL, SDL_MapRGB(surfPlateau->format, 0,0,0));
 
 	//Affichage du plateau 
 	SDL_BlitSurface(surfPlateau, 0, screen, rectPlateau);
@@ -77,12 +80,14 @@ void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface 
 	//Parcours du tableau de jetons noirs et affichage
 	for (i=0; i<15;i++)
 	{
+		printf("BlitSurface du jeton i = %d \n",i); 
 		SDL_BlitSurface(surfJetonNoir, 0, screen, &noirs[i]);
 	}
 
 	//Parcours du tableau de jetons blancs et affichage
-	for (j=0; i<15;i++)
+	for (j=0; j<15;j++)
 	{
+		printf("BlitSurface du jeton j = %d \n",j);
 		SDL_BlitSurface(surfJetonBlanc, 0, screen, &blancs[j]);
 	}
 }
@@ -226,71 +231,60 @@ int main(int argc, char *argv[])
 	/* ============****** GESTION DES IMAGES ******============ */
 	IMG_Init(IMG_INIT_PNG);
 	
-	//renderer = SDL_CreateRenderer(pWindow, -1, 0);
-	//if (renderer == NULL) SDL_ShowSimpleMessageBox(0, "Renderer init error", SDL_GetError(), pWindow);
-	
 
 	surfPlateau = SDL_LoadBMP("plateau.bmp");
-	surfJetonNoir = IMG_Load("noir.png");
-	surfJetonBlanc = IMG_Load("blanc.png");
-	//jeton_noir = SDL_LoadBMP("jeton_noir.bmp");
-	//jeton_rouge = SDL_LoadBMP("jeton_rouge.bmp");
-
-	//if (image == NULL) SDL_ShowSimpleMessageBox(0, "Image init error", SDL_GetError(), pWindow);
-	//if (jeton_noir == NULL) SDL_ShowSimpleMessageBox(0, "Image init error", SDL_GetError(), pWindow);
-	//if (jeton_rouge == NULL) SDL_ShowSimpleMessageBox(0, "Image init error", SDL_GetError(), pWindow);
+	surfJetonNoir = IMG_Load("noir_48.png");
+	surfJetonBlanc = IMG_Load("blanc_48.png");
 
 
-	//Definition de la texture et verification de son existence
-	//texture = SDL_CreateTextureFromSurface(renderer, image);
-	//texture_jeton_noir = SDL_CreateTextureFromSurface(renderer, jeton_noir);
-	//texture_jeton_rouge = SDL_CreateTextureFromSurface(renderer, jeton_rouge);
-
-	//if (texture == NULL) SDL_ShowSimpleMessageBox(0, "Texture init error", SDL_GetError(), pWindow);
-	//if (texture_jeton_noir == NULL) SDL_ShowSimpleMessageBox(0, "Texture init error", SDL_GetError(), pWindow);
-	//if (texture_jeton_rouge == NULL) SDL_ShowSimpleMessageBox(0, "Texture init error", SDL_GetError(), pWindow);
-
-	/* ============****** RENDU DES JETONS (SITUATION INITIALE) ******============ */
-	//SDL_RenderCopy(renderer, texture, NULL, NULL);
 	SDL_Rect rectPlateau = {0, 0, 1360, 760};
 
-	SDL_Rect b1 = { 1080, 645, 64, 64 }; //Jan 1
-	SDL_Rect b2 = { 1080, 581, 64, 64 }; //Jan 1
-	SDL_Rect b3 = { 212, 645, 64, 64 }; //Jan 12
-	SDL_Rect b4 = { 212, 581, 64, 64 }; //Jan 12
-	SDL_Rect b5 = { 212, 517, 64, 64 }; //Jan 12
-	SDL_Rect b6 = { 212, 453, 64, 64 }; //Jan 12
-	SDL_Rect b7 = { 212, 389, 64, 64 }; //Jan 12
-	SDL_Rect b8 = { 500, 50, 64, 64 }; //Jan 17
-	SDL_Rect b9 = { 500, 114, 64, 64 }; //Jan 17
-	SDL_Rect b10 = { 500, 178, 64, 64 }; //Jan 17
-	SDL_Rect b11 = { 722, 50, 64, 64 }; //Jan 19
-	SDL_Rect b12 = { 722, 114, 64, 64 }; //Jan 19
-	SDL_Rect b13 = { 722, 178, 64, 64 }; //Jan 19
-	SDL_Rect b14 = { 722, 242, 64, 64 }; //Jan 19
-	SDL_Rect b15 = { 722, 306, 64, 64 }; //Jan 19
+	SDL_Rect b1 = { 1087, 662, 48, 48 }; //Jan 1
+	SDL_Rect b2 = { 1087, 625, 48, 48 }; //Jan 1
+
+	SDL_Rect b3 = { 224, 662, 48, 48 }; //Jan 12
+	SDL_Rect b4 = { 224, 625, 48, 48 }; //Jan 12
+	SDL_Rect b5 = { 224, 588, 48, 48 }; //Jan 12
+	SDL_Rect b6 = { 224, 551, 48, 48 }; //Jan 12
+	SDL_Rect b7 = { 224, 514, 48, 48 }; //Jan 12
+
+	SDL_Rect b8 = { 509, 50, 48, 48 }; //Jan 17
+	SDL_Rect b9 = { 509, 87, 48, 48 }; //Jan 17
+	SDL_Rect b10 = { 509, 124, 48, 48 }; //Jan 17
+
+	SDL_Rect b11 = { 730, 50, 48, 48 }; //Jan 19
+	SDL_Rect b12 = { 730, 87, 48, 48 }; //Jan 19
+	SDL_Rect b13 = { 730, 124, 48, 48 }; //Jan 19
+	SDL_Rect b14 = { 730, 161, 48, 48 }; //Jan 19
+	SDL_Rect b15 = { 730, 198, 48, 48 }; //Jan 19
+
 
 	SDL_Rect blancs[15] = {b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15};
 
-	SDL_Rect n1 = { 722, 645, 64, 64 }; //Jan 6
-	SDL_Rect n2 = { 722, 581, 64, 64 }; //Jan 6
-	SDL_Rect n3 = { 722, 517, 64, 64 }; //Jan 6
-	SDL_Rect n4 = { 722, 453, 64, 64 }; //Jan 6
-	SDL_Rect n5 = { 722, 389, 64, 64 }; //Jan 6
-	SDL_Rect n6 = { 500, 645, 64, 64 }; //Jan 8
-	SDL_Rect n7 = { 500, 581, 64, 64 }; //Jan 8
-	SDL_Rect n8 = { 500, 517, 64, 64 }; //Jan 8
-	SDL_Rect n9 = { 212, 50, 64, 64 }; //Jan 13
-	SDL_Rect n10 = { 212, 114, 64, 64 }; //Jan 13
-	SDL_Rect n11 = { 212, 178, 64, 64 }; //Jan 13
-	SDL_Rect n12 = { 212, 242, 64, 64 }; //Jan 13
-	SDL_Rect n13 = { 212, 306, 64, 64 }; //Jan 13
-	SDL_Rect n14 = { 1080, 50, 64, 64 }; //Jan 24
-	SDL_Rect n15 = { 1080, 114, 64, 64 }; //Jan 24
+	SDL_Rect n1 = { 730, 662, 48, 48 }; //Jan 6
+	SDL_Rect n2 = { 730, 625, 48, 48 }; //Jan 6
+	SDL_Rect n3 = { 730, 588, 48, 48 }; //Jan 6
+	SDL_Rect n4 = { 730, 551, 48, 48 }; //Jan 6
+	SDL_Rect n5 = { 730, 514, 48, 48 }; //Jan 6
+
+	SDL_Rect n6 = { 509, 662, 48, 48 }; //Jan 8
+	SDL_Rect n7 = { 509, 625, 48, 48 }; //Jan 8
+	SDL_Rect n8 = { 509, 588, 48, 48 }; //Jan 8
+
+	SDL_Rect n9 = { 224, 50, 48, 48 }; //Jan 13
+	SDL_Rect n10 = { 224, 87, 48, 48 }; //Jan 13
+	SDL_Rect n11 = { 224, 124, 48, 48 }; //Jan 13
+	SDL_Rect n12 = { 224, 161, 48, 48 }; //Jan 13
+	SDL_Rect n13 = { 224, 198, 48, 48 }; //Jan 13
+
+	SDL_Rect n14 = { 1087, 50, 48, 48 }; //Jan 24
+	SDL_Rect n15 = { 1087, 87, 48, 48 }; //Jan 24
 
 	SDL_Rect noirs[15] = {n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12, n13, n14, n15};
 	
+
 	SDL_BlitSurface(surfPlateau, 0, screen, &rectPlateau);
+
 
 	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n1);
 	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n2);
@@ -308,6 +302,7 @@ int main(int argc, char *argv[])
 	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n14);
 	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n15);
 	
+
 	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b1);
 	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b2);
 	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b2);
@@ -327,43 +322,6 @@ int main(int argc, char *argv[])
 	
 	SDL_UpdateWindowSurface(pWindow);
 
-	//Jetons Noirs
-/*
-	SDL_RenderCopy(renderer, texture_jeton_noir, NULL, &n1);
-	SDL_RenderCopy(renderer, texture_jeton_noir, NULL, &n2);
-	SDL_RenderCopy(renderer, texture_jeton_noir, NULL, &n3);
-	SDL_RenderCopy(renderer, texture_jeton_noir, NULL, &n4);
-	SDL_RenderCopy(renderer, texture_jeton_noir, NULL, &n5);
-	SDL_RenderCopy(renderer, texture_jeton_noir, NULL, &n6);
-	SDL_RenderCopy(renderer, texture_jeton_noir, NULL, &n7);
-	SDL_RenderCopy(renderer, texture_jeton_noir, NULL, &n8);
-	SDL_RenderCopy(renderer, texture_jeton_noir, NULL, &n9);
-	SDL_RenderCopy(renderer, texture_jeton_noir, NULL, &n10);
-	SDL_RenderCopy(renderer, texture_jeton_noir, NULL, &n11);
-	SDL_RenderCopy(renderer, texture_jeton_noir, NULL, &n12);
-	SDL_RenderCopy(renderer, texture_jeton_noir, NULL, &n13);
-	SDL_RenderCopy(renderer, texture_jeton_noir, NULL, &n14);
-	SDL_RenderCopy(renderer, texture_jeton_noir, NULL, &n15);
-
-	//Jetons rouges
-	SDL_RenderCopy(renderer, texture_jeton_rouge, NULL, &r1);
-	SDL_RenderCopy(renderer, texture_jeton_rouge, NULL, &r2);
-	SDL_RenderCopy(renderer, texture_jeton_rouge, NULL, &r3);
-	SDL_RenderCopy(renderer, texture_jeton_rouge, NULL, &r4);
-	SDL_RenderCopy(renderer, texture_jeton_rouge, NULL, &r5);
-	SDL_RenderCopy(renderer, texture_jeton_rouge, NULL, &r6);
-	SDL_RenderCopy(renderer, texture_jeton_rouge, NULL, &r7);
-	SDL_RenderCopy(renderer, texture_jeton_rouge, NULL, &r8);
-	SDL_RenderCopy(renderer, texture_jeton_rouge, NULL, &r9);
-	SDL_RenderCopy(renderer, texture_jeton_rouge, NULL, &r10);
-	SDL_RenderCopy(renderer, texture_jeton_rouge, NULL, &r11);
-	SDL_RenderCopy(renderer, texture_jeton_rouge, NULL, &r12);
-	SDL_RenderCopy(renderer, texture_jeton_rouge, NULL, &r13);
-	SDL_RenderCopy(renderer, texture_jeton_rouge, NULL, &r14);
-	SDL_RenderCopy(renderer, texture_jeton_rouge, NULL, &r15);
-
-	SDL_RenderPresent(renderer);
-*/
 
     // Tant qu'aucun des joueurs n'a gagné le jeu, on continue à faire des parties
     while( (gameState.whiteScore < goal) && (gameState.blackScore < goal) )
@@ -436,11 +394,13 @@ int main(int argc, char *argv[])
 		                j2TakeDouble(&gameState);
 		            }
 		            j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
-		            ModifPlateau(&gameState, moves, nbMoves, WHITE);
+		            UpdateGameState(&gameState, moves, nbMoves, WHITE);
 					
 					setBoardTokens(&gameState, noirs, blancs);
 					
-					afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, screen, pWindow);
+					afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, screen);
+
+					SDL_UpdateWindowSurface(pWindow);
 
 		            if( WinGame(&gameState, WHITE) )
 		            {
@@ -469,14 +429,14 @@ int main(int argc, char *argv[])
 					
 			        //SDL_RenderPresent(renderer);
 		        }
+
 		    }
-		    else
-		    {
-		        fprintf(stderr,"Erreur de création de la fenêtre: %s\n",SDL_GetError());
-		    }
+
 		}
+
 		j1EndGame();
     }
+
 	j1EndMatch();
 
 	SDL_FreeSurface(surfPlateau);
