@@ -5,6 +5,8 @@
 #include <dlfcn.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <stdbool.h>
+
 #include "gui/gui.h"
 #include "arbitrage.h"
 #include "bot.h"
@@ -46,7 +48,7 @@ void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rec
                 if(i<12) noirs[cptN].y = equivalence_y[j];
                 else noirs[cptN].y = equivalence_y2[j];
 				
-				printf("X : %d, Y : %d \n", noirs[cptN].x, noirs[cptN].y);
+				//printf("X : %d, Y : %d \n", noirs[cptN].x, noirs[cptN].y);
                 cptN++;
             }
         }
@@ -60,7 +62,7 @@ void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rec
                 if(i<12) rouges[cptR].y = equivalence_y[j];
 				else rouges[cptR].y = equivalence_y2[j];
 				
-				printf("X : %d, Y : %d \n", rouges[cptR].x, rouges[cptR].y);
+				//printf("X : %d, Y : %d \n", rouges[cptR].x, rouges[cptR].y);
                 cptR ++;
             }
         }
@@ -80,14 +82,14 @@ void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface 
 	//Parcours du tableau de jetons noirs et affichage
 	for (i=0; i<15;i++)
 	{
-		printf("BlitSurface du jeton i = %d \n",i); 
+		//printf("BlitSurface du jeton i = %d \n",i); 
 		SDL_BlitSurface(surfJetonNoir, 0, screen, &noirs[i]);
 	}
 
 	//Parcours du tableau de jetons blancs et affichage
 	for (j=0; j<15;j++)
 	{
-		printf("BlitSurface du jeton j = %d \n",j);
+		//printf("BlitSurface du jeton j = %d \n",j);
 		SDL_BlitSurface(surfJetonBlanc, 0, screen, &blancs[j]);
 	}
 }
@@ -96,17 +98,18 @@ void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface 
 //void deroulement_du_jeu()
 int main(int argc, char *argv[])
 {
-	/* ============****** VARIABLES ******============ */
-	int continuer = 1;
-	SDL_Event event;
+  
+    /* ============****** VARIABLES ******============ */
+    SDL_Event event;
 
-	SDL_Renderer * renderer;
-	SDL_Window* pWindow = NULL;
-	
-	SDL_Surface * surfPlateau;
-	SDL_Surface * surfJetonNoir;
-	SDL_Surface * surfJetonBlanc;
-	SDL_Surface * screen;
+    SDL_Window* pWindow = NULL;
+    
+    SDL_Surface * surfPlateau;
+    SDL_Surface * surfJetonNoir;
+    SDL_Surface * surfJetonBlanc;
+    SDL_Surface * screen;
+    
+    bool done = false;
 	
     //initialisation du générateur de nombres aléatoire pour la génération des dés
     srand(time(NULL));
@@ -217,77 +220,91 @@ int main(int argc, char *argv[])
 	
 	unsigned int j1NbTries, j2NbTries; // variables pour gérer le nombre d'essais de chaque joueur
 	
-	/* ============****** INITIALISATION  DE LA FENETRE ******============ */
-	if (SDL_Init(SDL_INIT_VIDEO) != 0 )
-	{
-		fprintf(stdout,"Échec de l'initialisation de la SDL (%s)\n",SDL_GetError());
-	}
+	
+	
+	
+	/*------------------------------------------------------------------------------------------
+	 * 											    |
+	 * 											    |
+	 *  ===================================    GUI    ==========================================
+* 												    |
+	 * 											    |
+	 * -----------------------------------------------------------------------------------------
+	 */
+	
+	
+	//Initialisation de la fenêtre
+	if (SDL_Init(SDL_INIT_VIDEO) != 0 ) printf("Échec de l'initialisation de la SDL (%s)\n",SDL_GetError());
 
-	/* ============****** CREATION DE LA FENETRE ******============ */
+	
+	//Creation de la fenetre
 	pWindow = SDL_CreateWindow("Backgammon",SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED, 1360, 760, SDL_WINDOW_SHOWN);
 	if (pWindow == NULL) SDL_ShowSimpleMessageBox(0, "Window init error", SDL_GetError(), pWindow);
+	
+	
+	//Surface de l'ecran
 	screen = SDL_GetWindowSurface(pWindow);
 
-	/* ============****** GESTION DES IMAGES ******============ */
+	//Chargement des images
 	IMG_Init(IMG_INIT_PNG);
 	
 
 	surfPlateau = SDL_LoadBMP("plateau.bmp");
-
 	surfJetonNoir = IMG_Load("noir_48.png");
 	surfJetonBlanc = IMG_Load("blanc_48.png");
 
-
+	//Surface SDL servant à contenir l'image du plateau
 	SDL_Rect rectPlateau = {0, 0, 1360, 760};
-
+	
+	
+	//Surfaces SDL servant à contenir les jetons blancs du plateau
 	SDL_Rect b1 = { 1087, 662, 48, 48 }; //Jan 1
 	SDL_Rect b2 = { 1087, 625, 48, 48 }; //Jan 1
-
 	SDL_Rect b3 = { 224, 662, 48, 48 }; //Jan 12
 	SDL_Rect b4 = { 224, 625, 48, 48 }; //Jan 12
 	SDL_Rect b5 = { 224, 588, 48, 48 }; //Jan 12
 	SDL_Rect b6 = { 224, 551, 48, 48 }; //Jan 12
 	SDL_Rect b7 = { 224, 514, 48, 48 }; //Jan 12
-
 	SDL_Rect b8 = { 509, 50, 48, 48 }; //Jan 17
 	SDL_Rect b9 = { 509, 87, 48, 48 }; //Jan 17
 	SDL_Rect b10 = { 509, 124, 48, 48 }; //Jan 17
-
-
 	SDL_Rect b11 = { 730, 50, 48, 48 }; //Jan 19
 	SDL_Rect b12 = { 730, 87, 48, 48 }; //Jan 19
 	SDL_Rect b13 = { 730, 124, 48, 48 }; //Jan 19
 	SDL_Rect b14 = { 730, 161, 48, 48 }; //Jan 19
 	SDL_Rect b15 = { 730, 198, 48, 48 }; //Jan 19
 
-
+	//Tableau de SDL_Rect servant à la mise à jour du plateau et des jetons
 	SDL_Rect blancs[15] = {b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15};
-
+	
+	
+	//Surfaces SDL servant à contenir les jetons noirs du plateau
 	SDL_Rect n1 = { 730, 662, 48, 48 }; //Jan 6
 	SDL_Rect n2 = { 730, 625, 48, 48 }; //Jan 6
 	SDL_Rect n3 = { 730, 588, 48, 48 }; //Jan 6
 	SDL_Rect n4 = { 730, 551, 48, 48 }; //Jan 6
 	SDL_Rect n5 = { 730, 514, 48, 48 }; //Jan 6
-
 	SDL_Rect n6 = { 509, 662, 48, 48 }; //Jan 8
 	SDL_Rect n7 = { 509, 625, 48, 48 }; //Jan 8
 	SDL_Rect n8 = { 509, 588, 48, 48 }; //Jan 8
-
 	SDL_Rect n9 = { 224, 50, 48, 48 }; //Jan 13
 	SDL_Rect n10 = { 224, 87, 48, 48 }; //Jan 13
 	SDL_Rect n11 = { 224, 124, 48, 48 }; //Jan 13
 	SDL_Rect n12 = { 224, 161, 48, 48 }; //Jan 13
 	SDL_Rect n13 = { 224, 198, 48, 48 }; //Jan 13
-
 	SDL_Rect n14 = { 1087, 50, 48, 48 }; //Jan 24
 	SDL_Rect n15 = { 1087, 87, 48, 48 }; //Jan 24
-
+	
+	
+	//Tableau de SDL_Rect servant à la mise à jour du plateau et des jetons
 	SDL_Rect noirs[15] = {n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12, n13, n14, n15};
 	
-
+	
+	//Collage de l'image du plateau chargée en mémoire plus tot sur la surface du plateau
 	SDL_BlitSurface(surfPlateau, 0, screen, &rectPlateau);
 
-
+	
+	//Collage des jetons sur l'interface
 	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n1);
 	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n2);
 	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n3);
@@ -304,7 +321,8 @@ int main(int argc, char *argv[])
 	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n14);
 	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n15);
 	
-
+	
+	//Collage des jetons sur l'interface
 	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b1);
 	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b2);
 	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b2);
@@ -322,150 +340,155 @@ int main(int argc, char *argv[])
 	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b14);
 	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b15);
 	
+	
+	//Appel a la fonction de mise a jour de l'ecran
 	SDL_UpdateWindowSurface(pWindow);
-
+	
+	
 	Hitbox *hitboxesTab = (Hitbox*) malloc (28*sizeof(Hitbox));
 	
 	
 
 
-    // Tant qu'aucun des joueurs n'a gagné le jeu, on continue à faire des parties
-    while( (gameState.whiteScore < goal) && (gameState.blackScore < goal) )
-    {
-        j1StartGame(WHITE);
-		j1NbTries = J1_NB_TRIES;
+	// Tant qu'aucun des joueurs n'a gagné le jeu, on continue à faire des parties
+	while( (gameState.whiteScore < goal) && (gameState.blackScore < goal) )
+	{
+	    
+	  j1StartGame(WHITE);
+	  j1NbTries = J1_NB_TRIES;
+		  
+	  j2StartGame(BLACK);
+	  j2NbTries = J2_NB_TRIES;
+		    
+	  // Tant que la partie en cours n'est pas fini
+	  while(!done)
+	  {
+	    gameState.turn++; // Mise à jour du nombre de tour de la partie en cours
+
+	    // **********************************************************
+	    // TOUR DU PREMIER JOUEUR (WHITE)
+	    // **********************************************************            
+	    /*if(j1DoubleStack(&gameState))
+	    {
+		j2TakeDouble(&gameState);
+	    }
+	    
+	    GenerateDices(dices); // Génération des deux dés
+	    
+	    copyGameState = gameState;
+	    
+	    j1PlayTurn(&copyGameState, dices, moves, &nbMoves, j1NbTries); // Le joueur 1 joue
+	    
+	    copyGameState = gameState; // Re-copie pour envoyer une copie du tableau avant de valider les changements (si valide)
+	    
+	    if ( IsValid(&copyGameState, dices, moves, nbMoves, WHITE) ) // Vérification des coups
+	    {
+		ModifPlateau(&gameState, moves, nbMoves, WHITE); // Mise à jour du plateau
 		
-		j2StartGame(BLACK);
-		j2NbTries = J2_NB_TRIES;
-		
-        // Tant que la partie en cours n'est pas fini
-        while(1)
-        {
-		    /* ============****** GESTIONNAIRE DES EVENEMENTS DE LA FENETRE ******============ */
-		    if(pWindow)
-		    {
-		        while (continuer == 1)
-		        {
-		            SDL_WaitEvent(&event);
-		            
-		            switch(event.type)
-		            {
-		                case SDL_QUIT:
-		                    continuer = 0;
-		                    break;
-
-				/*case SDL_MOUSEBUTTONUP:
-					int x = event.button.x;
-					int y = event.button.y;
-				    
-
-					curHB = detectClickIntoHitbox(hitboxesTab, x,y);*/
-		            }
-		            
-			    gameState.turn++; // Mise à jour du nombre de tour de la partie en cours
-            
-		            // **********************************************************
-		            // TOUR DU PREMIER JOUEUR (WHITE)
-		            // **********************************************************            
-		            /*if(j1DoubleStack(&gameState))
-		            {
-		                j2TakeDouble(&gameState);
-		            }
-		            
-		            GenerateDices(dices); // Génération des deux dés
-		            
-		            copyGameState = gameState;
-		            
-		            j1PlayTurn(&copyGameState, dices, moves, &nbMoves, j1NbTries); // Le joueur 1 joue
-		            
-		            copyGameState = gameState; // Re-copie pour envoyer une copie du tableau avant de valider les changements (si valide)
-		            
-		            if ( IsValid(&copyGameState, dices, moves, nbMoves, WHITE) ) // Vérification des coups
-		            {
-		            	ModifPlateau(&gameState, moves, nbMoves, WHITE); // Mise à jour du plateau
-		            	
-		            	if( WinGame(&gameState, WHITE) ) // On regarde si le joueur à gagner
-				        {
-				            gameState.whiteScore++;
-				            break;
-				        }
-		            }
-		            else // Les coups n'étaient pas valides
-		            {
-		            	j1NbTries--; // On décremente le nombre d'essais restant
-		            	if( j1NbTries == 0 ) // Si le joueur n'a plus d'essais, il perd automatiquement
-		            	{
-		            		gameState.blackScore++;
-				            break;
-		            	}
-		            }*/
-		            GenerateDices(dices);
-			    //dices[0]=1;
-		            //dices[1]=4;
-		            if(j1DoubleStack(&gameState))
-		            {
-		                j2TakeDouble(&gameState);
-		            }
-		            j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
-		            UpdateGameState(&gameState, moves, nbMoves, WHITE);
-					
-					setBoardTokens(&gameState, noirs, blancs);
-					
-					afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, screen);
-
-					SDL_UpdateWindowSurface(pWindow);
-
-		            if( WinGame(&gameState, WHITE) )
-		            {
-		                gameState.blackScore++;
-		                break;
-		            }
-		            
-		         		/*initHitBoxesTab(hitboxesTab, screen);
-					SDL_UpdateWindowSurface(pWindow);*/
-					getchar();
-		            // **********************************************************
-		            // TOUR DU DEUXIEME JOUEUR (BLACK)
-		            // **********************************************************
-		            
-		            /*
-		            if(j2DoubleStack(&gameState))
-		            {
-		                j1TakeDouble(&gameState);
-		            }
-		            j2PlayTurn(&gameState,dices,moves,&nbMoves,3);
-		            if( WinGame(&gameState, BLACK) )
-		            {
-		                gameState.blackScore++;
-		                break;
-		            }*/
-					
-					
-			        //SDL_RenderPresent(renderer);
-		        }
-
-		    }
-
+		if( WinGame(&gameState, WHITE) ) // On regarde si le joueur à gagner
+			{
+			    gameState.whiteScore++;
+			    break;
+			}
+	    }
+	    else // Les coups n'étaient pas valides
+	    {
+		j1NbTries--; // On décremente le nombre d'essais restant
+		if( j1NbTries == 0 ) // Si le joueur n'a plus d'essais, il perd automatiquement
+		{
+			gameState.blackScore++;
+			    break;
 		}
+	    }*/
+	    GenerateDices(dices);
+	    //dices[0]=1;
+	    //dices[1]=4;
+	    if(j1DoubleStack(&gameState))
+	    {
+		j2TakeDouble(&gameState);
+	    }
+	    j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
+	    UpdateGameState(&gameState, moves, nbMoves, WHITE);
+			
+	    setBoardTokens(&gameState, noirs, blancs);
+	    
+	    afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, screen);
 
-		j1EndGame();
-    }
+	    SDL_UpdateWindowSurface(pWindow);
 
+	    if( WinGame(&gameState, WHITE) )
+	    {
+		gameState.blackScore++;
+		break;
+	    }
+	    
+			/*initHitBoxesTab(hitboxesTab, screen);
+			SDL_UpdateWindowSurface(pWindow);*/
+			getchar();
+	    // **********************************************************
+	    // TOUR DU DEUXIEME JOUEUR (BLACK)
+	    // **********************************************************
+	    
+	    /*
+	    if(j2DoubleStack(&gameState))
+	    {
+		j1TakeDouble(&gameState);
+	    }
+	    j2PlayTurn(&gameState,dices,moves,&nbMoves,3);
+	    if( WinGame(&gameState, BLACK) )
+	    {
+		gameState.blackScore++;
+		break;
+	    }*/
+	    
+	    // Gestion des evenements
+	    printf("Gestion des evenements \n");
+	    while ( SDL_PollEvent(&event) )
+	    {  
+		printf("Switch case de gestion des evenements... \n");
+		switch(event.type)
+		{
+		    case SDL_WINDOWEVENT:
+		      if(event.window.event == SDL_WINDOWEVENT_CLOSE) 
+		      {
+			printf("SQL_QUIT captured, treating... \n");
+			done = true;
+		      }
+		      break;
+		    /*case SDL_MOUSEBUTTONUP:
+			    int x = event.button.x;
+			    int y = event.button.y;
+			
+
+			    curHB = detectClickIntoHitbox(hitboxesTab, x,y);*/
+		}
+		
+	    }
+	    
+	    printf("Fin de gestion des evenements \n");
+
+	  }
+	  printf("Fin Game \n");
+	  j1EndGame();
+	  
+	}
+	printf("Fin Match \n");
 	j1EndMatch();
 
+	free(hitboxesTab);
+	 
+	SDL_FreeSurface(screen);
 	SDL_FreeSurface(surfPlateau);
 	SDL_FreeSurface(surfJetonNoir);
 	SDL_FreeSurface(surfJetonBlanc);
-	SDL_FreeSurface(screen);
 
-	free(hitboxesTab);
-
-	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(pWindow);
-	IMG_Quit();
+
 	SDL_Quit();
 
 	dlclose(lib);
 	dlclose(lib2);
+	
+	printf("Fin propre de l'execution \n");
 	return(0);
 }
