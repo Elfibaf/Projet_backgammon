@@ -455,12 +455,12 @@ int main(int argc, char *argv[])
 			done = true;
 		      }
 		      break;
-		    /*case SDL_MOUSEBUTTONUP:
-			    int x = event.button.x;
-			    int y = event.button.y;
-			
-
-			    curHB = detectClickIntoHitbox(hitboxesTab, x,y);*/
+		    case SDL_MOUSEBUTTONUP:
+		      printf("Clic clic ... \n");
+		      //int x = event.button.x;
+		      //int y = event.button.y;
+		      //curHB = detectClickIntoHitbox(hitboxesTab, x,y);*/
+		      break;
 		}
 		
 	    }
@@ -468,6 +468,7 @@ int main(int argc, char *argv[])
 	    printf("Fin de gestion des evenements \n");
 
 	  }
+	  if(done) break;
 	  printf("Fin Game \n");
 	  j1EndGame();
 	  
