@@ -3,9 +3,11 @@
 #include <time.h>
 #include <string.h>
 #include <dlfcn.h>
+#include <stdbool.h>
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <stdbool.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "gui/gui.h"
 #include "arbitrage.h"
@@ -128,7 +130,7 @@ void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rec
     
 }
 
-void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface *surfJetonBlanc, SDL_Rect noirs[15] , SDL_Rect blancs[15], SDL_Rect *rectPlateau, SDL_Surface *screen)
+void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface *surfJetonBlanc, SDL_Rect noirs[15] , SDL_Rect blancs[15], SDL_Rect *rectPlateau, SDL_Rect *rectDes, SDL_Surface *screen)
 {
 	int i = 0, j = 0;
 	printf("Affichage ... \n");
@@ -153,12 +155,20 @@ void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface 
 	}
 }
 
+void afficherDes(SDL_Surface *des, SDL_Rect *rectDes, unsigned char dices[2], char stringDes[10], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen)
+{
+    sprintf(stringDes, " %d || %d ", dices[0], dices[1]);
+    
+    des = TTF_RenderText_Blended(font, stringDes, colorFont);
+    
+    SDL_BlitSurface(des, 0, screen, rectDes);
+}
 
 //void deroulement_du_jeu()
 int main(int argc, char *argv[])
 {
   
-    /* ============****** VARIABLES ******============ */
+    //Variables
     SDL_Event event;
 
     SDL_Window* pWindow = NULL;
@@ -167,6 +177,10 @@ int main(int argc, char *argv[])
     SDL_Surface * surfJetonNoir;
     SDL_Surface * surfJetonBlanc;
     SDL_Surface * screen;
+    SDL_Surface * des;
+    
+    
+    TTF_Font *font;
     
     bool done = false;
 	
@@ -206,7 +220,7 @@ int main(int argc, char *argv[])
 			return EXIT_FAILURE;
 		}
 	} 
-
+	
 	// Chargement de la librairie (chargement des pointeurs de fonctions des fonctions d�crites dans "backgammon.h")
 
 	void *lib,*lib2;
@@ -268,7 +282,7 @@ int main(int argc, char *argv[])
 	char name[50];
 	j1InitLibrary(name);
 	j1StartMatch(goal);
-
+	
 	SGameState gameState, copyGameState;
 	InitPlateau(&gameState); // Initialisation du tableau
 	
@@ -280,8 +294,6 @@ int main(int argc, char *argv[])
 	unsigned int j1NbTries, j2NbTries; // variables pour gérer le nombre d'essais de chaque joueur
 	
 	
-	
-	
 	/*------------------------------------------------------------------------------------------
 	 * 											    |
 	 * 											    |
@@ -290,11 +302,13 @@ int main(int argc, char *argv[])
 	 * 											    |
 	 * -----------------------------------------------------------------------------------------
 	 */
-	
+
 	
 	//Initialisation de la fenêtre
-	if (SDL_Init(SDL_INIT_VIDEO) != 0 ) printf("Échec de l'initialisation de la SDL (%s)\n",SDL_GetError());
-
+	if ( SDL_Init(SDL_INIT_VIDEO) != 0 ) printf("Échec de l'initialisation de la SDL (%s)\n",SDL_GetError());
+	
+	//Initialisation de TTF
+	if ( TTF_Init() == -1) printf("Echec de l'initialisation de TTF (%s) \n", TTF_GetError());
 	
 	//Creation de la fenetre
 	pWindow = SDL_CreateWindow("Backgammon",SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED, 1360, 760, SDL_WINDOW_SHOWN);
@@ -311,6 +325,24 @@ int main(int argc, char *argv[])
 	surfPlateau = SDL_LoadBMP("plateau.bmp");
 	surfJetonNoir = IMG_Load("noir_48.png");
 	surfJetonBlanc = IMG_Load("blanc_48.png");
+	
+	SDL_Rect rectDes = {140, 350, 0, 0};
+	
+	
+	//Definition de la police à utiliser pour l'affichage des des
+	font = TTF_OpenFont("arial.ttf", 10);
+	if(font == NULL) printf("Erreur d'ouverture  de la police (%s)", TTF_GetError());
+
+	
+	//Definition de la couleur de la police
+	SDL_Color colorFont = {0, 0, 0};
+	
+	
+	//Rendu du texte a afficher
+	des = TTF_RenderText_Blended(font, " Des 1 || Des 2 ", colorFont);
+	if(des == NULL) printf("Erreur de rendu du texte du des (%s)", TTF_GetError());
+	
+	char stringDes[10];
 
 	//Surface SDL servant à contenir l'image du plateau
 	SDL_Rect rectPlateau = {0, 0, 1360, 760};
@@ -398,6 +430,7 @@ int main(int argc, char *argv[])
 	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b14);
 	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b15);
 	
+	SDL_BlitSurface(des, NULL, screen, &rectDes);
 	
 	//Appel a la fonction de mise a jour de l'ecran
 	SDL_UpdateWindowSurface(pWindow);
@@ -476,12 +509,17 @@ int main(int argc, char *argv[])
 	    {
 		j2TakeDouble(&gameState);
 	    }
+	    //Le joueur 1 joue son tour
 	    j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
+	    
+	    //Mise à jour du gameState
 	    UpdateGameState(&gameState, moves, nbMoves, WHITE);
 			
 	    setBoardTokens(&gameState, noirs, blancs);
 	    
-	    afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, screen);
+	    afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
+	    
+	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
 
 	    SDL_UpdateWindowSurface(pWindow);
 
@@ -575,9 +613,15 @@ int main(int argc, char *argv[])
 	SDL_FreeSurface(surfPlateau);
 	SDL_FreeSurface(surfJetonNoir);
 	SDL_FreeSurface(surfJetonBlanc);
-
+	SDL_FreeSurface(des);
+	
+	TTF_CloseFont(font);
+	
+	
 	SDL_DestroyWindow(pWindow);
-
+	
+	TTF_Quit();
+	IMG_Quit();
 	SDL_Quit();
 
 	dlclose(lib);
