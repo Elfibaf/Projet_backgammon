@@ -405,6 +405,17 @@ int main(int argc, char *argv[])
 	
 	Hitbox *hitboxesTab = (Hitbox*) malloc (28*sizeof(Hitbox));
 	
+
+	int clicx;
+	int clicy;
+	int curHB;
+
+	int numHB[2];
+	numHB[0] = -1;
+	numHB[1] = -1;
+
+	initHitBoxesTab(hitboxesTab, screen);
+	
 	
 
 
@@ -513,11 +524,35 @@ int main(int argc, char *argv[])
 			done = true;
 		      }
 		      break;
+		      
+		      
 		    case SDL_MOUSEBUTTONUP:
 		      printf("Clic clic ... \n");
-		      //int x = event.button.x;
-		      //int y = event.button.y;
-		      //curHB = detectClickIntoHitbox(hitboxesTab, x,y);*/
+		      clicx = event.button.x;
+		      clicy = event.button.y;
+		      printf("X = %d \n", clicx);
+		      printf("Y = %d \n", clicy);
+		      curHB = detectClickIntoHitbox(hitboxesTab, clicx,clicy);
+		      printf("\n HITBOX NUMERO  = %d", curHB);
+
+
+		       if (curHB != -1) {
+
+				    	if (numHB[0] == -1) {
+						
+						printf("Coucou 0");
+						numHB[0] = curHB;
+
+					} else if (numHB[1] == -1) {
+
+						printf("Coucou 1");
+						numHB[1] = curHB;
+						clickToSMoves(numHB,moves,&nbMoves, WHITE);
+											
+
+					}
+				     }
+			
 		      break;
 		}
 		
