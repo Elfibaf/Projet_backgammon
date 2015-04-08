@@ -92,7 +92,7 @@ int CheckTurn(SGameState * gameState, const unsigned char dices[2], const SMove 
 	// Le nombre théorique de mouvement qu'il est possible de faire
 	unsigned int nbMovesTheoretic = (dices[0] == dices[1]) ? 4 : 2;
 	
-	if ( (nbMoves > nbMovesTheoretic) || (nbMoves < 1)
+	if ( (nbMoves > nbMovesTheoretic) || (nbMoves < 1) )
 	{
 		// Si le joueur propose un nombre de mouvement supérieur au nombre maximum (théorique) de mouvement possible
 		// ou si il ne propose pas de mouvements
@@ -166,6 +166,8 @@ int CheckMove(SGameState * gameState, const SMove moves[4], const unsigned int n
 	unsigned int numMove, numDice; //Numéro du mouvement, numéro du dé
 	unsigned int nbDicesUsed = 0; // Nombre de dés utilisés
 	Player ennemi = 1 - player; // Pour connaitre le numéro de l'adversaire
+	
+	SMove copyMove[4]; // Pour la mise à jour du tour
 	
 	// Variable qui permet d'effectuer les memes controles, que le joueur soit "WHITE" ou "BLACK"
 	// Pour la mise à jour du plateau, il faut cependant utiliser moves[numMove].src_point et moves[numMove].dest_point
@@ -292,7 +294,6 @@ int CheckMove(SGameState * gameState, const SMove moves[4], const unsigned int n
 		
 		
 		// Mise à jour de l'état du jeu pour vérifier le coup suivant
-		SMove copyMove[4];
 		copyMove[0] = moves[numMove];
 		UpdateGameState(gameState, copyMove, 1, player);
 	}
@@ -331,7 +332,7 @@ int GetMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMoves
 				{
 					moves[0].src_point = 0;
 					moves[0].dest_point = tabDices[numDice];
-					ModifPlateau(gameState, moves, 1, player);
+					UpdateGameState(gameState, moves, 1, player);
 					
 					dicesUsed[numDice] = 1; // On retient lequel des dés a été joué
 					return (1 + GetMaxNumberPossibleMoves(gameState, nbMovesTheoretic, tabDices, dicesUsed, player));
@@ -351,7 +352,7 @@ int GetMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMoves
 				{
 					moves[0].src_point = 0;
 					moves[0].dest_point = tabDices[numDice];
-					ModifPlateau(gameState, moves, 1, player);
+					UpdateGameState(gameState, moves, 1, player);
 					
 					dicesUsed[numDice] = 1; // On retient lequel des dés a été joué
 					return (1 + GetMaxNumberPossibleMoves(gameState, nbMovesTheoretic, tabDices, dicesUsed, player));
@@ -378,7 +379,7 @@ int GetMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMoves
 					{
 						moves[0].src_point = numSquare+1;
 						moves[0].dest_point = numSquare+1+numDice;
-						ModifPlateau(gameState, moves, 1, player);
+						UpdateGameState(gameState, moves, 1, player);
 					
 						dicesUsed[numDice] = 1; // On retient lequel des dés a été joué
 						return (1 + GetMaxNumberPossibleMoves(gameState, nbMovesTheoretic, tabDices, dicesUsed, player));

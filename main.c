@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
 		        copyGameState = gameState;		        
 		        if (CheckTurn(&copyGameState, dices, moves, nbMoves, player)) // Vérification des coups
 		        {
-		        	UpdateGameState(gameState, moves, nbMoves, player); // Mise à jour du jeu
+		        	UpdateGameState(&gameState, moves, nbMoves, player); // Mise à jour du jeu
 		        	if (WinGame(&gameState, WHITE)) // On regarde si le joueur à gagner la partie
 				    {
 				        gameState.whiteScore++;
@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
 		        copyGameState = gameState;
 		        if (CheckTurn(&copyGameState, dices, moves, nbMoves, player)) // Vérification des coups
 		        {
-		        	UpdateGameState(gameState, moves, nbMoves, player); // Mise à jour du jeu
+		        	UpdateGameState(&gameState, moves, nbMoves, player); // Mise à jour du jeu
 		        	if (WinGame(&gameState, player)) // On regarde si le joueur à gagner la partie
 				    {
 				        gameState.blackScore++;
