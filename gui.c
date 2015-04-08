@@ -1,6 +1,41 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <SDL/SDL.h>
+#include <unistd.h>
+#include <SDL2/SDL.h>
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  
 void pause();
  

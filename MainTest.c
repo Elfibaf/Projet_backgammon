@@ -233,8 +233,9 @@ int main(int argc, char *argv[])
 	
 
 	surfPlateau = SDL_LoadBMP("plateau.bmp");
-	surfJetonNoir = IMG_Load("noir.png");
-	surfJetonBlanc = IMG_Load("blanc.png");
+
+	surfJetonNoir = IMG_Load("noir_48.png");
+	surfJetonBlanc = IMG_Load("blanc_48.png");
 
 
 	SDL_Rect rectPlateau = {0, 0, 1360, 760};
@@ -251,6 +252,7 @@ int main(int argc, char *argv[])
 	SDL_Rect b8 = { 509, 50, 48, 48 }; //Jan 17
 	SDL_Rect b9 = { 509, 87, 48, 48 }; //Jan 17
 	SDL_Rect b10 = { 509, 124, 48, 48 }; //Jan 17
+
 
 	SDL_Rect b11 = { 730, 50, 48, 48 }; //Jan 19
 	SDL_Rect b12 = { 730, 87, 48, 48 }; //Jan 19
@@ -325,6 +327,8 @@ int main(int argc, char *argv[])
 	Hitbox *hitboxesTab = (Hitbox*) malloc (28*sizeof(Hitbox));
 	
 	
+
+
     // Tant qu'aucun des joueurs n'a gagné le jeu, on continue à faire des parties
     while( (gameState.whiteScore < goal) && (gameState.blackScore < goal) )
     {

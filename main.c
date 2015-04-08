@@ -173,13 +173,12 @@ int main(int argc, char *argv[])
 		            j2TakeDouble(&gameState);
 		        }
 		        
-		        copyGameState = gameState;
 		        j1PlayTurn(&copyGameState, dices, moves, &nbMoves, j1NbTries);
 		        
-		        copyGameState = gameState; // Re-copie pour envoyer une copie du tableau avant de valider les changements (si valide)
-		        
-		        if (CheckTurn(&copyGameState, dices, moves, nbMoves, WHITE)) // Vérification des coups
-		        {            	
+		        copyGameState = gameState;		        
+		        if (CheckTurn(&copyGameState, dices, moves, nbMoves, player)) // Vérification des coups
+		        {
+		        	UpdateGameState(gameState, moves, nbMoves, player); // Mise à jour du jeu
 		        	if (WinGame(&gameState, WHITE)) // On regarde si le joueur à gagner la partie
 				    {
 				        gameState.whiteScore++;
@@ -203,14 +202,13 @@ int main(int argc, char *argv[])
 		            j1TakeDouble(&gameState);
 		        }
 		        
+		        j2PlayTurn(&gameState, dices, moves, &nbMoves, j2NbTries);
+		        
 		        copyGameState = gameState;
-		        j2PlayTurn(&copyGameState, dices, moves, &nbMoves, j2NbTries);
-		        
-		        copyGameState = gameState; // Re-copie pour envoyer une copie du tableau avant de valider les changements (si valide)
-		        
-		        if (CheckTurn(&copyGameState, dices, moves, nbMoves, BLACK)) // Vérification des coups
-		        {            	
-		        	if (WinGame(&gameState, BLACK)) // On regarde si le joueur à gagner la partie
+		        if (CheckTurn(&copyGameState, dices, moves, nbMoves, player)) // Vérification des coups
+		        {
+		        	UpdateGameState(gameState, moves, nbMoves, player); // Mise à jour du jeu
+		        	if (WinGame(&gameState, player)) // On regarde si le joueur à gagner la partie
 				    {
 				        gameState.blackScore++;
 				    }

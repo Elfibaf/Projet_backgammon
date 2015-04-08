@@ -81,7 +81,7 @@ void GenerateDices(unsigned char dices[2])
 	printf("Dé 1 : %d    Dé 2 : %d\n",(int)dices[0],(int)dices[1]);
 }
 
-
+/*
 // ====================================================================================================
 // Fonction qui vérifie si le tour du joueur est valide
 //
@@ -92,9 +92,10 @@ int CheckTurn(SGameState * gameState, const unsigned char dices[2], const SMove 
 	// Le nombre théorique de mouvement qu'il est possible de faire
 	unsigned int nbMovesTheoretic = (dices[0] == dices[1]) ? 4 : 2;
 	
-	if (nbMoves > nbMovesTheoretic)
+	if ( (nbMoves > nbMovesTheoretic) || (nbMoves < 1)
 	{
 		// Si le joueur propose un nombre de mouvement supérieur au nombre maximum (théorique) de mouvement possible
+		// ou si il ne propose pas de mouvements
 		return 0;
 	}
 	else
@@ -115,6 +116,9 @@ int CheckTurn(SGameState * gameState, const unsigned char dices[2], const SMove 
 			dicesTab[numDice] = dices[numDice];
 			dicesUsed[numDice] = 0;
 		}
+		
+		
+		
 		if (nbMoves == nbMovesTheoretic) 
 		{
 			// Si le joueur propose un nombre de mouvement égal au nombre maximum (théorique) de mouvement possible
@@ -135,15 +139,14 @@ int CheckTurn(SGameState * gameState, const unsigned char dices[2], const SMove 
 			// ************************************************************************
 			// Puis on vérifie la validité de chacun de ses coups
 			// ************************************************************************
-			
 			if (nbMoves == nbMovesMax) // Le joueur a proposé une solution ayant un nombre de mouvements maximal
 			{
 				return CheckMove(gameState, moves, nbMoves, nbMovesTheoretic, player, dicesTab, dicesUsed);
 			}
-			else
+			else // Le joueur aurait pu faire un tour avec plus de coup
 			{
-				return CheckMove(gameState, moves, nbMoves, nbMovesTheoretic, player, dicesTab, dicesUsed);
-				//return 0;
+				//return CheckMove(gameState, moves, nbMoves, nbMovesTheoretic, player, dicesTab, dicesUsed);
+				return 0;
 			}			
 		}
 		
@@ -162,12 +165,11 @@ int CheckMove(SGameState * gameState, const SMove moves[4], const unsigned int n
 {
 	unsigned int numMove, numDice; //Numéro du mouvement, numéro du dé
 	unsigned int nbDicesUsed = 0; // Nombre de dés utilisés
-	Player ennemi = player - 1; // Pour connaitre le numéro de l'adversaire
+	Player ennemi = 1 - player; // Pour connaitre le numéro de l'adversaire
 	
 	// Variable qui permet d'effectuer les memes controles, que le joueur soit "WHITE" ou "BLACK"
 	// Pour la mise à jour du plateau, il faut cependant utiliser moves[numMove].src_point et moves[numMove].dest_point
 	unsigned int source, destination;
-	
 	
 	// Pour chaque mouvement
 	for (numMove = 0; numMove < nbMoves; numMove++)
@@ -289,18 +291,10 @@ int CheckMove(SGameState * gameState, const SMove moves[4], const unsigned int n
 		}
 		
 		
-		//*******************************************
-		//*******************************************
-		//*******************************************
-		//*******************************************
-		//*******************************************
-		//*******************************************
-		//*******************************************
-		//*******************************************
-		//*******************************************
+		// Mise à jour de l'état du jeu pour vérifier le coup suivant
 		SMove copyMove[4];
 		copyMove[0] = moves[numMove];
-		ModifPlateau(gameState, copyMove, 1, player);
+		UpdateGameState(gameState, copyMove, 1, player);
 	}
 	
 	return 1;
@@ -315,7 +309,7 @@ int CheckMove(SGameState * gameState, const SMove moves[4], const unsigned int n
 // ========================================================================================================================
 int GetMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMovesTheoretic, const unsigned char * tabDices, unsigned char * dicesUsed, const Player player)
 {
-	Player ennemi = (1 - player); // Pour connaitre la couleur de l'ennemi
+	Player ennemi = 1 - player; // Pour connaitre la couleur de l'ennemi
 	unsigned int numDice; // pour connaitre le numéro du dé en cours
 	
 	// Attributs pour la mise à jour de la copie du plateau
@@ -399,60 +393,58 @@ int GetMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMoves
 	}
 }
 
+*/
 
 // ========================================================================================================================
-// Fonction qui permet de mettre à jour le tableau
+// Fonction qui permet de mettre à jour le plateau
 // ========================================================================================================================
-void ModifPlateau(SGameState * gameState, SMove moves[4], unsigned int nbMoves, Player player)
+void UpdateGameState(SGameState * gameState, SMove moves[4], const unsigned int nbMoves, const Player player)
 {
-    
-    Player enemy = 1 - player;
-    int i;
-    int x,y;
-    
-    for (i = 0; i < nbMoves; i++)
-    {
-        
-        x = moves[i].src_point;
-        y = moves[i].dest_point;
-        
-        if (x == 0) {
-            
-            gameState->bar[player] = gameState->bar[player] - 1 ;
-        } 
-        
-        else {
-            
-            gameState->board[x-1].nbDames = gameState->board[x-1].nbDames - 1;
-            if (gameState->board[x-1].nbDames == 0) 
-            {
-                
-                gameState->board[x-1].owner = -1;
-            }
-        }
-    
-        
-        if (y == 25) {
-            gameState->out[player] = gameState->out[player] + 1;
-        } 
-        
-        else if (gameState->board[y-1].owner == -1) {
-            gameState->board[y-1].nbDames = gameState->board[y-1].nbDames + 1;
-            gameState->board[y-1].owner = player;
-        } 
-        
-        else if (gameState->board[y-1].owner == player)
-        {
-            gameState->board[y-1].nbDames = gameState->board[y-1].nbDames + 1;
-        }
-        
-        else if (gameState->board[y-1].owner != player) {
-            
-            gameState->board[y-1].owner = player;
-            gameState->bar[enemy] = gameState->bar[enemy] + 1;
-        }
-        printf("Le joueur %d bouge de la case %d à la case %d\n",(int)player,x,y);
-    }
+	Player enemy = 1 - player;
+	unsigned int numMove;
+	unsigned int source, destination;
+	
+	// Pour chacun des mouvements
+	for (numMove = 0; numMove < nbMoves; numMove++)
+	{
+		source = moves[numMove].src_point;
+		destination = moves[numMove].dest_point;
+		
+		// Mis à jour de la case source du mouvement
+		if (source == 0)
+		{
+			gameState->bar[player]--;
+		}
+		else
+		{
+			gameState->board[source-1].nbDames--;
+			if (gameState->board[source-1].nbDames == 0)
+			{
+				gameState->board[source-1].owner = NOBODY;
+			}
+		}
+		
+		// Mis à jour de la case destination du mouvement
+		if (destination == 25)
+		{
+			gameState->out[player]++;
+		}
+		else if (gameState->board[destination-1].owner == NOBODY)
+		{
+			gameState->board[destination-1].nbDames++;
+			gameState->board[destination-1].owner = player; // La case a maintenant un propriétaire
+		}
+		else if (gameState->board[destination-1].owner == player)
+		{
+			gameState->board[destination-1].nbDames++;
+		}
+		else
+		{
+			gameState->bar[enemy]++;
+			gameState->board[destination-1].owner = player;
+		}
+		printf("Le joueur %d bouge de la case %d à la case %d\n",(int)player, source, destination);
+	}
 }
 
 
