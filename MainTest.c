@@ -25,13 +25,26 @@
 
 void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rect rouges[15])
 {
-	printf("Calcul des coordonnees des jetons ... \n");
+    printf("Calcul des coordonnees des jetons ... \n");
     //Tableau d'equivalence entre les cases et leurs positions en pixels
     int equivalence_x[12] = {1087, 1014, 944, 872, 802, 730, 581, 509, 438, 367, 296, 224};
     
     //Tableau d'equivalence entre la position sur une case et la position en pixel correspondante
     int equivalence_y[6] = {662, 625, 588, 551, 514, 477};
     int equivalence_y2[6] = {50, 87, 124, 161, 198, 235};
+    
+    //Tableau d'equivalence entre les coordonnees de out et le nombre de jetons blancs dans out
+    int equivalence_outB[15] = {604, 593, 582, 571, 560, 549, 538, 527, 516, 505, 494, 483, 472, 461, 451};
+    
+    //Tableau d'equivalence entre les coordonnees de out et le nombre de jetons noirs dans out
+    int equivalence_outN[15] = {107, 118, 129, 140, 151, 162, 173, 184, 195, 206, 217, 228, 239, 250, 261};
+    
+    //Tableau d'equivalence entre les coordonnees de bar et le nombre de jetons noirs dans bar
+    int equivalence_barB[15] = {500, 492, 484, 475, 467, 459, 450, 442, 434, 425, 417, 409, 400, 392, 384};
+    
+    //Tableau d'equivalence entre les coordonees de bar et le nombre de jetons blancs dans bar
+    int equivalence_barN[15] = {210, 218, 226, 235, 243, 251, 260, 268, 276, 285, 293, 301, 310, 318, 326};
+    
     
     int i = 0, j = 0, cptN = 0, cptR = 0;
     
@@ -42,13 +55,13 @@ void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rec
         {
             for (j = 0; j < state->board[i].nbDames; j++)
             {
-				if (i<12) noirs[cptN].x = equivalence_x[i];
-	            else noirs[cptN].x = equivalence_x[24-(i+1)];
+		if (i<12) noirs[cptN].x = equivalence_x[i];
+	        else noirs[cptN].x = equivalence_x[24-(i+1)];
                 
                 if(i<12) noirs[cptN].y = equivalence_y[j];
                 else noirs[cptN].y = equivalence_y2[j];
 				
-				//printf("X : %d, Y : %d \n", noirs[cptN].x, noirs[cptN].y);
+		//printf("X : %d, Y : %d \n", noirs[cptN].x, noirs[cptN].y);
                 cptN++;
             }
         }
@@ -56,17 +69,63 @@ void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rec
         {
             for (j = 0; j<state->board[i].nbDames; j++)
             {
-				if(i<12) rouges[cptR].x = equivalence_x[i];
-				else rouges[cptR].x = equivalence_x[24-(i+1)];
+		if(i<12) rouges[cptR].x = equivalence_x[i];
+		else rouges[cptR].x = equivalence_x[24-(i+1)];
                 
                 if(i<12) rouges[cptR].y = equivalence_y[j];
-				else rouges[cptR].y = equivalence_y2[j];
-				
-				//printf("X : %d, Y : %d \n", rouges[cptR].x, rouges[cptR].y);
+		else rouges[cptR].y = equivalence_y2[j];
+		
+		//printf("X : %d, Y : %d \n", rouges[cptR].x, rouges[cptR].y);
                 cptR ++;
             }
         }
     }
+    
+    //Affichage de la sortie des jetons noirs
+    if ( state->out[0] != 0 )
+    {
+      for(i = 0; i < state->out[0]; i++)
+      {
+	noirs[cptN].x = 1167;
+	noirs[cptN].y = equivalence_outN[i];
+	cptN++;
+      }
+    }
+    
+    
+    //Affichage de la sortie des jetons blancs
+    if ( state->out[1] != 0 )
+    {
+      for(i = 0; i < state->out[1]; i++)
+      {
+	rouges[cptR].x = 1167;
+	rouges[cptR].y = equivalence_outB[i];
+	cptR++;
+      }
+    }
+    
+    //Affichage du bar de jetons noirs
+    if ( state->bar[0] != 0 )
+    {
+      for (i = 0; i < state->bar[0]; i++)
+      {
+	noirs[cptN].x = 655;
+	noirs[cptN].y = equivalence_barN[i];
+	cptN++;
+      }
+    }
+    
+    //Affichage du bar de jetons noirs
+    if ( state->bar[1] != 0 )
+    {
+      for (i = 0; i < state->bar[1]; i++)
+      {
+	rouges[cptR].x = 655;
+	rouges[cptR].y = equivalence_barB[i];
+	cptR++;
+      }
+    }
+    
 }
 
 void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface *surfJetonBlanc, SDL_Rect noirs[15] , SDL_Rect blancs[15], SDL_Rect *rectPlateau, SDL_Surface *screen)
@@ -255,7 +314,6 @@ int main(int argc, char *argv[])
 
 	//Surface SDL servant à contenir l'image du plateau
 	SDL_Rect rectPlateau = {0, 0, 1360, 760};
-	
 	
 	//Surfaces SDL servant à contenir les jetons blancs du plateau
 	SDL_Rect b1 = { 1087, 662, 48, 48 }; //Jan 1
