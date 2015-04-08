@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include "../bot.h"
 
 
 // Définition du type Hitbox
@@ -48,8 +49,4 @@ int detectClickIntoHitbox(Hitbox *hitboxesTab, int x, int y);
 void clickToSMoves(int* indiceHBTab, SMove* moves,unsigned int *nbMoves, Player curPlayer);
 
 
-/*
-void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rect rouges[15]);
-void init();
-void quitter();
-*/
+
