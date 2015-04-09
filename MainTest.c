@@ -509,6 +509,9 @@ int main(int argc, char *argv[])
 	    {
 		j2TakeDouble(&gameState);
 	    }
+	    
+	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
+	    
 	    //Le joueur 1 joue son tour
 	    j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
 	    
