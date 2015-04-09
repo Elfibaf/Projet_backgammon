@@ -263,6 +263,10 @@ int main(int argc, char *argv[])
 	//Appel a la fonction de mise a jour de l'ecran
 	SDL_UpdateWindowSurface(pWindow);
 	
+	
+	// Initialisation des scores des deux joueurs
+    gameState->whiteScore = 0;
+    gameState->blackScore = 0;
 	InitPlateau(&gameState); // Initialisation du tableau
 	  
 	//Affichage du plateau initial
