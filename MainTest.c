@@ -248,7 +248,15 @@ int main(int argc, char *argv[])
 	//Appel a la fonction de mise a jour de l'ecran
 	SDL_UpdateWindowSurface(pWindow);
 	
+	InitPlateau(&gameState); // Initialisation du tableau
+	  
+	//Affichage du plateau initial
+	setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
+	afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
+	afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
 	
+	//Appel a la fonction de mise a jour de l'ecran
+	SDL_UpdateWindowSurface(pWindow);
 	
 	//Gestion des hitbox (utilisateur humain)
 	Hitbox *hitboxesTab = (Hitbox*) malloc (28*sizeof(Hitbox));
