@@ -165,12 +165,16 @@ int main(int argc, char *argv[])
 		return(-1);
 	}
 	
-	char name[50];
-	j1InitLibrary(name);
+	char name1[50];
+	char name2[50];
+	j1InitLibrary(name1);
 	j1StartMatch(goal);
+	j2InitLibrary(name2)
+	j2StartMatch(goal);
+	
 	
 	SGameState gameState, copyGameState;
-	InitPlateau(&gameState); // Initialisation du tableau
+	
 	
 	unsigned char dices[2];
 
@@ -222,13 +226,7 @@ int main(int argc, char *argv[])
 	if(des == NULL) printf("Erreur de rendu du texte du des (%s)", TTF_GetError());
 	
 	
-	//Affichage du plateau initial
-	setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
-	afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
-	afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
 	
-	//Appel a la fonction de mise a jour de l'ecran
-	SDL_UpdateWindowSurface(pWindow);
 	
 	
 	
@@ -251,6 +249,15 @@ int main(int argc, char *argv[])
 	// Tant qu'aucun des joueurs n'a gagné le jeu, on continue à faire des parties
 	while( (gameState.whiteScore < goal) && (gameState.blackScore < goal) )
 	{
+	  InitPlateau(&gameState); // Initialisation du tableau
+	  
+	  //Affichage du plateau initial
+	  setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
+	  afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
+	  afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
+	
+	  //Appel a la fonction de mise a jour de l'ecran
+	  SDL_UpdateWindowSurface(pWindow);
 	    
 	  j1StartGame(WHITE);
 	  j1NbTries = J1_NB_TRIES;
@@ -351,23 +358,55 @@ int main(int argc, char *argv[])
 	    
 	    /*initHitBoxesTab(hitboxesTab, screen);
 	    SDL_UpdateWindowSurface(pWindow);*/
-	    //getchar();
+	    
 	    
 	    // **********************************************************
 	    // TOUR DU DEUXIEME JOUEUR (BLACK)
 	    // **********************************************************
+	    GenerateDices(dices);
 	    
-	    /*
+	    
+	    
 	    if(j2DoubleStack(&gameState))
 	    {
 		j1TakeDouble(&gameState);
 	    }
+	    
+	    
+	    //Affichage du de avant que le joueur joue
+	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
+	    
+	    
+	    //Mise a jour de l'affichage
+	    SDL_UpdateWindowSurface(pWindow);
+	    
+	    
+	    //Le joueur 2 joue
 	    j2PlayTurn(&gameState,dices,moves,&nbMoves,3);
+	    
+	    //Mise à jour du gameState
+	    UpdateAllMove(&gameState, moves, nbMoves, BLACK);
+	    
+	    
+	    //Calcul des coordonnees des jetons
+	    setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
+	    
+	    
+	    //Affichage des jetons et du plateau
+	    afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
+	    
+	    
+	    //Affichage des des
+	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
+	    
+	    
+	    //Mise a jour de l'affichage de l'interface
+	    SDL_UpdateWindowSurface(pWindow);
 	    if( WinGame(&gameState, BLACK) )
 	    {
 		gameState.blackScore++;
 		break;
-	    }*/
+	    }
 	    
 	    // Gestion des evenements
 	    printf("Gestion des evenements \n");
