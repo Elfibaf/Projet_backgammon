@@ -265,8 +265,8 @@ int main(int argc, char *argv[])
 	
 	
 	// Initialisation des scores des deux joueurs
-    gameState->whiteScore = 0;
-    gameState->blackScore = 0;
+	gameState.whiteScore = 0;
+	gameState.blackScore = 0;
 	InitPlateau(&gameState); // Initialisation du tableau
 	  
 	//Affichage du plateau initial
@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
 	  setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
 	  afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
 	  afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-	  afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
+	  afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.blackScore, gameState.whiteScore);
 	
 	  //Appel a la fonction de mise a jour de l'ecran
 	  SDL_UpdateWindowSurface(pWindow);
