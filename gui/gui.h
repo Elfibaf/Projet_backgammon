@@ -1,4 +1,7 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+
 #include "../bot.h"
 
 
@@ -7,6 +10,63 @@ typedef struct {
     SDL_Rect *rectHB; 
 } Hitbox;
 
+
+/**
+ * 
+ * Calcul des coordonnees des elements affiches a l'ecran dans l'interface graphique
+ * @param const SGameState * const state 
+ * 	Structure contenant les informations sur l'etat du jeu
+ * @param SDL_Rect noirs[15] 
+ * 	tableau contenant les SDL_Rect des jetons noirs à modifier
+ * @param SDL_Rect rouges[15] 
+ * 	tableau contenant les SDL_Rect des jetons blancs à modifier
+ * @param SDL_Rect *rectPlateau 
+ * 	SDL_Rect du plateau
+ * 
+ */
+void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rect rouges[15], SDL_Rect *rectPlateau);
+
+
+/**
+ * Affichage des elements de l'interface graphique
+ * @param SDL_Surface *surfPlateau 
+ * 	Surface du plateau dans la GUI
+ * @param SDL_Surface *surfJetonNoir 
+ * 	Surface du jeton noir dans la GUI
+ * @param SDL_Surface *surfJetonBlanc 
+ * 	Surface du jeton blanc dans la GUI
+ * @param SDL_Rect noirs[15] 
+ * 	tableau contenant les SDL_Rect des jetons noirs à modifier
+ * @param SDL_Rect blancs[15] 
+ * 	tableau contenant les SDL_Rect des jetons blancs à modifier
+ * @param SDL_Rect *rectPlateau 
+ * 	SDL_Rect du plateau
+ * @param SDL_Rect *rectDes 
+ * 	SDL_Rect des dés
+ * @param SDL_Surface *screen 
+ * 	Surface de l'ecran
+ * 
+ */
+void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface *surfJetonBlanc, SDL_Rect noirs[15] , SDL_Rect blancs[15], SDL_Rect *rectPlateau, SDL_Rect *rectDes, SDL_Surface *screen);
+
+/**
+ * @param SDL_Surface *des 
+ * 	Surface d'affichage des dés
+ * @param SDL_Rect *rectDes 
+ * 	SDL_Rect des dés
+ * @param unsigned char dices[2] 
+ * 	tableau contenant les dés courants
+ * @param char stringDes[10] 
+ * 	chaine de caractères correspondant à l'affichage des dés
+ * @param SDL_Color colorFont 
+ * 	Couleur de la police 
+ * @param TTF_Font *font 
+ * 	Police 
+ * @param SDL_Surface *screen 
+ * 	Surface de l'ecran dans la GUI
+ */
+
+void afficherDes(SDL_Surface *des, SDL_Rect *rectDes, unsigned char dices[2], char stringDes[10], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen);
 
 /**
  * Initialisation des Hitbox et du tableau contenant les Hitbox
