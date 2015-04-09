@@ -25,149 +25,9 @@
 //****************************
 
 
-void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rect rouges[15])
-{
-    printf("Calcul des coordonnees des jetons ... \n");
-    //Tableau d'equivalence entre les cases et leurs positions en pixels
-    int equivalence_x[12] = {1087, 1014, 944, 872, 802, 730, 581, 509, 438, 367, 296, 224};
-    
-    //Tableau d'equivalence entre la position sur une case et la position en pixel correspondante
-    int equivalence_y[6] = {662, 625, 588, 551, 514, 477};
-    int equivalence_y2[6] = {50, 87, 124, 161, 198, 235};
-    
-    //Tableau d'equivalence entre les coordonnees de out et le nombre de jetons blancs dans out
-    int equivalence_outB[15] = {604, 593, 582, 571, 560, 549, 538, 527, 516, 505, 494, 483, 472, 461, 451};
-    
-    //Tableau d'equivalence entre les coordonnees de out et le nombre de jetons noirs dans out
-    int equivalence_outN[15] = {107, 118, 129, 140, 151, 162, 173, 184, 195, 206, 217, 228, 239, 250, 261};
-    
-    //Tableau d'equivalence entre les coordonnees de bar et le nombre de jetons noirs dans bar
-    int equivalence_barB[15] = {500, 492, 484, 475, 467, 459, 450, 442, 434, 425, 417, 409, 400, 392, 384};
-    
-    //Tableau d'equivalence entre les coordonees de bar et le nombre de jetons blancs dans bar
-    int equivalence_barN[15] = {210, 218, 226, 235, 243, 251, 260, 268, 276, 285, 293, 301, 310, 318, 326};
-    
-    
-    int i = 0, j = 0, cptN = 0, cptR = 0;
-    
-    //Parcours du SGameState
-    for (i = 0; i<24; i++)
-    {
-        if (state->board[i].owner == 0)
-        {
-            for (j = 0; j < state->board[i].nbDames; j++)
-            {
-		if (i<12) noirs[cptN].x = equivalence_x[i];
-	        else noirs[cptN].x = equivalence_x[24-(i+1)];
-                
-                if(i<12) noirs[cptN].y = equivalence_y[j];
-                else noirs[cptN].y = equivalence_y2[j];
-				
-		//printf("X : %d, Y : %d \n", noirs[cptN].x, noirs[cptN].y);
-                cptN++;
-            }
-        }
-        else
-        {
-            for (j = 0; j<state->board[i].nbDames; j++)
-            {
-		if(i<12) rouges[cptR].x = equivalence_x[i];
-		else rouges[cptR].x = equivalence_x[24-(i+1)];
-                
-                if(i<12) rouges[cptR].y = equivalence_y[j];
-		else rouges[cptR].y = equivalence_y2[j];
-		
-		//printf("X : %d, Y : %d \n", rouges[cptR].x, rouges[cptR].y);
-                cptR ++;
-            }
-        }
-    }
-    
-    //Affichage de la sortie des jetons noirs
-    if ( state->out[0] != 0 )
-    {
-      for(i = 0; i < state->out[0]; i++)
-      {
-	noirs[cptN].x = 1167;
-	noirs[cptN].y = equivalence_outN[i];
-	cptN++;
-      }
-    }
-    
-    
-    //Affichage de la sortie des jetons blancs
-    if ( state->out[1] != 0 )
-    {
-      for(i = 0; i < state->out[1]; i++)
-      {
-	rouges[cptR].x = 1167;
-	rouges[cptR].y = equivalence_outB[i];
-	cptR++;
-      }
-    }
-    
-    //Affichage du bar de jetons noirs
-    if ( state->bar[0] != 0 )
-    {
-      for (i = 0; i < state->bar[0]; i++)
-      {
-	noirs[cptN].x = 655;
-	noirs[cptN].y = equivalence_barN[i];
-	cptN++;
-      }
-    }
-    
-    //Affichage du bar de jetons noirs
-    if ( state->bar[1] != 0 )
-    {
-      for (i = 0; i < state->bar[1]; i++)
-      {
-	rouges[cptR].x = 655;
-	rouges[cptR].y = equivalence_barB[i];
-	cptR++;
-      }
-    }
-    
-}
-
-void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface *surfJetonBlanc, SDL_Rect noirs[15] , SDL_Rect blancs[15], SDL_Rect *rectPlateau, SDL_Rect *rectDes, SDL_Surface *screen)
-{
-	int i = 0, j = 0;
-	printf("Affichage ... \n");
-	//Afficher un ecran noir
-	SDL_FillRect(screen, NULL, SDL_MapRGB(surfPlateau->format, 0,0,0));
-
-	//Affichage du plateau 
-	SDL_BlitSurface(surfPlateau, 0, screen, rectPlateau);
-
-	//Parcours du tableau de jetons noirs et affichage
-	for (i=0; i<15;i++)
-	{
-		//printf("BlitSurface du jeton i = %d \n",i); 
-		SDL_BlitSurface(surfJetonNoir, 0, screen, &noirs[i]);
-	}
-
-	//Parcours du tableau de jetons blancs et affichage
-	for (j=0; j<15;j++)
-	{
-		//printf("BlitSurface du jeton j = %d \n",j);
-		SDL_BlitSurface(surfJetonBlanc, 0, screen, &blancs[j]);
-	}
-}
-
-void afficherDes(SDL_Surface *des, SDL_Rect *rectDes, unsigned char dices[2], char stringDes[10], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen)
-{
-    sprintf(stringDes, " %d || %d ", dices[0], dices[1]);
-    
-    des = TTF_RenderText_Blended(font, stringDes, colorFont);
-    
-    SDL_BlitSurface(des, 0, screen, rectDes);
-}
-
 //void deroulement_du_jeu()
 int main(int argc, char *argv[])
 {
-  
     //Variables
     SDL_Event event;
 
@@ -179,8 +39,34 @@ int main(int argc, char *argv[])
     SDL_Surface * screen;
     SDL_Surface * des;
     
-    
+    //Fonts
     TTF_Font *font;
+    
+    //Definition de la couleur de la police
+    SDL_Color colorFont = {0, 0, 0};
+	
+    
+    //Surface accueillant l'affichage des des
+    SDL_Rect rectDes = {140, 350, 0, 0};
+    
+    //Surface SDL servant à contenir l'image du plateau
+    SDL_Rect rectPlateau;
+    
+    //Surfaces SDL servant à contenir les jetons blancs du plateau
+    SDL_Rect b1,b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15;
+
+    //Tableau de SDL_Rect servant à la mise à jour du plateau et des jetons
+    SDL_Rect blancs[15] = {b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15};
+    
+    //Surfaces SDL servant à contenir les jetons noirs du plateau
+    SDL_Rect n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12, n13, n14, n15; 
+    
+    //Tableau de SDL_Rect servant à la mise à jour du plateau et des jetons
+    SDL_Rect noirs[15] = {n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12, n13, n14, n15};
+      
+    
+    //Chaine de caractère correspondant à l'affichage du de
+    char stringDes[10];
     
     bool done = false;
 	
@@ -321,123 +207,33 @@ int main(int argc, char *argv[])
 	//Chargement des images
 	IMG_Init(IMG_INIT_PNG);
 	
-
+	//Chargement en memoire des images utilisees dans la GUI
 	surfPlateau = SDL_LoadBMP("plateau.bmp");
 	surfJetonNoir = IMG_Load("noir_48.png");
 	surfJetonBlanc = IMG_Load("blanc_48.png");
 	
-	SDL_Rect rectDes = {140, 350, 0, 0};
-	
 	
 	//Definition de la police à utiliser pour l'affichage des des
-	font = TTF_OpenFont("arial.ttf", 10);
+	font = TTF_OpenFont("stocky.ttf", 25);
 	if(font == NULL) printf("Erreur d'ouverture  de la police (%s)", TTF_GetError());
-
-	
-	//Definition de la couleur de la police
-	SDL_Color colorFont = {0, 0, 0};
-	
 	
 	//Rendu du texte a afficher
-	des = TTF_RenderText_Blended(font, " Des 1 || Des 2 ", colorFont);
+	des = TTF_RenderText_Blended(font, " Des 1 : Des 2 ", colorFont);
 	if(des == NULL) printf("Erreur de rendu du texte du des (%s)", TTF_GetError());
 	
-	char stringDes[10];
-
-	//Surface SDL servant à contenir l'image du plateau
-	SDL_Rect rectPlateau = {0, 0, 1360, 760};
 	
-	//Surfaces SDL servant à contenir les jetons blancs du plateau
-	SDL_Rect b1 = { 1087, 662, 48, 48 }; //Jan 1
-	SDL_Rect b2 = { 1087, 625, 48, 48 }; //Jan 1
-	SDL_Rect b3 = { 224, 662, 48, 48 }; //Jan 12
-	SDL_Rect b4 = { 224, 625, 48, 48 }; //Jan 12
-	SDL_Rect b5 = { 224, 588, 48, 48 }; //Jan 12
-	SDL_Rect b6 = { 224, 551, 48, 48 }; //Jan 12
-	SDL_Rect b7 = { 224, 514, 48, 48 }; //Jan 12
-	SDL_Rect b8 = { 509, 50, 48, 48 }; //Jan 17
-	SDL_Rect b9 = { 509, 87, 48, 48 }; //Jan 17
-	SDL_Rect b10 = { 509, 124, 48, 48 }; //Jan 17
-	SDL_Rect b11 = { 730, 50, 48, 48 }; //Jan 19
-	SDL_Rect b12 = { 730, 87, 48, 48 }; //Jan 19
-	SDL_Rect b13 = { 730, 124, 48, 48 }; //Jan 19
-	SDL_Rect b14 = { 730, 161, 48, 48 }; //Jan 19
-	SDL_Rect b15 = { 730, 198, 48, 48 }; //Jan 19
-
-	//Tableau de SDL_Rect servant à la mise à jour du plateau et des jetons
-	SDL_Rect blancs[15] = {b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15};
-	
-	
-	//Surfaces SDL servant à contenir les jetons noirs du plateau
-	SDL_Rect n1 = { 730, 662, 48, 48 }; //Jan 6
-	SDL_Rect n2 = { 730, 625, 48, 48 }; //Jan 6
-	SDL_Rect n3 = { 730, 588, 48, 48 }; //Jan 6
-	SDL_Rect n4 = { 730, 551, 48, 48 }; //Jan 6
-	SDL_Rect n5 = { 730, 514, 48, 48 }; //Jan 6
-	SDL_Rect n6 = { 509, 662, 48, 48 }; //Jan 8
-	SDL_Rect n7 = { 509, 625, 48, 48 }; //Jan 8
-	SDL_Rect n8 = { 509, 588, 48, 48 }; //Jan 8
-	SDL_Rect n9 = { 224, 50, 48, 48 }; //Jan 13
-	SDL_Rect n10 = { 224, 87, 48, 48 }; //Jan 13
-	SDL_Rect n11 = { 224, 124, 48, 48 }; //Jan 13
-	SDL_Rect n12 = { 224, 161, 48, 48 }; //Jan 13
-	SDL_Rect n13 = { 224, 198, 48, 48 }; //Jan 13
-	SDL_Rect n14 = { 1087, 50, 48, 48 }; //Jan 24
-	SDL_Rect n15 = { 1087, 87, 48, 48 }; //Jan 24
-	
-	
-	//Tableau de SDL_Rect servant à la mise à jour du plateau et des jetons
-	SDL_Rect noirs[15] = {n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12, n13, n14, n15};
-	
-	
-	//Collage de l'image du plateau chargée en mémoire plus tot sur la surface du plateau
-	SDL_BlitSurface(surfPlateau, 0, screen, &rectPlateau);
-
-	
-	//Collage des jetons sur l'interface
-	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n1);
-	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n2);
-	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n3);
-	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n4);
-	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n5);
-	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n6);
-	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n7);
-	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n8);
-	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n9);
-	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n10);
-	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n11);
-	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n12);
-	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n13);
-	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n14);
-	SDL_BlitSurface(surfJetonNoir, NULL, screen, &n15);
-	
-	
-	//Collage des jetons sur l'interface
-	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b1);
-	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b2);
-	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b2);
-	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b3);
-	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b4);
-	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b5);
-	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b6);
-	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b7);
-	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b8);
-	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b9);
-	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b10);
-	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b11);
-	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b12);
-	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b13);
-	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b14);
-	SDL_BlitSurface(surfJetonBlanc, NULL, screen, &b15);
-	
-	SDL_BlitSurface(des, NULL, screen, &rectDes);
+	//Affichage du plateau initial
+	setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
+	afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
+	afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
 	
 	//Appel a la fonction de mise a jour de l'ecran
 	SDL_UpdateWindowSurface(pWindow);
 	
 	
-	Hitbox *hitboxesTab = (Hitbox*) malloc (28*sizeof(Hitbox));
 	
+	//Gestion des hitbox (utilisateur humain)
+	Hitbox *hitboxesTab = (Hitbox*) malloc (28*sizeof(Hitbox));
 
 	int clicx;
 	int clicy;
@@ -510,26 +306,43 @@ int main(int argc, char *argv[])
 		j2TakeDouble(&gameState);
 	    }
 	    
+	    
+	    
+	    
 	    //Affichage du de avant que le joueur joue
 	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
+	    
 	    
 	    //Mise a jour de l'affichage
 	    SDL_UpdateWindowSurface(pWindow);
 	    
+	    
 	    //Le joueur 1 joue son tour
 	    j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
 	    
+	    
 	    //Mise à jour du gameState
 	    UpdateGameState(&gameState, moves, nbMoves, WHITE);
-			
-	    setBoardTokens(&gameState, noirs, blancs);
 	    
+	    
+	    //Calcul des coordonnees des jetons
+	    setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
+	    
+	    
+	    //Affichage des jetons et du plateau
 	    afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
 	    
+	    
+	    //Affichage des des
 	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-
+	    
+	    
+	    //Mise a jour de l'affichage de l'interface
 	    SDL_UpdateWindowSurface(pWindow);
 
+	    
+	    
+	    
 	    if( WinGame(&gameState, WHITE) )
 	    {
 		gameState.blackScore++;
