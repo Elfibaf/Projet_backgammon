@@ -81,7 +81,7 @@ void GenerateDices(unsigned char dices[2])
 	printf("Dé 1 : %d    Dé 2 : %d\n",(int)dices[0],(int)dices[1]);
 }
 
-/*
+
 // ====================================================================================================
 // Fonction qui vérifie si le tour du joueur est valide
 //
@@ -95,7 +95,7 @@ int CheckTurn(SGameState * gameState, const unsigned char dices[2], const SMove 
 	if ( (nbMoves > nbMovesTheoretic) || (nbMoves < 1) )
 	{
 		// Si le joueur propose un nombre de mouvement supérieur au nombre maximum (théorique) de mouvement possible
-		// ou si il ne propose pas de mouvements
+		// ou s'il ne propose pas de mouvements
 		return 0;
 	}
 	else
@@ -117,12 +117,14 @@ int CheckTurn(SGameState * gameState, const unsigned char dices[2], const SMove 
 			dicesUsed[numDice] = 0;
 		}
 		
-		
-		
 		if (nbMoves == nbMovesTheoretic) 
 		{
-			// Si le joueur propose un nombre de mouvement égal au nombre maximum (théorique) de mouvement possible
-			return CheckMove(gameState, moves, nbMoves, nbMovesTheoretic, player, dicesTab, dicesUsed);
+			if (CheckAllMove(gameState, moves, nbMoves, nbMovesTheoretic, player, dicesTab, dicesUsed) == 0)
+		    {
+		        free(dicesTab);
+	            free(dicesUsed);
+		        return 0;
+		    }
 		}
 		else 
 		{
@@ -137,167 +139,193 @@ int CheckTurn(SGameState * gameState, const unsigned char dices[2], const SMove 
 			unsigned int nbMovesMax = GetMaxNumberPossibleMoves(gameState, nbMovesTheoretic, dicesTab, dicesUsed, player);
 			
 			// ************************************************************************
-			// Puis on vérifie la validité de chacun de ses coups
+			// Puis on vérifit s'il a fait le maximum de mouvement qu'il était possible de faire
 			// ************************************************************************
 			if (nbMoves == nbMovesMax) // Le joueur a proposé une solution ayant un nombre de mouvements maximal
 			{
-				return CheckMove(gameState, moves, nbMoves, nbMovesTheoretic, player, dicesTab, dicesUsed);
+			    // On vérifie chaque mouvement
+			    if (CheckAllMove(gameState, moves, nbMoves, nbMovesTheoretic, player, dicesTab, dicesUsed) == 0)
+			    {
+			        free(dicesTab);
+	                free(dicesUsed);
+			        return 0;
+			    }
 			}
 			else // Le joueur aurait pu faire un tour avec plus de coup
 			{
-				//return CheckMove(gameState, moves, nbMoves, nbMovesTheoretic, player, dicesTab, dicesUsed);
+			    free(dicesTab);
+	            free(dicesUsed);
 				return 0;
 			}			
 		}
-		
+		// On est passé dans aucun cas invalide
 		free(dicesTab);
-		free(dicesUsed);
+	    free(dicesUsed);
+	    return 1;
 	}
 }
 
 
 // ========================================================================================================================
-// Fonction qui permet de vérifier que les déplacements sont correctes
+// Fonction qui permet de vérifier que tous les déplacements sont valides
+// et met à jour (à l'aide de la fonction "UpdateOneMove") le plateau
 //
-// Retourne 0 si au moins un des mouvements ne respecte pas ces conditions, 1 sinon
+// Retourne 0 au moins un déplacement n'est pas valide, 1 sinon
 // ========================================================================================================================
-int CheckMove(SGameState * gameState, const SMove moves[4], const unsigned int nbMoves, const unsigned int nbMovesTheoretic, const Player player, unsigned char * dicesTab, unsigned char * dicesUsed)
+int CheckAllMove(SGameState * gameState, const SMove moves[4], const unsigned int nbMoves, const unsigned int nbMovesTheoretic, const Player player, unsigned char * dicesTab, unsigned char * dicesUsed)
 {
-	unsigned int numMove, numDice; //Numéro du mouvement, numéro du dé
-	unsigned int nbDicesUsed = 0; // Nombre de dés utilisés
+    unsigned char numMove;
+    unsigned char nbDicesUsed = 0; // Nombre de dés utilisés
+    
+    for (numMove = 0; numMove < nbMoves; numMove++)
+    {
+        if (nbDicesUsed < nbMoves)
+        {
+            if (CheckOneMove(gameState, moves[numMove], nbMovesTheoretic, player, dicesTab, dicesUsed) == 0)
+            {
+                free(dicesTab);
+                free(dicesUsed);
+                return 0;
+            }
+            else
+            {
+                nbDicesUsed++;
+            
+                // Mise à jour de l'état du jeu pour vérifier le coup suivant
+                UpdateOneMove(gameState, moves[numMove], player);
+            }
+        }
+    }
+    return 1;
+}
+
+
+// ========================================================================================================================
+// Fonction qui permet de vérifier qu'un déplacement est valide
+//
+// Retourne 0 le déplacement n'est pas valide, 1 sinon
+// ========================================================================================================================
+int CheckOneMove(const SGameState * const gameState, const SMove move, const unsigned int nbMovesTheoretic, const Player player, unsigned char * dicesTab, unsigned char * dicesUsed)
+{
+	unsigned char numDice; //Numéro du mouvement, numéro du dé
 	Player ennemi = 1 - player; // Pour connaitre le numéro de l'adversaire
-	
-	SMove copyMove[4]; // Pour la mise à jour du tour
 	
 	// Variable qui permet d'effectuer les memes controles, que le joueur soit "WHITE" ou "BLACK"
 	// Pour la mise à jour du plateau, il faut cependant utiliser moves[numMove].src_point et moves[numMove].dest_point
 	unsigned int source, destination;
 	
-	// Pour chaque mouvement
-	for (numMove = 0; numMove < nbMoves; numMove++)
+	// ************************************************************************************************************
+	// On fait en sorte de pouvoir utiliser l'algorithme de la meme facon dans les deux sens (WHITE et BLACK)
+	// ************************************************************************************************************
+	if (player == WHITE) // Si le joueur est le "WHITE", on est déjà dans le bon sens
 	{
-		// ************************************************************************************************************
-		// On fait en sorte de pouvoir utiliser l'algorithme de la meme facon dans les deux sens (WHITE et BLACK)
-		// ************************************************************************************************************
-		if (player == WHITE) // Si le joueur est le "WHITE", on est déjà dans le bon sens
-		{
-			source = moves[numMove].src_point;
-			destination = moves[numMove].dest_point;
-		}
-		else // Si le joueur est le "BLACK", on soustrait à 25 la source du mouvement et sa destination pour etre dans le bon sens
-		{
-			source = 25 - moves[numMove].src_point;
-			destination = 25 - moves[numMove].dest_point;
-		}
-		
-		// ************************************************************************************************************
-		// On vérifie chacun des coups
-		// ************************************************************************************************************
-		
-		// On vérifie si la valeur de la source du mouvement n'est pas dans le "bar" ou dans le "board"
-		// et si la valeur de la destination du mouvement n'est pas dans le "board" ou dans le "out"
-		if ( (source < 0) || (source > 24) || (destination < 1) || (destination > 25) )
-		{
-			return 0;
-		}
-		
-		// Si le joueur ne possède pas la dame, il n'a pas le droit de la déplacer
-		if ( (gameState->board[source-1].owner != player) && (source != 0) )
-		{
-			return 0;
-		}
-		
-		// Si le "bar" est vide et que le joueur demande à bouger un pion qui est dans le "bar"
-		if ( (gameState->bar[player] == 0) && (source == 0) )
-		{
-			return 0;
-		}
-		
-		// Si le "bar" n'est pas vide et que le joueur veut bouger un pion qui n'est pas dans le "bar
-		if ( (gameState->bar[player] != 0) && (source != 0) )
-		{
-			return 0;
-		}
-	
-		// Le joueur demande à déplacer une dame sur une case qui est occupée par au moins 2 dames du joueur adverse
-		if ( (gameState->board[destination-1].owner == ennemi) && (gameState->board[destination-1].nbDames > 1) )
-		{
-			return 0;
-		}
-		
-		// On parcours la liste des valeurs fournie par les dés
-		for (numDice = 0; numDice < nbMovesTheoretic; numDice++)
-		{
-			if (destination == 25) // Le joueur veut sortir une dame du jeu
-			{
-				// il faut d'abord vérifier que toutes ses autres dames sont dans son jan intérieur (les 6 dernieres cases du plateau)
-				unsigned int numSquare; // numéro de la case du plateau
-				for (numSquare = 0; numSquare < 18; numSquare++)
-				{
-					// Si le joueur a une dame qui n'est pas dans son jan intérieur
-					if (gameState->board[numSquare].owner == player)
-					{
-						return 0;
-					}
-				}
-				
-				
-				// Si le joueur demande à effectuer un mouvement 
-				if ( ((destination - source) == dicesTab[numDice]) && (dicesUsed[numDice] == 0) && (nbDicesUsed < nbMoves) )
-				{
-					// Si c'est le cas, on signale qu'on a utilisé le dé
-					dicesUsed[numDice] = 1;
-					nbDicesUsed++;
-				}
-				else if ( ((destination - source) < dicesTab[numDice]) && (dicesUsed[numDice] == 0) && (nbDicesUsed < nbMoves) )
-				{
-					// Si le joueur fait un mouvement plus petit que le résultat du dé
-					// il faut parcourir toutes les cases du jan intérieur qui précède la dame que le joueur souhaite déplacer
-					// => si on trouve une autre dame qui lui appartient, le mouvement est invalide, sinon c'est bon
-					int i;
-					for (i = 18; i < (18 + 6 - (destination + source)); i++)
-					{
-						if (gameState->board[i].owner == player)
-						{
-							// On a trouvé une dame plus éloignée du out qui aurait pu utiliser le dé
-							return 0;
-						}
-						else
-						{
-							// Si c'est le cas, on signale qu'on a utilisé le dé
-							dicesUsed[numDice] = 1;
-							nbDicesUsed++;
-						}
-					}
-				}
-				else // Sinon, le joueur a utilisé une valeur qui n'était pas offerte par un des dés disponibles
-				{
-					return 0;
-				}						
-			}
-			else // Si la destination n'est pas le "out"
-			{
-				// Si on utilise bien un dé disponible
-				// Cela permet de vérifier en même temps que le mouvement va dans le bon sens (sens positif)
-				if ( ((destination - source) == dicesTab[numDice]) && (dicesUsed[numDice] == 0) && (nbDicesUsed < nbMoves) )
-				{
-					// Si c'est le cas, on signale qu'on a utilisé le dé
-					dicesUsed[numDice] = 1;
-					nbDicesUsed++;
-				}
-				else // Sinon, le joueur a utilisé une valeur qui n'était pas offerte par un des dés disponibles
-				{
-					return 0;
-				}
-			}
-		}
-		
-		
-		// Mise à jour de l'état du jeu pour vérifier le coup suivant
-		copyMove[0] = moves[numMove];
-		UpdateGameState(gameState, copyMove, 1, player);
+		source = move.src_point;
+		destination = move.dest_point;
+	}
+	else // Si le joueur est le "BLACK", on soustrait à 25 la source du mouvement et sa destination pour etre dans le bon sens
+	{
+		source = 25 - move.src_point;
+		destination = 25 - move.dest_point;
 	}
 	
+	// ************************************************************************************************************
+	// On vérifie chacun des coups
+	// ************************************************************************************************************
+	
+	// On vérifie si la valeur de la source du mouvement n'est pas dans le "bar" ou dans le "board"
+	// et si la valeur de la destination du mouvement n'est pas dans le "board" ou dans le "out"
+	if ( (source < 0) || (source > 24) || (destination < 1) || (destination > 25) )
+	{
+		return 0;
+	}
+	
+	// Si le joueur ne possède pas la dame, il n'a pas le droit de la déplacer
+	if ( (gameState->board[source-1].owner != player) && (source != 0) )
+	{
+		return 0;
+	}
+	
+	// Si le "bar" est vide et que le joueur demande à bouger un pion qui est dans le "bar"
+	if ( (gameState->bar[player] == 0) && (source == 0) )
+	{
+		return 0;
+	}
+	
+	// Si le "bar" n'est pas vide et que le joueur veut bouger un pion qui n'est pas dans le "bar
+	if ( (gameState->bar[player] != 0) && (source != 0) )
+	{
+		return 0;
+	}
+
+	// Le joueur demande à déplacer une dame sur une case qui est occupée par au moins 2 dames du joueur adverse
+	if ( (gameState->board[destination-1].owner == ennemi) && (gameState->board[destination-1].nbDames > 1) )
+	{
+		return 0;
+	}
+	
+	// On parcours la liste des valeurs fournie par les dés
+	for (numDice = 0; numDice < nbMovesTheoretic; numDice++)
+	{
+		if (destination == 25) // Le joueur veut sortir une dame du jeu
+		{
+			// il faut d'abord vérifier que toutes ses autres dames sont dans son jan intérieur (les 6 dernieres cases du plateau)
+			unsigned char numSquare; // numéro de la case du plateau
+			for (numSquare = 0; numSquare < 18; numSquare++)
+			{
+				// Si le joueur a une dame qui n'est pas dans son jan intérieur
+				if (gameState->board[numSquare].owner == player)
+				{
+					return 0;
+				}
+			}
+			
+			
+			// Si le joueur demande à effectuer un mouvement valide
+			if ( ((destination - source) == dicesTab[numDice]) && (dicesUsed[numDice] == 0) )
+			{
+				// Si c'est le cas, on signale qu'on a utilisé le dé
+				dicesUsed[numDice] = 1;
+			}
+			else if ( ((destination - source) < dicesTab[numDice]) && (dicesUsed[numDice] == 0) )
+			{
+				// Si le joueur fait un mouvement plus petit que le résultat du dé
+				// il faut parcourir toutes les cases du jan intérieur qui précède la dame que le joueur souhaite déplacer
+				// => si on trouve une autre dame qui lui appartient, le mouvement est invalide, sinon c'est bon
+				unsigned char i;
+				for (i = 18; i < (18 + 6 - (destination + source)); i++)
+				{
+					if (gameState->board[i].owner == player)
+					{
+						// On a trouvé une dame plus éloignée du out qui aurait pu utiliser le dé
+						return 0;
+					}
+					else
+					{
+						// Si c'est le cas, on signale qu'on a utilisé le dé
+						dicesUsed[numDice] = 1;
+					}
+				}
+			}
+			else // Sinon, le joueur a utilisé une valeur qui n'était pas offerte par un des dés disponibles
+			{
+				return 0;
+			}						
+		}
+		else // Si la destination n'est pas le "out"
+		{
+			// Si on utilise bien un dé disponible
+			// Cela permet de vérifier en même temps que le mouvement va dans le bon sens (sens positif)
+			if ( ((destination - source) == dicesTab[numDice]) && (dicesUsed[numDice] == 0) )
+			{
+				// Si c'est le cas, on signale qu'on a utilisé le dé
+				dicesUsed[numDice] = 1;
+			}
+			else // Sinon, le joueur a utilisé une valeur qui n'était pas offerte par un des dés disponibles
+			{
+				return 0;
+			}
+		}
+	}	
 	return 1;
 }
 
@@ -310,141 +338,69 @@ int CheckMove(SGameState * gameState, const SMove moves[4], const unsigned int n
 // ========================================================================================================================
 int GetMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMovesTheoretic, const unsigned char * tabDices, unsigned char * dicesUsed, const Player player)
 {
-	Player ennemi = 1 - player; // Pour connaitre la couleur de l'ennemi
-	unsigned int numDice; // pour connaitre le numéro du dé en cours
 	
-	// Attributs pour la mise à jour de la copie du plateau
-	SMove moves[4];
-	
-	if (gameState->bar[player] != 0) // Si le bar n'est pas vide
-	{
-		if (nbMovesTheoretic == 4)
-		{
-			// Il faut d'abord vérifier pour 1 dé (les 4 dés ayant la meme valeur)
-			if ( (gameState->board[tabDices[0]-1].owner == ennemi) && (gameState->board[tabDices[0]-1].nbDames > 1) )
-			{
-				// Si aucune dame ne peut être sortie du bar
-				return 0;
-			}
-			else
-			{
-				for (numDice = 0; numDice < nbMovesTheoretic; numDice++) // Pour chacun des dés
-				{
-					moves[0].src_point = 0;
-					moves[0].dest_point = tabDices[numDice];
-					UpdateGameState(gameState, moves, 1, player);
-					
-					dicesUsed[numDice] = 1; // On retient lequel des dés a été joué
-					return (1 + GetMaxNumberPossibleMoves(gameState, nbMovesTheoretic, tabDices, dicesUsed, player));
-				}
-			}
-		}
-		else // Si on peut faire que 2 mouvements maximum (théorique)
-		{
-			for (numDice = 0; numDice < nbMovesTheoretic; numDice++) // Pour chacun des dés
-			{
-				if ( (gameState->board[tabDices[numDice]-1].owner == ennemi) && (gameState->board[tabDices[numDice]-1].nbDames > 1) )
-				{
-					// Si la dame ne peut être sortie du bar
-					return 0;
-				}
-				else
-				{
-					moves[0].src_point = 0;
-					moves[0].dest_point = tabDices[numDice];
-					UpdateGameState(gameState, moves, 1, player);
-					
-					dicesUsed[numDice] = 1; // On retient lequel des dés a été joué
-					return (1 + GetMaxNumberPossibleMoves(gameState, nbMovesTheoretic, tabDices, dicesUsed, player));
-				}
-			}
-		}
-	}
-	else // Si le bar est vide
-	{
-		unsigned int numSquare; // pour connaitre le numéro de la case du plateau en cours
-		for (numSquare = 0; numSquare < 24; numSquare++)
-		{
-			if (gameState->board[numSquare].owner == player)
-			{
-				for (numDice = 0; numDice < nbMovesTheoretic; numDice++) // Pour chacun des dés
-				{
-					if ( (gameState->board[tabDices[numDice]+numSquare].owner == ennemi)
-					&& (gameState->board[tabDices[numDice]+numSquare].nbDames > 1) )
-					{
-						// Si la dame ne peut pas bouger, car la case est occupée par au moins 2 dames ennemies
-						return 0;
-					}
-					else
-					{
-						moves[0].src_point = numSquare+1;
-						moves[0].dest_point = numSquare+1+numDice;
-						UpdateGameState(gameState, moves, 1, player);
-					
-						dicesUsed[numDice] = 1; // On retient lequel des dés a été joué
-						return (1 + GetMaxNumberPossibleMoves(gameState, nbMovesTheoretic, tabDices, dicesUsed, player));
-					}
-				}
-			}
-			else
-			{
-				return 0;
-			}
-		}
-	}
 }
 
-*/
 
 // ========================================================================================================================
-// Fonction qui permet de mettre à jour le plateau
+// Fonction qui permet de mettre à jour le plateau avec 1 seul mouvement
 // ========================================================================================================================
-void UpdateGameState(SGameState * gameState, SMove moves[4], const unsigned int nbMoves, const Player player)
+void UpdateOneMove(SGameState * gameState, const SMove move, const Player player)
 {
-	Player enemy = 1 - player;
-	unsigned int numMove;
+    Player enemy = 1 - player;
 	unsigned int source, destination;
+	
+	source = move.src_point;
+	destination = move.dest_point;
+	
+	// Mis à jour de la case source du mouvement
+	if (source == 0)
+	{
+		gameState->bar[player]--;
+	}
+	else
+	{
+		gameState->board[source-1].nbDames--;
+		if (gameState->board[source-1].nbDames == 0)
+		{
+			gameState->board[source-1].owner = NOBODY;
+		}
+	}
+	
+	// Mis à jour de la case destination du mouvement
+	if (destination == 25)
+	{
+		gameState->out[player]++;
+	}
+	else if (gameState->board[destination-1].owner == NOBODY)
+	{
+		gameState->board[destination-1].nbDames++;
+		gameState->board[destination-1].owner = player; // La case a maintenant un propriétaire
+	}
+	else if (gameState->board[destination-1].owner == player)
+	{
+		gameState->board[destination-1].nbDames++;
+	}
+	else
+	{
+		gameState->bar[enemy]++;
+		gameState->board[destination-1].owner = player;
+	}
+	printf("Le joueur %d bouge de la case %d à la case %d\n",(int)player, source, destination);
+}
+
+
+// ========================================================================================================================
+// Fonction qui permet de mettre à jour le plateau avec tous les mouvements
+// ========================================================================================================================
+void UpdateAllMove(SGameState * gameState, const SMove moves[4], const unsigned int nbMoves, const Player player)
+{
+	unsigned int numMove;
 	
 	// Pour chacun des mouvements
 	for (numMove = 0; numMove < nbMoves; numMove++)
 	{
-		source = moves[numMove].src_point;
-		destination = moves[numMove].dest_point;
-		
-		// Mis à jour de la case source du mouvement
-		if (source == 0)
-		{
-			gameState->bar[player]--;
-		}
-		else
-		{
-			gameState->board[source-1].nbDames--;
-			if (gameState->board[source-1].nbDames == 0)
-			{
-				gameState->board[source-1].owner = NOBODY;
-			}
-		}
-		
-		// Mis à jour de la case destination du mouvement
-		if (destination == 25)
-		{
-			gameState->out[player]++;
-		}
-		else if (gameState->board[destination-1].owner == NOBODY)
-		{
-			gameState->board[destination-1].nbDames++;
-			gameState->board[destination-1].owner = player; // La case a maintenant un propriétaire
-		}
-		else if (gameState->board[destination-1].owner == player)
-		{
-			gameState->board[destination-1].nbDames++;
-		}
-		else
-		{
-			gameState->bar[enemy]++;
-			gameState->board[destination-1].owner = player;
-		}
-		printf("Le joueur %d bouge de la case %d à la case %d\n",(int)player, source, destination);
+		UpdateOneMove(gameState, moves[numMove], player);
 	}
 }
 
@@ -452,7 +408,7 @@ void UpdateGameState(SGameState * gameState, SMove moves[4], const unsigned int 
 // ========================================================================================================================
 // Fonction qui permet de déterminer si un joueur a gagné la partie
 // ========================================================================================================================
-int WinGame(const SGameState * const gameState, int player)
+int WinGame(const SGameState * const gameState, Player player)
 {
     if (gameState->out[player] == 15) // Si tous les pions sont sortis du plateau
     {
@@ -463,5 +419,4 @@ int WinGame(const SGameState * const gameState, int player)
         return 0;
     }
 }
-
 

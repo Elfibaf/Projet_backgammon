@@ -19,8 +19,8 @@ git push
 
 /!\ Pour la compilation /!\
 -Il faut d'abord compiler la librairie du bot :
-    gcc -fPIC -c bot.c
-    gcc -shared -o bot.so bot.o
+    gcc -Wall -std=c99 -fPIC -c bot.c
+    gcc -Wall -std=c99 -shared -o bot.so bot.o
 
 -Ensuite vous devez ajouter l'emplacement de la librairie dans la variable d'environnement LD_LIBRARY_PATH :
     export LD_LIBRARY_PATH=:chemindaccesenabsolu
