@@ -6,7 +6,7 @@ int max(int a,int b);
 int IsMoveRight(int numCaseDep, int dice, const SGameState * const gameState);
 
 
-int IsCaseOurs(int numCase, const SGameState * const gameState);
+int IsCaseOurs(int numCase, int dice, const SGameState * const gameState);
 
 
 int IsCaseJanInt(int numCase);
