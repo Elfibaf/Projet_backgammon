@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
 	    
 	    
 	    //Mise à jour du gameState
-	    UpdateGameState(&gameState, moves, nbMoves, WHITE);
+	    UpdateAllMove(&gameState, moves, nbMoves, WHITE);
 	    
 	    
 	    //Calcul des coordonnees des jetons
@@ -349,9 +349,10 @@ int main(int argc, char *argv[])
 		break;
 	    }
 	    
-			/*initHitBoxesTab(hitboxesTab, screen);
-			SDL_UpdateWindowSurface(pWindow);*/
-			getchar();
+	    /*initHitBoxesTab(hitboxesTab, screen);
+	    SDL_UpdateWindowSurface(pWindow);*/
+	    //getchar();
+	    
 	    // **********************************************************
 	    // TOUR DU DEUXIEME JOUEUR (BLACK)
 	    // **********************************************************
@@ -416,6 +417,7 @@ int main(int argc, char *argv[])
 		
 	    }
 	    
+	    SDL_Delay(1000);
 	    printf("Fin de gestion des evenements \n");
 
 	  }
