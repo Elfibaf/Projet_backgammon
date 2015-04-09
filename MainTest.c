@@ -40,9 +40,12 @@ int main(int argc, char *argv[])
     SDL_Surface * des;
     SDL_Surface * scoreWhite;
     SDL_Surface * scoreBlack;
+    SDL_Surface * titleWhite;
+    SDL_Surface * titleBlack;
     
     //Fonts
     TTF_Font *font;
+    TTF_Font *font1;
     
     //Definition de la couleur de la police
     SDL_Color colorFont = {0, 0, 0};
@@ -52,8 +55,11 @@ int main(int argc, char *argv[])
     SDL_Rect rectDes = {140, 350, 0, 0};
     
     //Surface d'affichage des scores
-    SDL_Rect rectScoreWhite = {140, 200, 0, 0};
-    SDL_Rect rectScoreBlack = {140, 500, 0, 0};
+    SDL_Rect rectTitleWhite = {130, 180, 0, 0};
+    SDL_Rect rectTitleBlack = {130, 480, 0, 0};
+    
+    SDL_Rect rectScoreWhite = {155, 200, 0, 0};
+    SDL_Rect rectScoreBlack = {155, 500, 0, 0};
     
     //Surface SDL servant à contenir l'image du plateau
     SDL_Rect rectPlateau;
@@ -230,20 +236,29 @@ int main(int argc, char *argv[])
 	
 	//Definition de la police à utiliser pour l'affichage des des
 	font = TTF_OpenFont("stocky.ttf", 25);
+	font1 = TTF_OpenFont("stocky.ttf", 18);
+	
 	if(font == NULL) printf("Erreur d'ouverture  de la police (%s)", TTF_GetError());
+	if(font1 == NULL) printf("Erreur d'ouverture  de la police (%s)", TTF_GetError());
 	
 	//Rendu du texte a afficher
 	des = TTF_RenderText_Blended(font, " Des 1 : Des 2 ", colorFont);
 	if(des == NULL) printf("Erreur de rendu du texte du des (%s)", TTF_GetError());
 	
-	scoreWhite = TTF_RenderText_Blended(font, " Score White : ", colorFont);
+	titleWhite = TTF_RenderText_Blended(font1, "Score White : ", colorFont);
+	if(titleWhite == NULL) printf("Erreur de rendu du texte du score (%s)", TTF_GetError());
+	
+	titleBlack = TTF_RenderText_Blended(font1, "Score Black : ", colorFont);
+	if(titleBlack == NULL) printf("Erreur de rendu du texte du score (%s)", TTF_GetError());
+	
+	scoreWhite = TTF_RenderText_Blended(font, "0", colorFont);
 	if(scoreWhite == NULL) printf("Erreur de rendu du texte du score (%s)", TTF_GetError());
 	
-	scoreBlack = TTF_RenderText_Blended(font, " Score Black : ", colorFont);
+	scoreBlack = TTF_RenderText_Blended(font, "0", colorFont);
 	if(scoreBlack == NULL) printf("Erreur de rendu du texte du score (%s)", TTF_GetError());
 	
 	//Affichage du score
-	afficherScore(scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, stringScoreBlack, stringScoreWhite, colorFont, font, screen, gameState.whiteScore, gameState.blackScore);
+	afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
 	
 	//Appel a la fonction de mise a jour de l'ecran
 	SDL_UpdateWindowSurface(pWindow);
@@ -283,7 +298,7 @@ int main(int argc, char *argv[])
 	  setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
 	  afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
 	  afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-	  afficherScore(scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, stringScoreBlack, stringScoreWhite, colorFont, font, screen, gameState.whiteScore, gameState.blackScore);
+	  afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
 	
 	  //Appel a la fonction de mise a jour de l'ecran
 	  SDL_UpdateWindowSurface(pWindow);
@@ -347,7 +362,7 @@ int main(int argc, char *argv[])
 	    
 	    //Affichage du de avant que le joueur joue
 	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-	    afficherScore(scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, stringScoreBlack, stringScoreWhite, colorFont, font, screen, gameState.whiteScore, gameState.blackScore);
+	    afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
 	    
 	    //Mise a jour de l'affichage
 	    SDL_UpdateWindowSurface(pWindow);
@@ -371,12 +386,13 @@ int main(int argc, char *argv[])
 	    
 	    //Affichage des des
 	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-	    afficherScore(scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, stringScoreBlack, stringScoreWhite, colorFont, font, screen, gameState.whiteScore, gameState.blackScore);
+	    afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
 	    
 	    
 	    //Mise a jour de l'affichage de l'interface
 	    SDL_UpdateWindowSurface(pWindow);
-
+	    
+	    SDL_Delay(500);
 	    
 	    
 	    
@@ -405,7 +421,7 @@ int main(int argc, char *argv[])
 	    
 	    //Affichage du de avant que le joueur joue
 	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-	    afficherScore(scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, stringScoreBlack, stringScoreWhite, colorFont, font, screen, gameState.whiteScore, gameState.blackScore);
+	    afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
 	    
 	    //Mise a jour de l'affichage
 	    SDL_UpdateWindowSurface(pWindow);
@@ -428,10 +444,13 @@ int main(int argc, char *argv[])
 	    
 	    //Affichage des des
 	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-	    afficherScore(scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, stringScoreBlack, stringScoreWhite, colorFont, font, screen, gameState.whiteScore, gameState.blackScore);
+	    afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
 	    
 	    //Mise a jour de l'affichage de l'interface
 	    SDL_UpdateWindowSurface(pWindow);
+	    
+	    SDL_Delay(500);
+	    
 	    if( WinGame(&gameState, BLACK) )
 	    {
 		gameState.blackScore++;
@@ -442,7 +461,6 @@ int main(int argc, char *argv[])
 	    printf("Gestion des evenements \n");
 	    while ( SDL_PollEvent(&event) )
 	    {  
-		printf("Switch case de gestion des evenements... \n");
 		switch(event.type)
 		{
 		    case SDL_WINDOWEVENT:
@@ -486,7 +504,6 @@ int main(int argc, char *argv[])
 		
 	    }
 	    
-	    SDL_Delay(1000);
 	    printf("Fin de gestion des evenements \n");
 
 	  }

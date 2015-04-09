@@ -151,14 +151,19 @@ void afficherDes(SDL_Surface *des, SDL_Rect *rectDes, unsigned char dices[2], ch
     SDL_BlitSurface(des, 0, screen, rectDes);
 }
 
-void afficherScore(SDL_Surface *scoreBlack, SDL_Surface *scoreWhite, SDL_Rect *rectScoreBlack, SDL_Rect *rectScoreWhite, char stringScoreBlack[20], char stringScoreWhite[20], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen, unsigned int blackScore, unsigned int whiteScore )
+void afficherScore(SDL_Surface *titleBlack, SDL_Surface *titleWhite, SDL_Surface *scoreBlack, SDL_Surface *scoreWhite, SDL_Rect *rectScoreBlack, SDL_Rect *rectScoreWhite, SDL_Rect *rectTitleBlack, SDL_Rect *rectTitleWhite, char stringScoreBlack[20], char stringScoreWhite[20], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen, unsigned int blackScore, unsigned int whiteScore )
 {
     sprintf(stringScoreBlack, "%d", blackScore);
     sprintf(stringScoreWhite, "%d", whiteScore);
     
+    titleWhite = TTF_RenderText_Blended(font, "White : ", colorFont);
+    titleBlack = TTF_RenderText_Blended(font, "Black : ", colorFont);
+    
     scoreBlack = TTF_RenderText_Blended(font, stringScoreBlack, colorFont);
     scoreWhite = TTF_RenderText_Blended(font, stringScoreWhite, colorFont);
     
+    SDL_BlitSurface(titleBlack, 0, screen, rectTitleBlack);
+    SDL_BlitSurface(titleWhite, 0, screen, rectTitleWhite);
     SDL_BlitSurface(scoreBlack, 0, screen, rectScoreBlack);
     SDL_BlitSurface(scoreWhite, 0, screen, rectScoreWhite);
 }
