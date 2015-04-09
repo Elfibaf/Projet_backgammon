@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
 	//Chargement en memoire des images utilisees dans la GUI
 	surfPlateau = SDL_LoadBMP("plateau.bmp");
 	surfJetonNoir = IMG_Load("noir_48.png");
-	surfJetonBlanc = IMG_Load("blanc_48.png");
+	surfJetonBlanc = IMG_Load("blanc_48_new.png");
 	
 	
 	//Definition de la police à utiliser pour l'affichage des des
