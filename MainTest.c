@@ -402,7 +402,7 @@ int main(int argc, char *argv[])
 	    
 	    if( WinGame(&gameState, WHITE) )
 	    {
-		gameState.blackScore++;
+		gameState.whiteScore++;
 		break;
 	    }
 	    
