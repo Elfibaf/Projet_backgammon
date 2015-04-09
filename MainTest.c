@@ -283,6 +283,7 @@ int main(int argc, char *argv[])
 	  setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
 	  afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
 	  afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
+	  afficherScore(scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, stringScoreBlack, stringScoreWhite, colorFont, font, screen, gameState.whiteScore, gameState.blackScore);
 	
 	  //Appel a la fonction de mise a jour de l'ecran
 	  SDL_UpdateWindowSurface(pWindow);
@@ -404,7 +405,7 @@ int main(int argc, char *argv[])
 	    
 	    //Affichage du de avant que le joueur joue
 	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-	    
+	    afficherScore(scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, stringScoreBlack, stringScoreWhite, colorFont, font, screen, gameState.whiteScore, gameState.blackScore);
 	    
 	    //Mise a jour de l'affichage
 	    SDL_UpdateWindowSurface(pWindow);
@@ -427,7 +428,7 @@ int main(int argc, char *argv[])
 	    
 	    //Affichage des des
 	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-	    
+	    afficherScore(scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, stringScoreBlack, stringScoreWhite, colorFont, font, screen, gameState.whiteScore, gameState.blackScore);
 	    
 	    //Mise a jour de l'affichage de l'interface
 	    SDL_UpdateWindowSurface(pWindow);
