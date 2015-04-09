@@ -38,6 +38,8 @@ int main(int argc, char *argv[])
     SDL_Surface * surfJetonBlanc;
     SDL_Surface * screen;
     SDL_Surface * des;
+    SDL_Surface * scoreWhite;
+    SDL_Surface * scoreBlack;
     
     //Fonts
     TTF_Font *font;
@@ -48,6 +50,10 @@ int main(int argc, char *argv[])
     
     //Surface accueillant l'affichage des des
     SDL_Rect rectDes = {140, 350, 0, 0};
+    
+    //Surface d'affichage des scores
+    SDL_Rect rectScoreWhite = {140, 200, 0, 0};
+    SDL_Rect rectScoreBlack = {140, 500, 0, 0};
     
     //Surface SDL servant à contenir l'image du plateau
     SDL_Rect rectPlateau;
@@ -65,8 +71,14 @@ int main(int argc, char *argv[])
     SDL_Rect noirs[15] = {n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12, n13, n14, n15};
       
     
-    //Chaine de caractère correspondant à l'affichage du de
+    //Chaine de caractère correspondant à l'affichage du dé
     char stringDes[10];
+    
+    //Chaine de caractère représentant le score White
+    char stringScoreWhite[20];
+    
+    //Chaine de caractère représentant le score Black
+    char stringScoreBlack[20];
     
     bool done = false;
 	
@@ -200,7 +212,6 @@ int main(int argc, char *argv[])
 	pWindow = SDL_CreateWindow("Backgammon",SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED, 1360, 760, SDL_WINDOW_SHOWN);
 	if (pWindow == NULL) SDL_ShowSimpleMessageBox(0, "Window init error", SDL_GetError(), pWindow);
 	
-	
 	//Surface de l'ecran
 	screen = SDL_GetWindowSurface(pWindow);
 
@@ -221,11 +232,19 @@ int main(int argc, char *argv[])
 	des = TTF_RenderText_Blended(font, " Des 1 : Des 2 ", colorFont);
 	if(des == NULL) printf("Erreur de rendu du texte du des (%s)", TTF_GetError());
 	
+	scoreWhite = TTF_RenderText_Blended(font, " Score White : ", colorFont);
+	if(scoreWhite == NULL) printf("Erreur de rendu du texte du score (%s)", TTF_GetError());
+	
+	scoreBlack = TTF_RenderText_Blended(font, " Score Black : ", colorFont);
+	if(scoreBlack == NULL) printf("Erreur de rendu du texte du score (%s)", TTF_GetError());
 	
 	//Affichage du plateau initial
 	setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
 	afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
 	afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
+	
+	//Affichage du score
+	afficherScore(scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, stringScoreBlack, stringScoreWhite, colorFont, font, screen, gameState.whiteScore, gameState.blackScore);
 	
 	//Appel a la fonction de mise a jour de l'ecran
 	SDL_UpdateWindowSurface(pWindow);
@@ -311,7 +330,7 @@ int main(int argc, char *argv[])
 	    
 	    //Affichage du de avant que le joueur joue
 	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-	    
+	    afficherScore(scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, stringScoreBlack, stringScoreWhite, colorFont, font, screen, gameState.whiteScore, gameState.blackScore);
 	    
 	    //Mise a jour de l'affichage
 	    SDL_UpdateWindowSurface(pWindow);
@@ -335,6 +354,7 @@ int main(int argc, char *argv[])
 	    
 	    //Affichage des des
 	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
+	    afficherScore(scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, stringScoreBlack, stringScoreWhite, colorFont, font, screen, gameState.whiteScore, gameState.blackScore);
 	    
 	    
 	    //Mise a jour de l'affichage de l'interface

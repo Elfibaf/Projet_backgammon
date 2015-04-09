@@ -68,6 +68,8 @@ void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface 
 
 void afficherDes(SDL_Surface *des, SDL_Rect *rectDes, unsigned char dices[2], char stringDes[10], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen);
 
+void afficherScore(SDL_Surface *scoreBlack, SDL_Surface *scoreWhite, SDL_Rect *rectScoreBlack, SDL_Rect *rectScoreWhite, char stringScoreBlack[20], char stringScoreWhite[20], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen, unsigned int blackScore, unsigned int whiteScore);
+
 /**
  * Initialisation des Hitbox et du tableau contenant les Hitbox
  * @param Hitbox *hitboxesTab 
