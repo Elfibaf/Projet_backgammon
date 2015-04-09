@@ -20,17 +20,17 @@ void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rec
     int equivalence_y[6] = {662, 625, 588, 551, 514, 477};
     int equivalence_y2[6] = {50, 87, 124, 161, 198, 235};
     
-    //Tableau d'equivalence entre les coordonnees de out et le nombre de jetons blancs dans out
-    int equivalence_outB[15] = {604, 593, 582, 571, 560, 549, 538, 527, 516, 505, 494, 483, 472, 461, 451};
-    
     //Tableau d'equivalence entre les coordonnees de out et le nombre de jetons noirs dans out
-    int equivalence_outN[15] = {107, 118, 129, 140, 151, 162, 173, 184, 195, 206, 217, 228, 239, 250, 261};
+    int equivalence_outN[15] = {604, 593, 582, 571, 560, 549, 538, 527, 516, 505, 494, 483, 472, 461, 451};
+    
+    //Tableau d'equivalence entre les coordonnees de out et le nombre de jetons blancs dans out
+    int equivalence_outB[15] = {107, 118, 129, 140, 151, 162, 173, 184, 195, 206, 217, 228, 239, 250, 261};
     
     //Tableau d'equivalence entre les coordonnees de bar et le nombre de jetons noirs dans bar
-    int equivalence_barB[15] = {500, 492, 484, 475, 467, 459, 450, 442, 434, 425, 417, 409, 400, 392, 384};
+    int equivalence_barN[15] = {500, 492, 484, 475, 467, 459, 450, 442, 434, 425, 417, 409, 400, 392, 384};
     
     //Tableau d'equivalence entre les coordonees de bar et le nombre de jetons blancs dans bar
-    int equivalence_barN[15] = {210, 218, 226, 235, 243, 251, 260, 268, 276, 285, 293, 301, 310, 318, 326};
+    int equivalence_barB[15] = {210, 218, 226, 235, 243, 251, 260, 268, 276, 285, 293, 301, 310, 318, 326};
     
     rectPlateau->x = 0;
     rectPlateau->y = 0;
@@ -156,8 +156,8 @@ void afficherScore(SDL_Surface *titleBlack, SDL_Surface *titleWhite, SDL_Surface
     sprintf(stringScoreBlack, "%d", blackScore);
     sprintf(stringScoreWhite, "%d", whiteScore);
     
-    titleWhite = TTF_RenderText_Blended(font, "White : ", colorFont);
-    titleBlack = TTF_RenderText_Blended(font, "Black : ", colorFont);
+    titleWhite = TTF_RenderText_Blended(font, "Black : ", colorFont);
+    titleBlack = TTF_RenderText_Blended(font, "White : ", colorFont);
     
     scoreBlack = TTF_RenderText_Blended(font, stringScoreBlack, colorFont);
     scoreWhite = TTF_RenderText_Blended(font, stringScoreWhite, colorFont);

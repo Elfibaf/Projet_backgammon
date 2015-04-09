@@ -55,11 +55,11 @@ int main(int argc, char *argv[])
     SDL_Rect rectDes = {140, 350, 0, 0};
     
     //Surface d'affichage des scores
-    SDL_Rect rectTitleWhite = {130, 180, 0, 0};
-    SDL_Rect rectTitleBlack = {130, 480, 0, 0};
+    SDL_Rect rectTitleBlack = {130, 180, 0, 0};
+    SDL_Rect rectTitleWhite = {130, 480, 0, 0};
     
-    SDL_Rect rectScoreWhite = {155, 200, 0, 0};
-    SDL_Rect rectScoreBlack = {155, 500, 0, 0};
+    SDL_Rect rectScoreBlack = {155, 200, 0, 0};
+    SDL_Rect rectScoreWhite = {155, 500, 0, 0};
     
     //Surface SDL servant à contenir l'image du plateau
     SDL_Rect rectPlateau;
