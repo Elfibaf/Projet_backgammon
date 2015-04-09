@@ -510,7 +510,11 @@ int main(int argc, char *argv[])
 		j2TakeDouble(&gameState);
 	    }
 	    
+	    //Affichage du de avant que le joueur joue
 	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
+	    
+	    //Mise a jour de l'affichage
+	    SDL_UpdateWindowSurface(pWindow);
 	    
 	    //Le joueur 1 joue son tour
 	    j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
