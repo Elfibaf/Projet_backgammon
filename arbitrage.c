@@ -246,7 +246,6 @@ int CheckOneMove(const SGameState * const gameState, const SMove move, const uns
 	        }
 	    }
 	}
-	
 
 	// *************************************************************************
 	// CONTROLE DU "BAR"
@@ -473,7 +472,6 @@ int GetMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMoves
             {
                 dicesUsed[numDice] = 1;
                 nbDicesAvailable--;
-                printf("%d : \n", nbDicesAvailable);
                 UpdateOneMove(gameState, move, player);
                 // On calcule récursivement le nombre maximal de mouvements possibles
                 nbMovesMax = 1 + GetMaxNumberPossibleMoves(gameState, nbMovesTheoretic, dicesTab, dicesUsed, player, nbDicesAvailable);
