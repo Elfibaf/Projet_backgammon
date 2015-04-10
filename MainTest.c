@@ -283,6 +283,7 @@ int main(int argc, char *argv[])
 	int clicx;
 	int clicy;
 	int curHB;
+	int cpt;
 
 	int numHB[2];
 	numHB[0] = -1;
@@ -509,15 +510,53 @@ int main(int argc, char *argv[])
 						printf("Coucou 0");
 						numHB[0] = curHB;
 
+						/* TRAITEMENT AFFICHAGE POSSIBILITES DE COUP POUR LE JOUEUR 
+						if (dices[0] == dices[1]) {
+
+							cpt = 2;
+
+						} else {
+
+							cpt =1;
+
+						}
+
+						for (i =1; i <= cpt; i++) {
+
+							SDL_FillRect(screen, hitboxesTab[curHB+(i*dices[0])].rectHB, SDL_MapRGB(screen->format, 255, 0, 0));
+							SDL_UpdateWindowSurface(pWindow);
+							getchar();
+						} */
+
 					} else if (numHB[1] == -1) {
 
 						printf("Coucou 1");
 						numHB[1] = curHB;
-						clickToSMoves(numHB,moves,&nbMoves, WHITE);
-											
+
+						
+						printf("NBMOVES = %d\n", nbMoves);
+
+						if (dices[0] == dices[1]) {
+
+							cpt = 4;
+
+						} else {
+
+							cpt = 2;
+ 
+						}
+						clickToSMoves(numHB,moves, &nbMoves, WHITE, cpt);
+						printf("NBMOVES = %d\n", nbMoves);
+						UpdateOneMove(&gameState,moves[nbMoves-1], WHITE); // PEUT ETRE, GERER QUAND NBMOVES == CPT
+						setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
+						afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
+						getchar();	
+						
+						
+									
 
 					}
-				}
+				     }
 			
 		      break;
 		}
