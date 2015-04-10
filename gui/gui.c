@@ -1,5 +1,5 @@
 #include "gui.h"
-#include "../bot.h"
+#include "../api.h"
 
 #include <stdlib.h>
 #include <stdio.h>

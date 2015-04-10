@@ -11,7 +11,7 @@
 
 #include "gui/gui.h"
 #include "arbitrage.h"
-#include "bot.h"
+#include "api.h"
 
 #define DEFAULT_GOAL 5
 #define J1_NB_TRIES 3

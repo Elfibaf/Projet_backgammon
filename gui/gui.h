@@ -1,3 +1,6 @@
+#ifndef GUI_H
+	#define GUI_H
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
@@ -167,5 +170,4 @@ int detectClickIntoHitbox(Hitbox *hitboxesTab, int x, int y);
  
 void clickToSMoves(int* indiceHBTab, SMove* moves,unsigned int *nbMoves, Player curPlayer, int cpt);
 
-
-
+#endif

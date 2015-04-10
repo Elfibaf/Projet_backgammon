@@ -3,7 +3,7 @@
 #include <math.h>
 
 #include "arbitrage.h"
-#include "bot.h"
+#include "api.h"
 
 
 /**
