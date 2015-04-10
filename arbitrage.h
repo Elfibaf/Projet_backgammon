@@ -21,7 +21,15 @@ void GenerateDices(unsigned char dices[2]);
 //
 // Retourne 0 si le tour n'est pas valide, 1 sinon
 // ====================================================================================================
-int CheckTurn(SGameState * gameState, const unsigned char dices[2], const SMove moves[4], const unsigned int nbMoves, const Player player);
+int CheckTurn(SGameState * gameState, const unsigned char dices[2], const SMove moves[4], const int nbMoves, const Player player);
+
+
+// ========================================================================================================================
+// Fonction qui permet de vérifier qu'un déplacement est valide
+//
+// Retourne 0 le déplacement n'est pas valide, 1 sinon
+// ========================================================================================================================
+int CheckOneMove(const SGameState * const gameState, const SMove move, const unsigned int nbMovesTheoretic, const Player player, unsigned char * dicesTab, unsigned char * dicesUsed);
 
 
 // ========================================================================================================================
@@ -34,19 +42,12 @@ int CheckAllMove(SGameState * gameState, const SMove moves[4], const unsigned in
 
 
 // ========================================================================================================================
-// Fonction qui permet de vérifier qu'un déplacement est valide
-//
-// Retourne 0 le déplacement n'est pas valide, 1 sinon
-// ========================================================================================================================
-int CheckOneMove(const SGameState * const gameState, const SMove move, const unsigned int nbMovesTheoretic, const Player player, unsigned char * dicesTab, unsigned char * dicesUsed);
-
-// ========================================================================================================================
 // Fonction pour qui compte le nombre maximum de mouvements qu'il est possible de faire
 // selon les résultats des dés
 //
 // Renvoit le nombre maximum de mouvements qu'il est possible de faire
 // ========================================================================================================================
-int GetMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMovesTheoretic, const unsigned char * tabDices, unsigned char * dicesUsed, const Player player);
+int GetMaxNumberPossibleMoves(SGameState * gameState, const unsigned int nbMovesTheoretic, unsigned char * dicesTab, unsigned char * dicesUsed, const Player player, unsigned char nbDicesAvailable);
 
 
 // ========================================================================================================================
