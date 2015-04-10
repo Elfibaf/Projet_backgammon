@@ -184,13 +184,13 @@ int main(int argc, char *argv[])
 	}
 	
 	char name1[50];
-	char name2[50];
 	j1InitLibrary(name1);
 	j1StartMatch(goal);
+	
+	char name2[50];
 	j2InitLibrary(name2);
 	j2StartMatch(goal);
-	
-	
+
 	SGameState gameState, copyGameState;
 	
 	
@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
 	SMove moves[4]; // Tableau de mouvements
 	
 	unsigned int j1NbTries, j2NbTries; // variables pour gérer le nombre d'essais de chaque joueur
-	
+	int doubleJ1, doubleJ2; // Variables pour vérifier qui possede le videau
 	
 	/*------------------------------------------------------------------------------------------
 	 * 											    |
@@ -308,60 +308,121 @@ int main(int argc, char *argv[])
 	  SDL_UpdateWindowSurface(pWindow);
 	    
 	  j1StartGame(WHITE);
-	  j1NbTries = J1_NB_TRIES;
-		  
 	  j2StartGame(BLACK);
-	  j2NbTries = J2_NB_TRIES;
-		    
-	  // Tant que la partie en cours n'est pas fini
-	  while(!done)
+	 
+	  
+	  Player player;
+	  
+	  // En début de manche les 2 joueurs ont le videau
+	  doubleJ1 = 1;
+	  doubleJ2 = 1;
+	  
+	  if (gameState.turn == 0)
 	  {
-	    gameState.turn++; // Mise à jour du nombre de tour de la partie en cours
+    		// Pour savoir qui commence, on lance deux dés, si le premier est plus petit que le deuxième,
+    		// le joueur 1 est le WHITE
+    		// sinon c'est le joueur 2
+    		do
+    		{
+    			GenerateDices(dices); // Génération des deux dés
+    			if (dices[0] < dices[1])
+    			{
+    				player = WHITE;
+    			}
+    			else
+    			{
+    				player = BLACK;
+    			}
+    		} while (dices[0] == dices[1]);
+    		
+    		// On détermine le nombre d'essais possibles
+    		j1NbTries = J1_NB_TRIES;
+    		j2NbTries = J2_NB_TRIES;
+	  	
+	  }
+	  
+	  // Tant que la partie en cours n'est pas fini
+	  while(! WinGame(&gameState, player))
+	  {
+	    gameState.turn++; // Mise à jour du nombre de tours de la partie en cours
+	    GenerateDices(dices); // Generation des 2 dés
 
-	    // **********************************************************
-	    // TOUR DU PREMIER JOUEUR (WHITE)
-	    // **********************************************************            
-	    /*if(j1DoubleStack(&gameState))
-	    {
-		j2TakeDouble(&gameState);
-	    }
+		//Affichage du de avant que le joueur joue
+	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
+	    afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
 	    
-	    GenerateDices(dices); // Génération des deux dés
+	    //Mise a jour de l'affichage
+	    SDL_UpdateWindowSurface(pWindow);
 	    
-	    copyGameState = gameState;
-	    
-	    j1PlayTurn(&copyGameState, dices, moves, &nbMoves, j1NbTries); // Le joueur 1 joue
-	    
-	    copyGameState = gameState; // Re-copie pour envoyer une copie du tableau avant de valider les changements (si valide)
-	    
-	    if ( IsValid(&copyGameState, dices, moves, nbMoves, WHITE) ) // Vérification des coups
-	    {
-		ModifPlateau(&gameState, moves, nbMoves, WHITE); // Mise à jour du plateau
-		
-		if( WinGame(&gameState, WHITE) ) // On regarde si le joueur à gagner
-			{
-			    gameState.whiteScore++;
-			    break;
-			}
-	    }
-	    else // Les coups n'étaient pas valides
-	    {
-		j1NbTries--; // On décremente le nombre d'essais restant
-		if( j1NbTries == 0 ) // Si le joueur n'a plus d'essais, il perd automatiquement
-		{
-			gameState.blackScore++;
-			    break;
-		}
-	    }*/
-	    GenerateDices(dices);
-	    //dices[0]=1;
-	    //dices[1]=4;
-	    if(j1DoubleStack(&gameState))
-	    {
-		j2TakeDouble(&gameState);
-	    }
-	    
-	    
+	    if (player == WHITE)
+       	{
+    		if (j1DoubleStack(&gameState) &&(doubleJ1 == 1))
+	        {
+	            if(!j2TakeDouble(&gameState))
+	            {
+	            	gameState.blackScore += gameState.stake;
+		            break;
+	            }
+	            else
+                {
+                	doubleJ1=0;
+                	doubleJ2=1;
+                	gameState.stake = gameState.stake*2;
+                }
+	          
+	        }
+	        
+	        j1PlayTurn(&copyGameState, dices, moves, &nbMoves, j1NbTries);
+	        
+	        copyGameState = gameState;		        
+	        if (CheckTurn(&copyGameState, dices, moves, nbMoves, player)) // Vérification des coups
+	        {
+	        	UpdateAllMove(&gameState, moves, nbMoves, player); // Mise à jour du jeu
+	        	if (WinGame(&gameState, WHITE)) // On regarde si le joueur à gagner la partie
+			    {
+			        gameState.whiteScore++;
+			    }
+	        }
+	        else // Les coups n'étaient pas valides
+	        {
+	        	j1NbTries--; // On décremente le nombre d'essais restant
+	        	if (j1NbTries == 0) // Si le joueur n'a plus d'essais, il perd automatiquement
+	        	{
+	        		gameState.blackScore++;
+	        	}
+	        }
+	        
+	        player = BLACK; // Mise à jour du joueur	
+    	}
+        	else
+        	{
+        		if (j2DoubleStack(&gameState))
+		        {
+		            j1TakeDouble(&gameState);
+		        }
+		        
+		        j2PlayTurn(&gameState, dices, moves, &nbMoves, j2NbTries);
+		        
+		        copyGameState = gameState;
+		        if (CheckTurn(&copyGameState, dices, moves, nbMoves, player)) // Vérification des coups
+		        {
+		        	UpdateAllMove(&gameState, moves, nbMoves, player); // Mise à jour du jeu
+		        	if (WinGame(&gameState, player)) // On regarde si le joueur à gagner la partie
+				    {
+				        gameState.blackScore++;
+				    }
+		        }
+		        else // Les coups n'étaient pas valides
+		        {
+		        	j2NbTries--; // On décremente le nombre d'essais restant
+		        	if (j2NbTries == 0) // Si le joueur n'a plus d'essais, il perd automatiquement
+		        	{
+		        		gameState.whiteScore++;
+		        	}
+		        }
+		        
+		        player = WHITE; // Mise à jour du joueur
+        	}
 	    
 	    
 	    //Affichage du de avant que le joueur joue
