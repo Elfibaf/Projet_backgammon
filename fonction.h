@@ -94,3 +94,9 @@ int NbDiceLeft(int *dice, int sizeDice);
  * 	valeur de j
  */
 void ApplyMove(unsigned int *nbMove, SMove moves[4], int caseSrc, int *dice, int j);
+
+/** Définition des diffénrents Etats
+ * @param const SGameState * const gameState
+ * 	état courant du jeu
+ */
+Etat DefEtat(const SGameState * const gameState);
