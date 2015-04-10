@@ -17,7 +17,7 @@ void InitPlateau(SGameState * gameState)
     for (i = 0; i < 24; i++)
     {
         switch(i)
-        {/*
+        {
         case 0 :
             gameState->board[i].owner = WHITE;
             gameState->board[i].nbDames = 2;
@@ -49,7 +49,7 @@ void InitPlateau(SGameState * gameState)
         case 23 :
             gameState->board[i].owner = BLACK;
             gameState->board[i].nbDames = 2;
-            break;*/
+            break;
         default :
             gameState->board[i].owner = NOBODY;
             gameState->board[i].nbDames = 0;
@@ -137,6 +137,7 @@ int CheckTurn(SGameState * gameState, const unsigned char dices[2], const SMove 
 		        return 0;
 		    }
 		}
+		/*
 		else 
 		{
 			// ************************************************************************
@@ -184,6 +185,7 @@ int CheckTurn(SGameState * gameState, const unsigned char dices[2], const SMove 
 				return 0;
 			}	
 		}
+		*/
 		// On est passé dans aucun cas invalide
 		free(dicesTab);
 	    free(dicesUsed);
