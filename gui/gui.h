@@ -1,3 +1,6 @@
+#ifndef GUI_H
+	#define GUI_H
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
@@ -160,10 +163,11 @@ int detectClickIntoHitbox(Hitbox *hitboxesTab, int x, int y);
  *  Nombre de moves qui seront joués
  * @param Player curPlayer
  *  Joueur courant, qui réalise les clics
+ * @param int cpt
+ *  Compteur qui permet de savoir combien de moves maximum le joueur peut faire en fonction des valeurs des dés
  */
  
  
 void clickToSMoves(int* indiceHBTab, SMove* moves,unsigned int *nbMoves, Player curPlayer, int cpt);
 
-
-
+#endif

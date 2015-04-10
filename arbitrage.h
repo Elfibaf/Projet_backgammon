@@ -1,7 +1,7 @@
 #ifndef ARBITRAGE_H
 	#define ARBITRAGE_H
 
-#include "bot.h"
+#include "api.h"
 
 
 /**

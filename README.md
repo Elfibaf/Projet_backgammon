@@ -102,7 +102,69 @@ gcc -Wall main2.c arbitrage.c gui/gui.c -o main `sdl2-config --cflags --libs` -l
         
         NB : Bien évidemment dans chacun de ces Etat les doubles sont pris en compte
         
+
+///// EXPLICATION DE L'INTERFACE GRAPHIQUE /////
+
+L'interface graphique ne concerne que 3 fichiers qui sont les suivants : 
+
+    - MainTest.c
+
+    Il s'agit du fichier d'exécution de notre programme, c'est ici que nous ferons appel aux fonctions permettant d'afficher les différents élements de l'interface graphique. C'est également dans ce programme que nous déclarons, initialisons et testons que l'ouverture s'est bien passée. Enfin, nous chargeons en mémoire tout ce qui va être ensuite utilisé par l'interface graphique (Images, Polices, ...) et faisons les vérifications nécessaires pour s'assurer du chargement correct de ces ressources. 
+
+    - gui/gui.c
+
+    Il s'agit de l'API de l'interface graphique en quelque sorte. Ce fichier contient en effet toutes les méthodes que nous avons défini pour afficher les différents élements de l'interface graphique. 
+
+    Nous allons donc passer en revue le fonctionnement de chacune de ses fonctions : (Les paramètres en détails sont trouvables dans le fichier gui/gui.h)
+
+    - void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rect rouges[15], SDL_Rect *rectPlateau)
+
+        Cette fonction est à la base du raffraichissement de l'interface au sein de notre programme. 
+        Son rôle : Parcourir le gameState afin de mettre à jour la position des pions sur l'interface
+
+        Cette fonction ne fait que modifier les "coordonnées" des structures visant à accueillir les élements graphiques
+
+        Fonctionnement : 
+
+        L'algorithme mis en place pour mettre à jour la position des pions (qu'ils soient sur une case, dans le bar, ou sorti du jeu) est le suivant : 
+
+        1) Nous parcourons le tableau représentant les cases du plateau (dans le gameState)
+        2) Pour chaque case, on boucle un nombre de fois correspondant au nombre de Dames sur cette case
+        3) Pour mettre à jour les coordonnées, nous faisons ensuite appel à plusieurs tableau de "correspondance" entre la place sur la case et une valeur en  pixels (utilisable ensuite dans l'interface). Les plusieurs tableaux sont présents pour gérer les cases, mais aussi le bar et la sortie blanche et noire.
+        4) Donc pour ce faire nous parcourons les 24 cases du plateau. On différencie le haut et le bas du plateau
         
+        Suite à la mise à jour des jetons correspondant au cases, on parcourt les dames présents dans le bar et sortis du tableau pour mettre à jour les coordonnées de ces jetons.
+
+    - void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface *surfJetonBlanc, SDL_Rect noirs[15] , SDL_Rect blancs[15], SDL_Rect *rectPlateau, SDL_Rect *rectDes, SDL_Surface *screen)
+
+        Cette fonction permet d'afficher graphiquement les éléments dont les coordonnées ont été modifiées grâce à setBoardTokens.
+        Pour cela, nous parcourons le tableau de jetons qui lui est passé en paramètre pour appliquer les modifications de coordonnées grâce à la fonction de SDL : SDL_BlitSurface()
+
+        Par ailleurs, on note qu'il est nécessaire d'afficher un écran noir pour un affichage qui ne change pas brusquement.
+
+
+
+    - void afficherDes(SDL_Surface *des, SDL_Rect *rectDes, unsigned char dices[2], char stringDes[10], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen)
+
+        Cette fonction permet de raffraichir l'affichage du Dé. 
+        Elle prend en paramètre le dé sous forme d'un tableau. 
+        On modifie la chaine de caractère du texte à afficher puis on met à jour l'affichage
+
+
+    - void afficherScore(SDL_Surface *titleBlack, SDL_Surface *titleWhite, SDL_Surface *scoreBlack, SDL_Surface *scoreWhite, SDL_Rect *rectScoreBlack, SDL_Rect *rectScoreWhite, SDL_Rect *rectTitleBlack, SDL_Rect *rectTitleWhite, char stringScoreBlack[20], char stringScoreWhite[20], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen, unsigned int blackScore, unsigned int whiteScore )
+
+        Cette fonction permet de raffraichir le score. Nous utilisons le même fonctionnement que afficherDes().
+
+
+
+    - void afficherMise(SDL_Surface *mise, SDL_Rect *rectMise, char stringMise[20], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen, unsigned int stake)
+
+        Cette fonction permet de raffraichir l'affichage de la mise (même fonctionnement que les fonctions de dessus)
+
+
+    - gui/gui.h
+        
+        Ce fichier HEADER contient donc la définition des fonctions utilisées dans le fichier gui/gui.c avec une petite documentation des paramètres des fonctions.        
         
 
 

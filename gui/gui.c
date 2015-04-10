@@ -1,5 +1,5 @@
 #include "gui.h"
-#include "../bot.h"
+#include "../api.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -115,6 +115,9 @@ void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rec
     
 }
 
+ //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface *surfJetonBlanc, SDL_Rect noirs[15] , SDL_Rect blancs[15], SDL_Rect *rectPlateau, SDL_Rect *rectDes, SDL_Surface *screen)
 {
 	int i = 0, j = 0;
@@ -140,6 +143,9 @@ void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface 
 	}
 }
 
+
+ //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 void afficherDes(SDL_Surface *des, SDL_Rect *rectDes, unsigned char dices[2], char stringDes[10], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen)
 {
       sprintf(stringDes, " %d : %d ", dices[0], dices[1]);
@@ -148,6 +154,9 @@ void afficherDes(SDL_Surface *des, SDL_Rect *rectDes, unsigned char dices[2], ch
       
       SDL_BlitSurface(des, 0, screen, rectDes);
 }
+
+
+ //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void afficherScore(SDL_Surface *titleBlack, SDL_Surface *titleWhite, SDL_Surface *scoreBlack, SDL_Surface *scoreWhite, SDL_Rect *rectScoreBlack, SDL_Rect *rectScoreWhite, SDL_Rect *rectTitleBlack, SDL_Rect *rectTitleWhite, char stringScoreBlack[20], char stringScoreWhite[20], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen, unsigned int blackScore, unsigned int whiteScore )
 {
@@ -175,15 +184,20 @@ void afficherMise(SDL_Surface *mise, SDL_Rect *rectMise, char stringMise[20], SD
       SDL_BlitSurface(mise, 0, screen, rectMise);
 }
  
+ 
+ //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
  void initHitBoxesTab(Hitbox *hitboxesTab, SDL_Surface* screen)
 {
 
-    int i,y1 = 477, y2= 50, width1 = 48, height = 233; // A MODIFIER
+    int i,y1 = 477, y2= 50, width1 = 48, height = 233; // Coordonnées qui resteront inchangées pour les hitboxs
 
 
+
+    // Pour chaque hitbox, on met les caractéristiques nécessaires pour les modéliser
     for(i = 0; i < 28; i++){
 
-        hitboxesTab[i].rectHB = (SDL_Rect*) malloc (1*sizeof(SDL_Rect)); // PENSER A LIBERER LE rectHB
+        hitboxesTab[i].rectHB = (SDL_Rect*) malloc (1*sizeof(SDL_Rect)); 
 
         if(i == 0)
         {
@@ -409,19 +423,21 @@ void afficherMise(SDL_Surface *mise, SDL_Rect *rectMise, char stringMise[20], SD
             hitboxesTab[i].rectHB->h = height;
 	}
 	
-       //SDL_FillRect(screen, hitboxesTab[i].rectHB, SDL_MapRGB(screen->format, 255, 0, 0));
+       //SDL_FillRect(screen, hitboxesTab[i].rectHB, SDL_MapRGB(screen->format, 255, 0, 0)); TEST, qui permettait d'afficher les hitbox pour voir si elles sont au bon endroit
 
     }
 
 }
 
 
-
+ //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 int detectClickIntoHitbox(Hitbox *hitboxesTab, int x, int y)
 {
     int i;
 
+
+    // Pour chaque hitbox
     for(i = 0; i < 28; i++)
     {
         
@@ -429,34 +445,41 @@ int detectClickIntoHitbox(Hitbox *hitboxesTab, int x, int y)
         // On vérifie si l'abscisse de la hitbox récupérée est comprise entre les coordonnées de la hitbox courante
         if((x >= hitboxesTab[i].rectHB->x) && (x <= hitboxesTab[i].rectHB->x + hitboxesTab[i].rectHB->w))
         {
+            // On vérifie si l'ordonnée de la hitbox récupérée est comprise entre les coordonnées de la hitbox courante
             if((y >= hitboxesTab[i].rectHB->y) && (y <= hitboxesTab[i].rectHB->y + hitboxesTab[i].rectHB->h))
             {
-                //printf("Hitbox numéro : %d atteinte\n", i);
+                //printf("Hitbox numéro : %d atteinte\n", i); TEST
                 return i;
             }
         }
     }
     printf("Aucune hitbox atteinte\n");
-    return -1;
+    return -1; // On retourne -1 si aucune hitbox n'a été atteinte
 
 }
 
-
+ //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void clickToSMoves(int* indiceHBTab, SMove* moves,unsigned int *nbMoves, Player curPlayer, int cpt)
 {
+    
+    // Si le joueur peut encore faire un move
     if(*nbMoves <= cpt)
     {
-        int i; // normalisation des indices
+        
+        
+        // On parcourt le tableau contenant les hitbox sources et destination
         for (i = 0; i < 2; i++)
         {
-            if(indiceHBTab[i]>=0 && indiceHBTab[i] <= 23) indiceHBTab[i] += 1;
-            else if(indiceHBTab[i] == 24 || indiceHBTab[i] == 25) indiceHBTab[i] = 0;
-            else if(indiceHBTab[i] == 26 || indiceHBTab[i] == 27) indiceHBTab[i] = 25;
+            if(indiceHBTab[i]>=0 && indiceHBTab[i] <= 23) indiceHBTab[i] += 1; // Si la hitbox touchée est comprise entre 0 et 23, alors cela signifie que la case du Board correspondant est le numéro de cette hitbox -1
+            else if(indiceHBTab[i] == 24 || indiceHBTab[i] == 25) indiceHBTab[i] = 0; // Si la hitbox touchée est égale à 24 ou 25 , alors cela signifie que la case du Board correspondant est le bar black ou white
+            else if(indiceHBTab[i] == 26 || indiceHBTab[i] == 27) indiceHBTab[i] = 25; // Si la hitbox touchée est égale à 26 ou 27 , alors cela signifie que la case du Board correspondant est le out black ou white
 
         }
 
-        printf("indiceHBTab[0] %d | indiceHBTab[1] %d | nbMoves %d\n",indiceHBTab[0],indiceHBTab[1], *nbMoves);
+        //printf("indiceHBTab[0] %d | indiceHBTab[1] %d | nbMoves %d\n",indiceHBTab[0],indiceHBTab[1], *nbMoves); TEST
+        
+        // Si le joueur est WHITE, alors on a pas besoin de faire de modifications supplémentaires et on ajoute les cases du board correspondant dans la source et la destination du nouveau move
         if(curPlayer == WHITE)
         {
 
@@ -464,6 +487,7 @@ void clickToSMoves(int* indiceHBTab, SMove* moves,unsigned int *nbMoves, Player 
             moves[*nbMoves].dest_point = indiceHBTab[1];
         }
 
+        // Si le joueur est BLACK, alors on a besoin de changer encore la case correspondante puisque le joueur BLACK parcourt le plateau dans l'autre sens et on ajoute les cases du board correspondant dans la source et la destination du nouveau move
         else if(curPlayer == BLACK)
         {
 
@@ -489,19 +513,17 @@ void clickToSMoves(int* indiceHBTab, SMove* moves,unsigned int *nbMoves, Player 
 
         printf("moves added between %d and %d\n",moves[*nbMoves].src_point,moves[*nbMoves].dest_point);
         
-	/*if ((*nbMoves + 1) != cpt) {
+        // On incrémente le nombre de moves
+	    *nbMoves = *nbMoves + 1;
 
-	 	*nbMoves = *nbMoves + 1; // on incrémente le compteur de moves
-	}*/
-
-	*nbMoves = *nbMoves + 1;
-
+        // On réinitialise les valeurs du tableau contenant les hitbox touchées
         indiceHBTab[0] = -1;
         indiceHBTab[1] = -1;
     }
     else
     {
-        printf("erreur segmentation fault out of SMoves[%d]", cpt);
+        // Sinon on affiche que tous le nombre de maximum est atteint donc on fait pas de moves
+        printf("Tous les moves ont déjà été faits : %d MOVES \n", cpt);
     }
 
 
