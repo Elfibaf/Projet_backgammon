@@ -69,7 +69,7 @@ int DoubleStack(const SGameState * const gameState)
 int TakeDouble(const SGameState * const gameState)
 {
 	printf("TakeDouble\n");
-	return(0);
+	return(1);
 }
 
 
@@ -632,16 +632,32 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 						}
 						else if(((gameState->board[casesPionsBot[i]].nbDames == 2) || (gameState->board[casesPionsBot[i]].nbDames > 3)) && (NbDiceLeft(dice,sizeDice) == 2) && (IsMoveRight(casesPionsBot[i],(int)dices[0],gameState)) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
 						{
-							moves[*nbMove].src_point = casesPionsBot[i] + 1;
-							moves[*nbMove].dest_point = casesPionsBot[i] + (int)dices[0] + 1;
-							*nbMove = *nbMove+1;
-							
-							moves[*nbMove].src_point = casesPionsBot[i] + 1;
-							moves[*nbMove].dest_point = casesPionsBot[i] + (int)dices[0] + 1;
-							*nbMove = *nbMove+1;
-							
-							free(dice);
-							return;
+							if(bot.color == WHITE)
+							{
+								moves[*nbMove].src_point = casesPionsBot[i] + 1;
+								moves[*nbMove].dest_point = casesPionsBot[i] + (int)dices[0] + 1;
+								*nbMove = *nbMove+1;
+								
+								moves[*nbMove].src_point = casesPionsBot[i] + 1;
+								moves[*nbMove].dest_point = casesPionsBot[i] + (int)dices[0] + 1;
+								*nbMove = *nbMove+1;
+								
+								free(dice);
+								return;
+							}
+							else
+							{
+								moves[*nbMove].src_point = casesPionsBot[i] + 1;
+								moves[*nbMove].dest_point = casesPionsBot[i] - (int)dices[0] + 1;
+								*nbMove = *nbMove+1;
+								
+								moves[*nbMove].src_point = casesPionsBot[i] + 1;
+								moves[*nbMove].dest_point = casesPionsBot[i] - (int)dices[0] + 1;
+								*nbMove = *nbMove+1;
+								
+								free(dice);
+								return;
+							}
 						}
 					}
 				}

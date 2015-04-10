@@ -62,9 +62,6 @@ void InitPlateau(SGameState * gameState)
     // Initialisation du out
     gameState->out[WHITE] = 0;
     gameState->out[BLACK] = 0;
-    // Initialisation des scores des deux joueurs
-    gameState->whiteScore = 0;
-    gameState->blackScore = 0;
     // Initialisation du nombre de tours
     gameState->turn = 0;
     // Initialisation de la mise
