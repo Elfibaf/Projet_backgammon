@@ -99,6 +99,8 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     
     int goal; // Le score a obtenir pour gagner la partie
+    char mode[20],nomBot1[50],nomBot2[50]; //Mode de jeu + nom des librairies à charger
+    
     
     if (argc == 1)
     {
@@ -114,14 +116,21 @@ int main(int argc, char *argv[])
     	
     	if (argc == 2)
     	{
+    	
     		printf("Vous avez choisi le mode de jeu : HUMAIN VS HUMAIN - Jeu en %d points\n", goal);
     	}
     	else if (argc == 3)
     	{
+    		strcpy(nomBot1,argv[2]);
+            strcpy(mode,"ManVsBot");
+    		
     		printf("Vous avez choisi le mode de jeu : HUMAIN VS IA - Jeu en %d points\n", goal);
     	}
     	else if (argc == 4)
     	{
+    		strcpy(nomBot1,argv[2]);
+    	    strcpy(nomBot2,argv[3]);
+    	    strcpy(mode,"BotvsBot");
     		printf("Vous avez choisi le mode de jeu : IA VS IA - Jeu en %d points\n", goal);
     	}
 		else
@@ -135,17 +144,18 @@ int main(int argc, char *argv[])
 	// Chargement de la librairie (chargement des pointeurs de fonctions des fonctions d�crites dans "backgammon.h")
 
 	void *lib,*lib2;
-
-	pfInitLibrary j1InitLibrary;
-	pfStartMatch j1StartMatch;
-	pfStartGame j1StartGame;
-	pfEndGame j1EndGame;
-	pfEndMatch j1EndMatch;
-	pfDoubleStack j1DoubleStack;
-	pfTakeDouble j1TakeDouble;
-	pfPlayTurn j1PlayTurn;
-
-	pfInitLibrary j2InitLibrary;
+ 
+    
+    pfInitLibrary j1InitLibrary;
+    pfStartMatch j1StartMatch;
+    pfStartGame j1StartGame;
+    pfEndGame j1EndGame;
+    pfEndMatch j1EndMatch;
+    pfDoubleStack j1DoubleStack;
+    pfTakeDouble j1TakeDouble;
+    pfPlayTurn j1PlayTurn;
+ 
+ 	pfInitLibrary j2InitLibrary;
 	pfStartMatch j2StartMatch;
 	pfStartGame j2StartGame;
 	pfEndGame j2EndGame;
@@ -153,50 +163,66 @@ int main(int argc, char *argv[])
 	pfDoubleStack j2DoubleStack;
 	pfTakeDouble j2TakeDouble;
 	pfPlayTurn j2PlayTurn;
-
-	if ((lib=dlopen("bot.so",RTLD_LAZY)) == NULL)
-	{
-		//Erreur de chargement de la librairie
-		return(-1);
-	}
-
-	if ((lib2=dlopen("bot2.so",RTLD_LAZY)) == NULL)
-	{
-		//Erreur de chargement de la librairie
-		return(-1);
-	}
-
-	if( ((j1InitLibrary=(pfInitLibrary)dlsym(lib,"InitLibrary")) == NULL)
-	|| ((j1StartMatch=(pfStartMatch)dlsym(lib,"StartMatch")) == NULL)
-	|| ((j1StartGame=(pfStartGame)dlsym(lib,"StartGame")) == NULL)
-	|| ((j1EndGame=(pfEndGame)dlsym(lib,"EndGame")) == NULL)
-	|| ((j1EndMatch=(pfEndMatch)dlsym(lib,"EndMatch")) == NULL)
-	|| ((j1DoubleStack=(pfDoubleStack)dlsym(lib,"DoubleStack")) == NULL)
-	|| ((j1TakeDouble=(pfTakeDouble)dlsym(lib,"TakeDouble")) == NULL)
-	|| ((j1PlayTurn=(pfPlayTurn)dlsym(lib,"PlayTurn")) == NULL) )
-	{
-		return(-1);
-	}
-
-	if( ((j2InitLibrary=(pfInitLibrary)dlsym(lib2,"InitLibrary")) == NULL)
-	|| ((j2StartMatch=(pfStartMatch)dlsym(lib2,"StartMatch")) == NULL)
-	|| ((j2StartGame=(pfStartGame)dlsym(lib2,"StartGame")) == NULL)
-	|| ((j2EndGame=(pfEndGame)dlsym(lib2,"EndGame")) == NULL)
-	|| ((j2EndMatch=(pfEndMatch)dlsym(lib2,"EndMatch")) == NULL)
-	|| ((j2DoubleStack=(pfDoubleStack)dlsym(lib2,"DoubleStack")) == NULL)
-	|| ((j2TakeDouble=(pfTakeDouble)dlsym(lib2,"TakeDouble")) == NULL)
-	|| ((j2PlayTurn=(pfPlayTurn)dlsym(lib2,"PlayTurn")) == NULL) )
-	{
-		return(-1);
-	}
 	
-	char name1[50];
-	j1InitLibrary(name1);
-	j1StartMatch(goal);
-	
-	char name2[50];
-	j2InitLibrary(name2);
-	j2StartMatch(goal);
+
+    printf("MODE : %s\n",mode);
+    if((strcmp(mode,"ManVsBot")== 0) || (strcmp(mode,"BotvsBot") == 0))
+    {
+        
+	    
+	    if ((lib=dlopen(nomBot1,RTLD_LAZY)) == NULL)
+	    {
+		    printf("Erreur de chargement de la librairie\n");
+		    return(-1);
+	    }
+	    
+	    if( ((j1InitLibrary=(pfInitLibrary)dlsym(lib,"InitLibrary")) == NULL)
+	    || ((j1StartMatch=(pfStartMatch)dlsym(lib,"StartMatch")) == NULL)
+	    || ((j1StartGame=(pfStartGame)dlsym(lib,"StartGame")) == NULL)
+	    || ((j1EndGame=(pfEndGame)dlsym(lib,"EndGame")) == NULL)
+	    || ((j1EndMatch=(pfEndMatch)dlsym(lib,"EndMatch")) == NULL)
+	    || ((j1DoubleStack=(pfDoubleStack)dlsym(lib,"DoubleStack")) == NULL)
+	    || ((j1TakeDouble=(pfTakeDouble)dlsym(lib,"TakeDouble")) == NULL)
+	    || ((j1PlayTurn=(pfPlayTurn)dlsym(lib,"PlayTurn")) == NULL) )
+	    {
+	        printf("Erreur de chargement des pointeurs de fonction\n");
+		    return(-1);
+	    }
+	    
+	    //Initialisation de la librairie
+	    char name1[50];
+	    j1InitLibrary(name1);
+	    j1StartMatch(goal);
+	        
+	    if (strcmp(mode,"BotvsBot") == 0)
+	    {
+        	if ((lib2=dlopen(nomBot2,RTLD_LAZY)) == NULL)
+            {
+	            printf("Erreur de chargement de la librairie\n");
+	            return(-1);
+            }
+
+
+            if( ((j2InitLibrary=(pfInitLibrary)dlsym(lib2,"InitLibrary")) == NULL)
+            || ((j2StartMatch=(pfStartMatch)dlsym(lib2,"StartMatch")) == NULL)
+            || ((j2StartGame=(pfStartGame)dlsym(lib2,"StartGame")) == NULL)
+            || ((j2EndGame=(pfEndGame)dlsym(lib2,"EndGame")) == NULL)
+            || ((j2EndMatch=(pfEndMatch)dlsym(lib2,"EndMatch")) == NULL)
+            || ((j2DoubleStack=(pfDoubleStack)dlsym(lib2,"DoubleStack")) == NULL)
+            || ((j2TakeDouble=(pfTakeDouble)dlsym(lib2,"TakeDouble")) == NULL)
+            || ((j2PlayTurn=(pfPlayTurn)dlsym(lib2,"PlayTurn")) == NULL) )
+            {
+                printf("Erreur de chargement des pointeurs de fonction\n");
+	            return(-1);
+            }
+	        //Initialisation de la librairie
+	        char name2[50];
+	        j2InitLibrary(name2);
+	        j2StartMatch(goal);
+
+	    }
+	    
+    }
 
 	SGameState gameState, copyGameState;
 	
@@ -316,11 +342,18 @@ int main(int argc, char *argv[])
 	    //Appel a la fonction de mise a jour de l'ecran
 	    SDL_UpdateWindowSurface(pWindow);
 	      
-	    j1StartGame(WHITE);
-	    j2StartGame(BLACK);
+	    //Initialisation des bots pour une game
+	    if((strcmp(mode,"ManVsBot")== 0) || (strcmp(mode,"BotvsBot") == 0))
+		{
+			j1StartGame(WHITE);
+			if(strcmp(mode,"BotvsBot") == 0)
+			{
+			    j2StartGame(BLACK);
+			}
+		}
 	 
 	  
-	    Player player;
+	    Player player; //Joueur courant
 	    
 	    // En début de manche les 2 joueurs ont le videau
 	    doubleJ1 = 1;
@@ -333,15 +366,15 @@ int main(int argc, char *argv[])
     		// sinon c'est le joueur 2
     		do
     		{
-		    GenerateDices(dices); // Génération des deux dés
-		    if (dices[0] < dices[1])
-		    {
-			    player = WHITE;
-		    }
-		    else
-		    {
-			    player = BLACK;
-		    }
+			    GenerateDices(dices); // Génération des deux dés
+			    if (dices[0] < dices[1])
+			    {
+				    player = WHITE;
+			    }
+			    else
+			    {
+				    player = BLACK;
+			    }
     		} while (dices[0] == dices[1]);
     		
     		// On détermine le nombre d'essais possibles
@@ -366,23 +399,23 @@ int main(int argc, char *argv[])
 	      //Mise a jour de l'affichage
 	      SDL_UpdateWindowSurface(pWindow);
 	      
-	      if (player == WHITE)
+	      if ((player == WHITE) && ((strcmp(mode,"ManVsBot")== 0) || (strcmp(mode,"BotvsBot") == 0)))
 	      {
-		  if ((j1DoubleStack(&gameState)) &&(doubleJ1 == 1))
-		  {
-		      if(!j2TakeDouble(&gameState))
-		      {
-			  gameState.blackScore += gameState.stake;
-			      break;
-		      }
-		      else
-		      {
-			  doubleJ1=0;
-			  doubleJ2=1;
-			  gameState.stake = gameState.stake*2;
-		      }
-		    
-		  }
+			  if ((j1DoubleStack(&gameState)) &&(doubleJ1 == 1))
+			  {
+			      if(!j2TakeDouble(&gameState))
+			      {
+					gameState.blackScore += gameState.stake;
+					break;
+			      }
+			      else
+			      {
+					  doubleJ1=0;
+					  doubleJ2=1;
+					  gameState.stake = gameState.stake*2;
+			      }
+			    
+			  }
 		  
 		  j1PlayTurn(&gameState, dices, moves, &nbMoves, j1NbTries);
 		  
@@ -407,7 +440,7 @@ int main(int argc, char *argv[])
 		      
 		      if (WinGame(&gameState, WHITE)) // On regarde si le joueur à gagner la partie
 		      {
-			  gameState.whiteScore += gameState.stake;
+			  	gameState.whiteScore += gameState.stake;
 		      }
 		  }
 		  else // Les coups n'étaient pas valides
@@ -419,10 +452,10 @@ int main(int argc, char *argv[])
 		      }
 		  }
 		  
-		  player = BLACK; // Mise à jour du joueur	
+		  	player = BLACK; // Mise à jour du joueur	
 	      }
     	
-	      else
+	      else if((player == BLACK) && (strcmp(mode,"BotvsBot") == 0))
 	      {
 		  if ((j2DoubleStack(&gameState)) && (doubleJ2 == 1))
 		  {
@@ -549,7 +582,7 @@ int main(int argc, char *argv[])
 						}
 						clickToSMoves(numHB,moves, &nbMoves, WHITE, cpt);
 						printf("NBMOVES = %d\n", nbMoves);
-						UpdateOneMove(&gameState,moves[nbMoves-1], WHITE); // PEUT ETRE, GERER QUAND NBMOVES == CPT
+						UpdateOneMove(&gameState,moves[nbMoves-1], BLACK); // PEUT ETRE, GERER QUAND NBMOVES == CPT
 						setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
 						afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
 						getchar();	
