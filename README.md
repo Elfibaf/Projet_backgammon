@@ -32,7 +32,7 @@ git push
     
     
     
-///// EXPLICATION DU BOT /////
+///////////////////////// EXPLICATION DU BOT /////////////////////////
 
 -La stratégie:
     Pour établir notre stratégie nous avons établis au préalable plusieurs points à travailler, ces différents points se regroupaient en deux grandes phases:
@@ -101,3 +101,45 @@ git push
         NB : Bien évidemment dans chacun de ces Etat les doubles sont pris en compte
         
         
+        
+
+
+        
+///////////////////////// EXPLICATION DE L'ARBITRAGE /////////////////////////
+=> Partie 1 : main.c
+=> Partie 2 : arbitrage.c
+
+Partie 1 : main.c
+
+
+
+
+Partie 2 : arbitrage.c
+
+Tout d'abord, il a fallu commencer par créer une fonction qui permet d'initialiser le plateau à chaque match (CF InitPlateau). Elle remplit le "board" (plateau) avec les dames placées dans leur position de départ.
+Ensuite, nous avons créé une fonction qui permettait de générer des dés (CF GenerateDices).
+Nous avons également fait une fonction qui permet de tester si un joueur à gagner le match en cours (CF WinGame). Cette fonction est très simple, elle compte le nombre de dame dans le "out", et si elles y sont toutes (elles sont au nombre de 15), alors la joueur à gagner
+
+Après avec créer ces fonctions, nous avons commencer à nous intéresser aux fonctions qui permet de vérifier la validité des coups et celles permettant la mise à jour du plateau.
+
+Nous allons commencer par voir les fonctions de mises à jour. Elles sont au nombre de 2 : UpdateAllMove et UpdateAllMove, qui permettent respectivement de mettre à jour le plateau avec un seul mouvement, et de mettre à jour le plateau avec tous les mouvements du tour. Cette dernière fait appel à la première pour fonctionner. Elles ne sont pas très compliquées, elles ne font juste que décrémenter le nombre de pion que possède la case source du mouvement (et penser à mettre à jour le propriétaire de la case si elle redevient neutre) et de mettre à jour la destination selon différent cas (la cible du mouvement est le board, le out, la dame "mange" une dame du joueur adversaire, etc.)
+
+Passons maintenant aux fonctions de mise à jour. La principale fonction est "CheckTurn". C'est cette fonction qui est appelée du main pour tester la validité d'un tour.
+
+CheckTurn :
+	On commence d'abord par regarder le nombre théorique de mouvement qu'il est possible de faire (si les dés sont égaux, ce nombre est 4, sinon il est égale à 2).
+	Si le joueur propose un nombre de mouvement incorrecte, la fonction renvoit faux (0)
+	Sinon, on crée deux tableaux de la taille du nombre théorique de mouvement :
+		- Le premier, "dicesTab" permet de stocker les dés utilisables (Si on obtient un double avec les dés, on obtient un tableau avec 4 fois la même valeur)
+		- Le deuxième, "dicesUsed" permet de retenir quels sont les dés qui ont déjà été utilisés : ce tableau fait la meme taille que "dicesTab", et chaque case est initialisée à 0.
+		=> Par exemple, si le dé numéro 2 est utilisé dans le tableau "dicesTab", la case du tableau "dicesUsed" passe à 1
+	
+	=====> Si le nombre de mouvement demandé par le joueur est égale au nombre de mouvement théorique, on appelle la fonction "CheckAllMove" qui permet de tester si les mouvements effectués par le joueur sont valides
+	=====> Si le nombre de mouvement est inférieur, il faut vérifier si le joueur n'aura pas pu faire un nombre supérieur de coup. Si le joueur a fait le maximum, il faut ensuite vérifier qu'il a fait la plus grande distance possible avec les dés. Par exemple, avec deux dés : S'il est possible de jouer un seul des deux dés, mais pas les deux, le nombre le plus élevé doit être joué. Par exemple, si un joueur amène 6-3 et ne peut jouer que soit le 6, soit le 3, il doit jouer le 6 ; s'il n'a pas la possibilité de jouer le 6, il doit jouer le 3 s'il le peut.   (!!!!!!!!! c'est partie du code est commentée, elle fait appel à une fonction "GetMaxNumberPossibleMoves" qui ne fonctionne pas !!!!!!!!!)
+	
+CheckOneMove :
+	Cette fonction permet de vérifier la validé d'un mouvement en fonction des dés. Elle vérifie tous les cas possibles et renvoit 0 si le mouvement n'est pas valide pour une quelconque raison, et 1 si le mouvement est valide. Elle prend notamment en compte la couleur du joueur (pour vérifier le sens du mouvement par exemple), vérifie la présence de dames dans le bar qui doivent être sorti
+
+
+CheckAllMove :
+	Cette fonction permet de vérifier la validé de tous les mouvements. Elle fait appel à CheckOneMove
