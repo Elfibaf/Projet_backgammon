@@ -63,7 +63,6 @@ void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rec
                 if(i<12) rouges[cptR].y = equivalence_y[j];
 		else rouges[cptR].y = equivalence_y2[j];
 		
-		//printf("X : %d, Y : %d \n", rouges[cptR].x, rouges[cptR].y);
                 cptR ++;
             }
         }
@@ -129,51 +128,51 @@ void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface 
 	//Parcours du tableau de jetons noirs et affichage
 	for (i=0; i<15;i++)
 	{
-		//printf("BlitSurface du jeton i = %d \n",i); 
-		SDL_BlitSurface(surfJetonNoir, 0, screen, &noirs[i]);
+	    //printf("BlitSurface du jeton i = %d \n",i); 
+	    SDL_BlitSurface(surfJetonNoir, 0, screen, &noirs[i]);
 	}
 
 	//Parcours du tableau de jetons blancs et affichage
 	for (j=0; j<15;j++)
 	{
-		//printf("BlitSurface du jeton j = %d \n",j);
-		SDL_BlitSurface(surfJetonBlanc, 0, screen, &blancs[j]);
+	    //printf("BlitSurface du jeton j = %d \n",j);
+	    SDL_BlitSurface(surfJetonBlanc, 0, screen, &blancs[j]);
 	}
 }
 
 void afficherDes(SDL_Surface *des, SDL_Rect *rectDes, unsigned char dices[2], char stringDes[10], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen)
 {
-    sprintf(stringDes, " %d : %d ", dices[0], dices[1]);
-    
-    des = TTF_RenderText_Blended(font, stringDes, colorFont);
-    
-    SDL_BlitSurface(des, 0, screen, rectDes);
+      sprintf(stringDes, " %d : %d ", dices[0], dices[1]);
+      
+      des = TTF_RenderText_Blended(font, stringDes, colorFont);
+      
+      SDL_BlitSurface(des, 0, screen, rectDes);
 }
 
 void afficherScore(SDL_Surface *titleBlack, SDL_Surface *titleWhite, SDL_Surface *scoreBlack, SDL_Surface *scoreWhite, SDL_Rect *rectScoreBlack, SDL_Rect *rectScoreWhite, SDL_Rect *rectTitleBlack, SDL_Rect *rectTitleWhite, char stringScoreBlack[20], char stringScoreWhite[20], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen, unsigned int blackScore, unsigned int whiteScore )
 {
-    sprintf(stringScoreBlack, "%d", blackScore);
-    sprintf(stringScoreWhite, "%d", whiteScore);
-    
-    titleWhite = TTF_RenderText_Blended(font, "Black : ", colorFont);
-    titleBlack = TTF_RenderText_Blended(font, "White : ", colorFont);
-    
-    scoreBlack = TTF_RenderText_Blended(font, stringScoreBlack, colorFont);
-    scoreWhite = TTF_RenderText_Blended(font, stringScoreWhite, colorFont);
-    
-    SDL_BlitSurface(titleBlack, 0, screen, rectTitleBlack);
-    SDL_BlitSurface(titleWhite, 0, screen, rectTitleWhite);
-    SDL_BlitSurface(scoreBlack, 0, screen, rectScoreBlack);
-    SDL_BlitSurface(scoreWhite, 0, screen, rectScoreWhite);
+      sprintf(stringScoreBlack, "%d", blackScore);
+      sprintf(stringScoreWhite, "%d", whiteScore);
+      
+      titleWhite = TTF_RenderText_Blended(font, "Black : ", colorFont);
+      titleBlack = TTF_RenderText_Blended(font, "White : ", colorFont);
+      
+      scoreBlack = TTF_RenderText_Blended(font, stringScoreBlack, colorFont);
+      scoreWhite = TTF_RenderText_Blended(font, stringScoreWhite, colorFont);
+      
+      SDL_BlitSurface(titleBlack, 0, screen, rectTitleBlack);
+      SDL_BlitSurface(titleWhite, 0, screen, rectTitleWhite);
+      SDL_BlitSurface(scoreBlack, 0, screen, rectScoreBlack);
+      SDL_BlitSurface(scoreWhite, 0, screen, rectScoreWhite);
 }
 
 void afficherMise(SDL_Surface *mise, SDL_Rect *rectMise, char stringMise[20], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen, unsigned int stake)
 {
-    sprintf(stringMise, "%d", stake);
-    
-    mise = TTF_RenderText_Blended(font, stringMise, colorFont);
-    
-    SDL_BlitSurface(mise, 0, screen, rectMise);
+      sprintf(stringMise, "%d", stake);
+      
+      mise = TTF_RenderText_Blended(font, stringMise, colorFont);
+      
+      SDL_BlitSurface(mise, 0, screen, rectMise);
 }
  
  void initHitBoxesTab(Hitbox *hitboxesTab, SDL_Surface* screen)
