@@ -529,69 +529,100 @@ int main(int argc, char *argv[])
 		      break;
 			
 			
+			
+			// Cas du clic, lorsque l'utilisateur clique sur le plateau de jeu, on rentre dans ce case
 		    case SDL_MOUSEBUTTONUP:
-		      printf("Clic clic ... \n");
+		      
+		      //printf("Clic clic ... \n"); TEST
+		      
+		      // On récupère les coordonnées du clic de l'utilisateur
 		      clicx = event.button.x;
 		      clicy = event.button.y;
-		      printf("X = %d \n", clicx);
-		      printf("Y = %d \n", clicy);
+		      //printf("X = %d \n", clicx); TEST
+		      //printf("Y = %d \n", clicy);
+		      
+		      
+		      // On récupère grâce à la fonction la hitbox touchée par l'utilisateur (c'est à dire  quelle case du board il a touché)  via son clic
 		      curHB = detectClickIntoHitbox(hitboxesTab, clicx,clicy);
-		      printf("\n HITBOX NUMERO  = %d", curHB);
+		      //printf("\n HITBOX NUMERO  = %d", curHB); TEST
 
+
+              // Si la hitbox récupérée existe   
 		      if (curHB != -1) {
 
+
+						// Si le clic est un "clic source"
 				    	if (numHB[0] == -1) {
 						
-						printf("Coucou 0");
-						numHB[0] = curHB;
+							// printf("Clic source"); TEST
+						
+							//On met la hitbox touchée dans le case du tableau contenant la hitbox source
+							numHB[0] = curHB;
+	
+	
+	
+	
+							/* TRAITEMENT AFFICHAGE POSSIBILITES DE COUP POUR LE JOUEUR 
+							// Si les dés sont égaux, alors chaque dé va être utilisé deux fois, sinon une fois
+							if (dices[0] == dices[1]) {
+	
+								cpt = 2;
+	
+							} else {
+	
+								cpt =1;
+	
+							}
+	
+							// On affiche les hitbox touchables pour chaque dé, et on le fait une autre fois si les dés sont égaux
+							for (i =1; i <= cpt; i++) {
+								
+								SDL_FillRect(screen, hitboxesTab[curHB+(i*dices[0])].rectHB, SDL_MapRGB(screen->format, 255, 0, 0));
+								SDL_FillRect(screen, hitboxesTab[curHB+(i*dices[1])].rectHB, SDL_MapRGB(screen->format, 255, 0, 0));
+								SDL_UpdateWindowSurface(pWindow);
+								getchar();
+							} */
 
-						/* TRAITEMENT AFFICHAGE POSSIBILITES DE COUP POUR LE JOUEUR 
-						if (dices[0] == dices[1]) {
 
-							cpt = 2;
-
-						} else {
-
-							cpt =1;
+						// Si le clic est un "clic destination"
+						} else if (numHB[1] == -1) {
+	
+							//printf("Clic destination"); TEST
+							
+							
+							//On met la hitbox touchée dans le case du tableau contenant la hitbox destination
+							numHB[1] = curHB;
+	
+							
+							// Conditionnelle permettant de savoir combien de moves peut faire le joueur, et stocke ce nombre dans la variable cpt
+							if (dices[0] == dices[1]) {
+	
+								cpt = 4; // 4 moves maximum si les dés sont égaux
+	
+							} else {
+	
+								cpt = 2; // 2 sinon
+	 
+							}
+							
+							
+							// Puisque l'on vient d'ajouter un "clic destination", on utilise donc cette fonction qui "transforme" ces deux clics en un Move
+							clickToSMoves(numHB,moves, &nbMoves, WHITE, cpt);
+							//printf("NBMOVES = %d\n", nbMoves); TEST
+							
+							// On met à jour le gameState en ajoutant et en faisant les modfications à faire sur le Board avec le nouveau Move juste créé
+							UpdateOneMove(&gameState,moves[nbMoves-1], BLACK); 
+							
+							//On met à jour l'affichage des jetons et du plateau
+							setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
+							afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
+							//getchar(); TEST, permettait de pouvoir bien regarder les différents résultats de tests puisque ça faisait une pause	
+							
+							
+										
 
 						}
-
-						for (i =1; i <= cpt; i++) {
-
-							SDL_FillRect(screen, hitboxesTab[curHB+(i*dices[0])].rectHB, SDL_MapRGB(screen->format, 255, 0, 0));
-							SDL_UpdateWindowSurface(pWindow);
-							getchar();
-						} */
-
-					} else if (numHB[1] == -1) {
-
-						printf("Coucou 1");
-						numHB[1] = curHB;
-
-						
-						printf("NBMOVES = %d\n", nbMoves);
-
-						if (dices[0] == dices[1]) {
-
-							cpt = 4;
-
-						} else {
-
-							cpt = 2;
- 
-						}
-						clickToSMoves(numHB,moves, &nbMoves, WHITE, cpt);
-						printf("NBMOVES = %d\n", nbMoves);
-						UpdateOneMove(&gameState,moves[nbMoves-1], BLACK); // PEUT ETRE, GERER QUAND NBMOVES == CPT
-						setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
-						afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
-						getchar();	
-						
-						
-									
-
-					}
-				     }
+				}
 		      break;
 		}
 		  
