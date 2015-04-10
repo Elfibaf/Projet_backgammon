@@ -50,6 +50,7 @@ void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rec
 void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface *surfJetonBlanc, SDL_Rect noirs[15] , SDL_Rect blancs[15], SDL_Rect *rectPlateau, SDL_Rect *rectDes, SDL_Surface *screen);
 
 /**
+ * Fonction d'affichage des dés
  * @param SDL_Surface *des 
  * 	Surface d'affichage des dés
  * @param SDL_Rect *rectDes 
@@ -68,7 +69,59 @@ void afficher(SDL_Surface *surfPlateau, SDL_Surface *surfJetonNoir, SDL_Surface 
 
 void afficherDes(SDL_Surface *des, SDL_Rect *rectDes, unsigned char dices[2], char stringDes[10], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen);
 
+
+/**
+ * Fonction d'affichage du score
+ * @param SDL_Surface *titleBlack 
+ *	Surface du titre du score noir 
+ * @param SDL_Surface *titleWhite
+ * 	Surface du titre du score blanc
+ * @param SDL_Surface *scoreBlack
+ * 	Surface du score noir
+ * @param SDL_Surface *scoreWhite
+ * 	Surface du score blanc
+ * @param SDL_Rect *rectScoreBlack
+ * @param SDL_Rect *rectScoreWhite 
+ * @param SDL_Rect *rectTitleBlack 
+ * @param SDL_Rect *rectTitleWhite 
+ * @param char stringScoreBlack[20]
+ *	chaine de caractère d'affichage du score noir
+ * @param char stringScoreWhite[20]
+ * 	chaine de caractère d'affichage du score blanc
+ * @param SDL_Color colorFont
+ * 	Couleur de la police utilisée pour l'affichage
+ * @param TTF_Font *font
+ * 	Police utilisée pour l'affichage
+ * @param SDL_Surface *screen
+ * @param unsigned int blackScore
+ * 	score noir issu du gameState
+ * @param unsigned int whiteScore
+ * 	score blanc issu du gameState
+ * 
+ */
+
 void afficherScore(SDL_Surface *titleBlack, SDL_Surface *titleWhite, SDL_Surface *scoreBlack, SDL_Surface *scoreWhite, SDL_Rect *rectScoreBlack, SDL_Rect *rectScoreWhite, SDL_Rect *rectTitleBlack, SDL_Rect *rectTitleWhite, char stringScoreBlack[20], char stringScoreWhite[20], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen, unsigned int blackScore, unsigned int whiteScore);
+
+
+
+/**
+ * Fonction d'affichage de la mise
+ * @param SDL_Surface *mise
+ * 	Surface d'affichage de la mise
+ * @param SDL_Rect *rectMise
+ * 	Rect SDL de la mise
+ * @param char stringMise[20]
+ * 	chaine de caractère d'affichage de la mise
+ * @param SDL_Color colorFont
+ * 	Couleur de la police
+ * @param TTF_Font *font
+ * 	Police 
+ * @param SDL_Surface *screen
+ * 	Surface de l'écran à mettre a jour
+ * @param unsigned int stake
+ * 	Mise issue du gameState
+ * 
+ */
 
 void afficherMise(SDL_Surface *mise, SDL_Rect *rectMise, char stringMise[20], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen, unsigned int stake);
 
