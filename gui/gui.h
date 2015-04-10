@@ -108,7 +108,7 @@ int detectClickIntoHitbox(Hitbox *hitboxesTab, int x, int y);
  */
  
  
-void clickToSMoves(int* indiceHBTab, SMove* moves,unsigned int *nbMoves, Player curPlayer);
+void clickToSMoves(int* indiceHBTab, SMove* moves,unsigned int *nbMoves, Player curPlayer, int cpt);
 
 
 
