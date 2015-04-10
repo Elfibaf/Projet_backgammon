@@ -342,7 +342,7 @@ int main(int argc, char *argv[])
 	  }
 	  
 	  // Tant que la partie en cours n'est pas fini
-	  while(! WinGame(&gameState, player))
+	  while((! WinGame(&gameState, (1-player))) && (done != true))
 	  {
 	    gameState.turn++; // Mise à jour du nombre de tours de la partie en cours
 	    GenerateDices(dices); // Generation des 2 dés
@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
 	    
 	    if (player == WHITE)
        	{
-    		if (j1DoubleStack(&gameState) &&(doubleJ1 == 1))
+    		if ((j1DoubleStack(&gameState)) &&(doubleJ1 == 1))
 	        {
 	            if(!j2TakeDouble(&gameState))
 	            {
@@ -378,9 +378,26 @@ int main(int argc, char *argv[])
 	        if (CheckTurn(&copyGameState, dices, moves, nbMoves, player)) // Vérification des coups
 	        {
 	        	UpdateAllMove(&gameState, moves, nbMoves, player); // Mise à jour du jeu
+	        	
+	        	//Calcul des coordonnees des jetons
+			    setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
+			    
+			    
+			    //Affichage des jetons et du plateau
+			    afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
+			    
+			    
+			    //Affichage des des
+			    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
+			    afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
+			    
+			    
+			    //Mise a jour de l'affichage de l'interface
+			    SDL_UpdateWindowSurface(pWindow);
+	        	
 	        	if (WinGame(&gameState, WHITE)) // On regarde si le joueur à gagner la partie
 			    {
-			        gameState.whiteScore++;
+			        gameState.whiteScore += gameState.stake;
 			    }
 	        }
 	        else // Les coups n'étaient pas valides
@@ -388,139 +405,77 @@ int main(int argc, char *argv[])
 	        	j1NbTries--; // On décremente le nombre d'essais restant
 	        	if (j1NbTries == 0) // Si le joueur n'a plus d'essais, il perd automatiquement
 	        	{
-	        		gameState.blackScore++;
+	        		gameState.blackScore+= gameState.stake;
 	        	}
 	        }
 	        
 	        player = BLACK; // Mise à jour du joueur	
     	}
-        	else
-        	{
-        		if (j2DoubleStack(&gameState))
-		        {
-		            j1TakeDouble(&gameState);
-		        }
-		        
-		        j2PlayTurn(&gameState, dices, moves, &nbMoves, j2NbTries);
-		        
-		        copyGameState = gameState;
-		        if (CheckTurn(&copyGameState, dices, moves, nbMoves, player)) // Vérification des coups
-		        {
-		        	UpdateAllMove(&gameState, moves, nbMoves, player); // Mise à jour du jeu
-		        	if (WinGame(&gameState, player)) // On regarde si le joueur à gagner la partie
-				    {
-				        gameState.blackScore++;
-				    }
-		        }
-		        else // Les coups n'étaient pas valides
-		        {
-		        	j2NbTries--; // On décremente le nombre d'essais restant
-		        	if (j2NbTries == 0) // Si le joueur n'a plus d'essais, il perd automatiquement
-		        	{
-		        		gameState.whiteScore++;
-		        	}
-		        }
-		        
-		        player = WHITE; // Mise à jour du joueur
-        	}
+    	
+    	else
+    	{
+    		if ((j2DoubleStack(&gameState)) && (doubleJ2 == 1))
+	        {
+	            if(!j1TakeDouble(&gameState))
+	            {
+	            	gameState.whiteScore += gameState.stake;
+		            break;
+	            }
+	            else
+                {
+                	doubleJ1=1;
+                	doubleJ2=0;
+                	gameState.stake = gameState.stake*2;
+                }
+	        }
+	        
+	        j2PlayTurn(&gameState, dices, moves, &nbMoves, j2NbTries);
+	        
+	        copyGameState = gameState;
+	        if (CheckTurn(&copyGameState, dices, moves, nbMoves, player)) // Vérification des coups
+	        {
+	        	UpdateAllMove(&gameState, moves, nbMoves, player); // Mise à jour du jeu
+	        	
+	        	//Calcul des coordonnees des jetons
+			    setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
+			    
+			    
+			    //Affichage des jetons et du plateau
+			    afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
+			    
+			    
+			    //Affichage des des
+			    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
+			    afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
+			    
+			    
+			    //Mise a jour de l'affichage de l'interface
+			    SDL_UpdateWindowSurface(pWindow);
+	        	
+	        	if (WinGame(&gameState, player)) // On regarde si le joueur à gagner la partie
+			    {
+			        gameState.blackScore+=gameState.stake;
+			    }
+	        }
+	        else // Les coups n'étaient pas valides
+	        {
+	        	j2NbTries--; // On décremente le nombre d'essais restant
+	        	if (j2NbTries == 0) // Si le joueur n'a plus d'essais, il perd automatiquement
+	        	{
+	        		gameState.whiteScore+=gameState.stake;
+	        	}
+	        }
+	        
+	        player = WHITE; // Mise à jour du joueur
+    	}
 	    
 	    
-	    //Affichage du de avant que le joueur joue
-	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-	    afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
-	    
-	    //Mise a jour de l'affichage
-	    SDL_UpdateWindowSurface(pWindow);
+
 	    
 	    
-	    //Le joueur 1 joue son tour
-	    j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
-	    
-	    
-	    //Mise à jour du gameState
-	    UpdateAllMove(&gameState, moves, nbMoves, WHITE);
-	    
-	    
-	    //Calcul des coordonnees des jetons
-	    setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
-	    
-	    
-	    //Affichage des jetons et du plateau
-	    afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
-	    
-	    
-	    //Affichage des des
-	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-	    afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
-	    
-	    
-	    //Mise a jour de l'affichage de l'interface
-	    SDL_UpdateWindowSurface(pWindow);
 	    
 	    SDL_Delay(500);
-	    
-	    
-	    
-	    if( WinGame(&gameState, WHITE) )
-	    {
-		gameState.whiteScore++;
-		break;
-	    }
-	    
-	    /*initHitBoxesTab(hitboxesTab, screen);
-	    SDL_UpdateWindowSurface(pWindow);*/
-	    
-	    
-	    // **********************************************************
-	    // TOUR DU DEUXIEME JOUEUR (BLACK)
-	    // **********************************************************
-	    GenerateDices(dices);
-	    
-	    
-	    
-	    if(j2DoubleStack(&gameState))
-	    {
-		j1TakeDouble(&gameState);
-	    }
-	    
-	    
-	    //Affichage du de avant que le joueur joue
-	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-	    afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
-	    
-	    //Mise a jour de l'affichage
-	    SDL_UpdateWindowSurface(pWindow);
-	    
-	    
-	    //Le joueur 2 joue
-	    j2PlayTurn(&gameState,dices,moves,&nbMoves,3);
-	    
-	    //Mise à jour du gameState
-	    UpdateAllMove(&gameState, moves, nbMoves, BLACK);
-	    
-	    
-	    //Calcul des coordonnees des jetons
-	    setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
-	    
-	    
-	    //Affichage des jetons et du plateau
-	    afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
-	    
-	    
-	    //Affichage des des
-	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-	    afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
-	    
-	    //Mise a jour de l'affichage de l'interface
-	    SDL_UpdateWindowSurface(pWindow);
-	    
-	    SDL_Delay(500);
-	    
-	    if( WinGame(&gameState, BLACK) )
-	    {
-		gameState.blackScore++;
-		break;
-	    }
+
 	    
 	    // Gestion des evenements
 	    printf("Gestion des evenements \n");
@@ -562,7 +517,7 @@ int main(int argc, char *argv[])
 											
 
 					}
-				     }
+				}
 			
 		      break;
 		}
@@ -572,14 +527,14 @@ int main(int argc, char *argv[])
 	    printf("Fin de gestion des evenements \n");
 
 	  }
-	  if(done) break;
+	  
 	  printf("Fin Game \n");
 	  j1EndGame();
-	  
+	  j2EndGame();
 	}
 	printf("Fin Match \n");
 	j1EndMatch();
-
+	j2EndMatch();
 	free(hitboxesTab);
 	 
 	SDL_FreeSurface(screen);
