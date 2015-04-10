@@ -313,18 +313,25 @@ int main(int argc, char *argv[])
 	//Appel a la fonction de mise a jour de l'ecran
 	SDL_UpdateWindowSurface(pWindow);
 	
-	//Gestion des hitbox (utilisateur humain)
+	//Allocation mémoire au tableau qui contiendra les 28 hitbox
 	Hitbox *hitboxesTab = (Hitbox*) malloc (28*sizeof(Hitbox));
 
+	// Entiers qui contiendront les coordonnées du clic
 	int clicx;
 	int clicy;
+	
+	// Entier qui contiendra la hitbox touchée par un clic
 	int curHB;
+	
+	// Entier qui contiendra le nombre de moves qu'un joueur pourra faire à tel tour, utile dans la gestion des clics
 	int cpt;
 
+	// Tableau de deux entiers qui contiendra la hitbox "source" et la hitbox "destination" touchées par deux clics consécutifs
 	int numHB[2];
-	numHB[0] = -1;
+	numHB[0] = -1; // On initialiste à -1, valeur qui sera utilisée si aucun clic "source" ou "destination" n'a été fait pour le moment
 	numHB[1] = -1;
 
+	// Appel de la fonction qui permet d'initialiser les coordonnées des hitbox
 	initHitBoxesTab(hitboxesTab, screen);
 	
 	
@@ -651,6 +658,7 @@ int main(int argc, char *argv[])
 	j1EndMatch();
 	j2EndMatch();
 	
+	// Libération de la mémoire utilisée par le tableau d'hitbox
 	free(hitboxesTab);
 	 
 	SDL_FreeSurface(screen);
