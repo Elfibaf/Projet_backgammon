@@ -239,7 +239,7 @@ int CheckOneMove(const SGameState * const gameState, const SMove move, const uns
 	else
 	{
 	    // On enleve les cas particuliers du "bar" et du "out" pour le joueur BLACK
-	    if ( (destination != 25) || (source == 0) )
+	    if ( (destination != 25) && (source != 0) )
 	    {
 	        if (source < destination)
 	        {
@@ -327,19 +327,21 @@ int CheckOneMove(const SGameState * const gameState, const SMove move, const uns
 				return 0;
 			}
 		}
-		
+		// On calcul la distance entre le "out" et la dame
+		if (player == WHITE)
+        {
+            diff = destination - source;
+        }
+        else
+        {
+            // La différence est égale à la case (le joueur noir sort une dame de la case 6 avec un dé ayant une valeur de 6)
+            diff = source;
+        }
+        
 		// On parcours la liste des valeurs fournie par les dés
 	    for (numDice = 0; numDice < nbMovesTheoretic; numDice++)
 	    {
-	        if (player == WHITE)
-	        {
-	            diff = destination - source;
-	        }
-	        else
-	        {
-	            // La différence est égale à la case (le joueur noir sort une dame de la case 6 avec un dé ayant une valeur de 6)
-	            diff = source;
-	        }
+	        
 	        // Si la dame est exactement à la distance nécessaire (selon le dé) pour pouvoir etre sorti
 	        // et que le dé n'a pas encore été utilisé
 		    if ( (diff == dicesTab[numDice]) && (dicesUsed[numDice] == 0) )
@@ -348,7 +350,11 @@ int CheckOneMove(const SGameState * const gameState, const SMove move, const uns
 			    dicesUsed[numDice] = 1;
 			    return 1;
 		    }
-		    else if ( (diff < dicesTab[numDice]) && (dicesUsed[numDice] == 0) )
+		}
+		
+		for (numDice = 0; numDice < nbMovesTheoretic; numDice++)
+	    {
+		    if ( (diff < dicesTab[numDice]) && (dicesUsed[numDice] == 0) )
 		    {
 			    // Si le joueur fait un mouvement plus petit que le résultat du dé
 			    // il faut parcourir toutes les cases du jan intérieur qui précède la dame que le joueur souhaite déplacer
@@ -369,7 +375,6 @@ int CheckOneMove(const SGameState * const gameState, const SMove move, const uns
 			    {
 				    if (gameState->board[numSquare].owner == player)
 				    {
-				        // Si une dame est plus éloignée du "out", il aurait fallu la jouer
 				        return 0;
 				    }		    
 			    }
