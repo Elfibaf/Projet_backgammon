@@ -59,6 +59,7 @@ void setBoardTokens(const SGameState * const state, SDL_Rect noirs[15] , SDL_Rec
 		}
                 else noirs[cptN].y = equivalence_y2[j];
 		
+		//printf("X : %d | \t Y : %d \t", noirs[cptN].x, noirs[cptN].y); 
                 cptN++;
             }
         }
@@ -181,6 +182,14 @@ void afficherScore(SDL_Surface *titleBlack, SDL_Surface *titleWhite, SDL_Surface
     SDL_BlitSurface(scoreWhite, 0, screen, rectScoreWhite);
 }
 
+void afficherMise(SDL_Surface *mise, SDL_Rect *rectMise, char stringMise[20], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen, unsigned int stake)
+{
+    sprintf(stringMise, "%d", stake);
+    
+    mise = TTF_RenderText_Blended(font, stringMise, colorFont);
+    
+    SDL_BlitSurface(mise, 0, screen, rectMise);
+}
  
  void initHitBoxesTab(Hitbox *hitboxesTab, SDL_Surface* screen)
 {

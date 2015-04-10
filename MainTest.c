@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
     SDL_Surface * scoreBlack;
     SDL_Surface * titleWhite;
     SDL_Surface * titleBlack;
+    SDL_Surface * mise;
     
     //Fonts
     TTF_Font *font;
@@ -60,6 +61,9 @@ int main(int argc, char *argv[])
     
     SDL_Rect rectScoreBlack = {155, 200, 0, 0};
     SDL_Rect rectScoreWhite = {155, 500, 0, 0};
+    
+    //Surface d'affichage de la mise
+    SDL_Rect rectMise = {1183, 368, 0, 0};
     
     //Surface SDL servant à contenir l'image du plateau
     SDL_Rect rectPlateau;
@@ -85,6 +89,9 @@ int main(int argc, char *argv[])
     
     //Chaine de caractère représentant le score Black
     char stringScoreBlack[20];
+    
+    //Chaine de caractere de la mise
+    char stringMise[10];
     
     bool done = false;
 	
@@ -257,6 +264,8 @@ int main(int argc, char *argv[])
 	scoreBlack = TTF_RenderText_Blended(font, "0", colorFont);
 	if(scoreBlack == NULL) printf("Erreur de rendu du texte du score (%s)", TTF_GetError());
 	
+	mise = TTF_RenderText_Blended(font, "0", colorFont);
+	if(mise == NULL) printf("Erreur de rendu du texte de la mise (%s)", TTF_GetError());
 	//Affichage du score
 	afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
 	
@@ -273,6 +282,7 @@ int main(int argc, char *argv[])
 	setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
 	afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
 	afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
+	afficherMise(mise, &rectMise, stringMise, colorFont, font, screen, gameState.stake);
 	
 	//Appel a la fonction de mise a jour de l'ecran
 	SDL_UpdateWindowSurface(pWindow);
@@ -294,204 +304,197 @@ int main(int argc, char *argv[])
 
 
 	// Tant qu'aucun des joueurs n'a gagné le jeu, on continue à faire des parties
-	while( (gameState.whiteScore < goal) && (gameState.blackScore < goal) )
+	while( (gameState.whiteScore < goal) && (gameState.blackScore < goal))
 	{
-	  InitPlateau(&gameState); // Initialisation du tableau
+	    InitPlateau(&gameState); // Initialisation du tableau
 	  
-	  //Affichage du plateau initial
-	  setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
-	  afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
-	  afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-	  afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.blackScore, gameState.whiteScore);
+	    //Affichage du plateau initial
+	    setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
+	    afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
 	
-	  //Appel a la fonction de mise a jour de l'ecran
-	  SDL_UpdateWindowSurface(pWindow);
-	    
-	  j1StartGame(WHITE);
-	  j2StartGame(BLACK);
+	    //Appel a la fonction de mise a jour de l'ecran
+	    SDL_UpdateWindowSurface(pWindow);
+	      
+	    j1StartGame(WHITE);
+	    j2StartGame(BLACK);
 	 
 	  
-	  Player player;
-	  
-	  // En début de manche les 2 joueurs ont le videau
-	  doubleJ1 = 1;
-	  doubleJ2 = 1;
-	  
-	  if (gameState.turn == 0)
-	  {
+	    Player player;
+	    
+	    // En début de manche les 2 joueurs ont le videau
+	    doubleJ1 = 1;
+	    doubleJ2 = 1;
+	    
+	    if (gameState.turn == 0)
+	    {
     		// Pour savoir qui commence, on lance deux dés, si le premier est plus petit que le deuxième,
     		// le joueur 1 est le WHITE
     		// sinon c'est le joueur 2
     		do
     		{
-    			GenerateDices(dices); // Génération des deux dés
-    			if (dices[0] < dices[1])
-    			{
-    				player = WHITE;
-    			}
-    			else
-    			{
-    				player = BLACK;
-    			}
+		    GenerateDices(dices); // Génération des deux dés
+		    if (dices[0] < dices[1])
+		    {
+			    player = WHITE;
+		    }
+		    else
+		    {
+			    player = BLACK;
+		    }
     		} while (dices[0] == dices[1]);
     		
     		// On détermine le nombre d'essais possibles
     		j1NbTries = J1_NB_TRIES;
     		j2NbTries = J2_NB_TRIES;
 	  	
-	  }
+	    }
 	  
-	  // Tant que la partie en cours n'est pas fini
-	  while((! WinGame(&gameState, (1-player))) && (done != true))
-	  {
-	    gameState.turn++; // Mise à jour du nombre de tours de la partie en cours
-	    GenerateDices(dices); // Generation des 2 dés
+	    // Tant que la partie en cours n'est pas fini
+	    while((! WinGame(&gameState, (1-player))) && (!done))
+	    {
 
-		//Affichage du de avant que le joueur joue
-	    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-	    afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
-	    
-	    //Mise a jour de l'affichage
-	    SDL_UpdateWindowSurface(pWindow);
-	    
-	    if (player == WHITE)
-       	{
-    		if ((j1DoubleStack(&gameState)) &&(doubleJ1 == 1))
-	        {
-	            if(!j2TakeDouble(&gameState))
-	            {
-	            	gameState.blackScore += gameState.stake;
-		            break;
-	            }
-	            else
-                {
-                	doubleJ1=0;
-                	doubleJ2=1;
-                	gameState.stake = gameState.stake*2;
-                }
-	          
-	        }
-	        
-	        j1PlayTurn(&gameState, dices, moves, &nbMoves, j1NbTries);
-	        
-	        copyGameState = gameState;		        
-	        if (CheckTurn(&copyGameState, dices, moves, nbMoves, player)) // Vérification des coups
-	        {
-	        	UpdateAllMove(&gameState, moves, nbMoves, player); // Mise à jour du jeu
-	        	
-	        	//Calcul des coordonnees des jetons
-			    setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
-			    
-			    
-			    //Affichage des jetons et du plateau
-			    afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
-			    
-			    
-			    //Affichage des des
-			    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-			    afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
-			    
-			    
-			    //Mise a jour de l'affichage de l'interface
-			    SDL_UpdateWindowSurface(pWindow);
-	        	
-	        	if (WinGame(&gameState, WHITE)) // On regarde si le joueur à gagner la partie
-			    {
-			        gameState.whiteScore += gameState.stake;
-			    }
-	        }
-	        else // Les coups n'étaient pas valides
-	        {
-	        	j1NbTries--; // On décremente le nombre d'essais restant
-	        	if (j1NbTries == 0) // Si le joueur n'a plus d'essais, il perd automatiquement
-	        	{
-	        		gameState.blackScore+= gameState.stake;
-	        	}
-	        }
-	        
-	        player = BLACK; // Mise à jour du joueur	
-    	}
+	      gameState.turn++; // Mise à jour du nombre de tours de la partie en cours
+	      GenerateDices(dices); // Generation des 2 dés
+	      
+	      
+	      //Affichage du de avant que le joueur joue
+	      afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
+	      afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
+	      afficherMise(mise, &rectMise, stringMise, colorFont, font, screen, gameState.stake);
+	      
+	      //Mise a jour de l'affichage
+	      SDL_UpdateWindowSurface(pWindow);
+	      
+	      if (player == WHITE)
+	      {
+		  if ((j1DoubleStack(&gameState)) &&(doubleJ1 == 1))
+		  {
+		      if(!j2TakeDouble(&gameState))
+		      {
+			  gameState.blackScore += gameState.stake;
+			      break;
+		      }
+		      else
+		      {
+			  doubleJ1=0;
+			  doubleJ2=1;
+			  gameState.stake = gameState.stake*2;
+		      }
+		    
+		  }
+		  
+		  j1PlayTurn(&gameState, dices, moves, &nbMoves, j1NbTries);
+		  
+		  copyGameState = gameState;		        
+		  if (CheckTurn(&copyGameState, dices, moves, nbMoves, player)) // Vérification des coups
+		  {
+		      UpdateAllMove(&gameState, moves, nbMoves, player); // Mise à jour du jeu
+		      
+		      //Calcul des coordonnees des jetons
+		      setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
+
+		      //Affichage des jetons et du plateau
+		      afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
+		      
+		      //Affichage des des et du score
+		      afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
+		      afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
+		      afficherMise(mise, &rectMise, stringMise, colorFont, font, screen, gameState.stake);
+		      
+		      //Mise a jour de l'affichage de l'interface
+		      SDL_UpdateWindowSurface(pWindow);
+		      
+		      if (WinGame(&gameState, WHITE)) // On regarde si le joueur à gagner la partie
+		      {
+			  gameState.whiteScore += gameState.stake;
+		      }
+		  }
+		  else // Les coups n'étaient pas valides
+		  {
+		      j1NbTries--; // On décremente le nombre d'essais restant
+		      if (j1NbTries == 0) // Si le joueur n'a plus d'essais, il perd automatiquement
+		      {
+			  gameState.blackScore+= gameState.stake;
+		      }
+		  }
+		  
+		  player = BLACK; // Mise à jour du joueur	
+	      }
     	
-    	else
-    	{
-    		if ((j2DoubleStack(&gameState)) && (doubleJ2 == 1))
-	        {
-	            if(!j1TakeDouble(&gameState))
-	            {
-	            	gameState.whiteScore += gameState.stake;
-		            break;
-	            }
-	            else
-                {
-                	doubleJ1=1;
-                	doubleJ2=0;
-                	gameState.stake = gameState.stake*2;
-                }
-	        }
-	        
-	        j2PlayTurn(&gameState, dices, moves, &nbMoves, j2NbTries);
-	        
-	        copyGameState = gameState;
-	        if (CheckTurn(&copyGameState, dices, moves, nbMoves, player)) // Vérification des coups
-	        {
-	        	UpdateAllMove(&gameState, moves, nbMoves, player); // Mise à jour du jeu
-	        	
-	        	//Calcul des coordonnees des jetons
-			    setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
-			    
-			    
-			    //Affichage des jetons et du plateau
-			    afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
-			    
-			    
-			    //Affichage des des
-			    afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
-			    afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
-			    
-			    
-			    //Mise a jour de l'affichage de l'interface
-			    SDL_UpdateWindowSurface(pWindow);
-	        	
-	        	if (WinGame(&gameState, player)) // On regarde si le joueur à gagner la partie
-			    {
-			        gameState.blackScore+=gameState.stake;
-			    }
-	        }
-	        else // Les coups n'étaient pas valides
-	        {
-	        	j2NbTries--; // On décremente le nombre d'essais restant
-	        	if (j2NbTries == 0) // Si le joueur n'a plus d'essais, il perd automatiquement
-	        	{
-	        		gameState.whiteScore+=gameState.stake;
-	        	}
-	        }
-	        
-	        player = WHITE; // Mise à jour du joueur
-    	}
+	      else
+	      {
+		  if ((j2DoubleStack(&gameState)) && (doubleJ2 == 1))
+		  {
+		      if(!j1TakeDouble(&gameState))
+		      {
+			  gameState.whiteScore += gameState.stake;
+			      break;
+		      }
+		      else
+		      {
+			  doubleJ1=1;
+			  doubleJ2=0;
+			  gameState.stake = gameState.stake*2;
+		      }
+		  }
+		  
+		  j2PlayTurn(&gameState, dices, moves, &nbMoves, j2NbTries);
+		      
+		  copyGameState = gameState;
+		  if (CheckTurn(&copyGameState, dices, moves, nbMoves, player)) // Vérification des coups
+		  {
+		      UpdateAllMove(&gameState, moves, nbMoves, player); // Mise à jour du jeu
+		      
+		      //Calcul des coordonnees des jetons
+		      setBoardTokens(&gameState, noirs, blancs, &rectPlateau);
+		      
+		      //Affichage des jetons et du plateau
+		      afficher(surfPlateau, surfJetonNoir, surfJetonBlanc, noirs, blancs, &rectPlateau, &rectDes, screen);
+		      
+		      //Affichage des des et du score
+		      afficherDes(des, &rectDes, dices, stringDes, colorFont, font, screen);
+		      afficherScore(titleBlack, titleWhite, scoreBlack, scoreWhite, &rectScoreBlack, &rectScoreWhite, &rectTitleBlack, &rectTitleWhite, stringScoreBlack, stringScoreWhite, colorFont, font1, screen, gameState.whiteScore, gameState.blackScore);
+		      afficherMise(mise, &rectMise, stringMise, colorFont, font, screen, gameState.stake);
+		      
+		      //Mise a jour de l'affichage de l'interface
+		      SDL_UpdateWindowSurface(pWindow);
+			  
+		      if (WinGame(&gameState, player)) // On regarde si le joueur à gagner la partie
+		      {
+			  gameState.blackScore+=gameState.stake;
+		      }
+		  }
+		  else // Les coups n'étaient pas valides
+		  {
+		      j2NbTries--; // On décremente le nombre d'essais restant
+		      if (j2NbTries == 0) // Si le joueur n'a plus d'essais, il perd automatiquement
+		      {
+			      gameState.whiteScore+=gameState.stake;
+		      }
+		  }
+		  
+		  player = WHITE; // Mise à jour du joueur
+	      }
 	    
 	    
+	      SDL_Delay(500);
 
-	    
-	    
-	    
-	    SDL_Delay(500);
-
-	    
-	    // Gestion des evenements
-	    printf("Gestion des evenements \n");
-	    while ( SDL_PollEvent(&event) )
-	    {  
+	      
+	      // Gestion des evenements
+	      printf("Gestion des evenements \n");
+	      while ( SDL_PollEvent(&event) )
+	      {  
 		switch(event.type)
 		{
 		    case SDL_WINDOWEVENT:
 		      if(event.window.event == SDL_WINDOWEVENT_CLOSE) 
 		      {
-			printf("SQL_QUIT captured, treating... \n");
-			done = true;
+			  printf("SQL_QUIT captured, treating... \n");
+			  done = true;
 		      }
 		      break;
-		      
-		      
+			
+			
 		    case SDL_MOUSEBUTTONUP:
 		      printf("Clic clic ... \n");
 		      clicx = event.button.x;
@@ -502,39 +505,50 @@ int main(int argc, char *argv[])
 		      printf("\n HITBOX NUMERO  = %d", curHB);
 
 
-		       if (curHB != -1) {
+		      if (curHB != -1) 
+		      {
 
-				    	if (numHB[0] == -1) {
-						
-						printf("Coucou 0");
-						numHB[0] = curHB;
+			  if (numHB[0] == -1) 
+			  { 
+			      printf("Coucou 0");
+			      numHB[0] = curHB;
 
-					} else if (numHB[1] == -1) {
-
-						printf("Coucou 1");
-						numHB[1] = curHB;
-						clickToSMoves(numHB,moves,&nbMoves, WHITE);
-											
-
-					}
-				}
-			
+			  } 
+			  else if (numHB[1] == -1) 
+			  {
+			      printf("Coucou 1");
+			      numHB[1] = curHB;
+			      clickToSMoves(numHB,moves,&nbMoves, WHITE);
+			  }
+		      }  
 		      break;
 		}
-		
-	    }
-	    
-	    printf("Fin de gestion des evenements \n");
+		  
+	      }
+	      printf("Fin de gestion des evenements \n");
 
 	  }
+	  
+	  if(done) break;
+	  
+	  //Cleaning the printed elements
+	  sprintf(stringDes, " ");
+    
+	  des = TTF_RenderText_Blended(font, stringDes, colorFont);
+	  
+	  SDL_BlitSurface(des, 0, screen, &rectDes);
+	  
+	  SDL_UpdateWindowSurface(pWindow);
 	  
 	  printf("Fin Game \n");
 	  j1EndGame();
 	  j2EndGame();
 	}
+	
 	printf("Fin Match \n");
 	j1EndMatch();
 	j2EndMatch();
+	
 	free(hitboxesTab);
 	 
 	SDL_FreeSurface(screen);
@@ -544,7 +558,6 @@ int main(int argc, char *argv[])
 	SDL_FreeSurface(des);
 	
 	TTF_CloseFont(font);
-	
 	
 	SDL_DestroyWindow(pWindow);
 	

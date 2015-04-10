@@ -70,6 +70,8 @@ void afficherDes(SDL_Surface *des, SDL_Rect *rectDes, unsigned char dices[2], ch
 
 void afficherScore(SDL_Surface *titleBlack, SDL_Surface *titleWhite, SDL_Surface *scoreBlack, SDL_Surface *scoreWhite, SDL_Rect *rectScoreBlack, SDL_Rect *rectScoreWhite, SDL_Rect *rectTitleBlack, SDL_Rect *rectTitleWhite, char stringScoreBlack[20], char stringScoreWhite[20], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen, unsigned int blackScore, unsigned int whiteScore);
 
+void afficherMise(SDL_Surface *mise, SDL_Rect *rectMise, char stringMise[20], SDL_Color colorFont, TTF_Font *font, SDL_Surface *screen, unsigned int stake);
+
 /**
  * Initialisation des Hitbox et du tableau contenant les Hitbox
  * @param Hitbox *hitboxesTab 
