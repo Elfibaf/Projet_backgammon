@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
 	          
 	        }
 	        
-	        j1PlayTurn(&copyGameState, dices, moves, &nbMoves, j1NbTries);
+	        j1PlayTurn(&gameState, dices, moves, &nbMoves, j1NbTries);
 	        
 	        copyGameState = gameState;		        
 	        if (CheckTurn(&copyGameState, dices, moves, nbMoves, player)) // Vérification des coups

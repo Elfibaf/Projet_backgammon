@@ -99,6 +99,7 @@ int CheckTurn(SGameState * gameState, const unsigned char dices[2], const SMove 
 	}
 	else
 	{
+		
 		// dicesTab = Tableau remplit selon les valeurs fournises par les dés
 		//            Si les valeurs des deux dés sont égales, le tableau contient 4 valeurs identiques
 		//            Sinon le tableau contient les 2 valeurs fournises par les deux déss
@@ -433,8 +434,6 @@ int CheckAllMove(SGameState * gameState, const SMove moves[4], const unsigned in
         {
             if (CheckOneMove(gameState, moves[numMove], nbMovesTheoretic, player, dicesTab, dicesUsed) == 0)
             {
-                free(dicesTab);
-                free(dicesUsed);
                 return 0;
             }
             else
