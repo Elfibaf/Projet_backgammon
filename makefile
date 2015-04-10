@@ -1,97 +1,34 @@
-# app name
-app = main
+CC=gcc
 
-# extension to compile
-srcExt = c
+# option de compilateur
+CFLAGS=-Wall -std=c99
+EXEC=backgammon
 
-# directories
-srcDir = src
-objDir = obj
-binDir = .
+all: backgammon
 
-# debug option (=1 for debugging ; =0 no include debug information)
-debug = 0
-
-# compiler options
-CFlags = -Wall
-# linker options
-LDFlags = -rdynamic
-# library names
-libs = SDL2
-# additionnal library directories
-libDir = lib/
-# additionnal include directories
-incDir =
+backgammon: test.o 
+	gcc test.o -o backgammon
 
 
-#************************ DO NOT EDIT BELOW THIS LINE! ************************
+ia: bot.o
+	gcc -shared -o bot.so bot.o
 
-ifeq ($(debug),1)
-	debug=-g
-else
-	debug=
-endif
-incDir := $(addprefix -I,$(incDir))
-libs := $(addprefix -l,$(libs))
-libDir := $(addprefix -L,$(libDir))
-CFlags += -c $(debug) $(incDir)
-LDFlags += $(libDir) $(libs)
-sources := $(shell find $(srcDir) -name '*.$(srcExt)')
-srcDirs := $(shell find . -name '*.$(srcExt)' -exec dirname {} \; | sort | uniq)
-objects := $(patsubst %.$(srcExt),$(objDir)/%.o,$(sources))
+bot.o: bot.c
+	gcc -fPIC -c bot.c
 
-ifeq ($(srcExt),cpp)
-	CC = $(CXX)
-else
-	CFlags += -std=gnu99
-endif
-
-.phony: all clean distclean
+gui:
 
 
-all: $(binDir)/$(app)
+commun:
 
-$(binDir)/$(app): $(objects)
-	@mkdir -p `dirname $@`
-	@echo "Linking $@..."
-	@$(CC) $(objects) $(LDFlags) -o $@
-	cd lib; make;
 
-$(objDir)/%.o: %.$(srcExt)
-	@echo "Generating dependencies for $<..."
-	@mkdir -p `dirname $(objDir)/$<`
-	@$(call make-depend,$<,$@,$(subst .o,.d,$@))
-	@echo "Compiling $<..."
-	@$(CC) $(CFlags) $< -o $@
+Comun/test.o: Commun/test.c
+	gcc Commun/test.c -o Commun/test.o
 
-clean:
-	@echo "Deleting object and dependencies files"
-	@$(RM) -r $(objDir)
 
-distclean: clean
-	@echo "Deleting binary file $(binDir)/$(app)"
-	@$(RM) -r $(binDir)/$(app)
 
-buildrepo:
-	@$(call make-repo)
+gcc -Wall -std=c99 -fPIC -c bot.c
 
-define make-repo
-   for dir in $(srcDirs); \
-   do \
-	mkdir -p $(objDir)/$$dir; \
-   done
-endef
-
-ifneq "$(MAKECMDGOALS)" "clean"
--include $(objects:.o=.d)
-endif
-
-# usage: $(call make-depend,source-file,object-file,depend-file)
-define make-depend
-  $(CC) -MM       \
-        -MF $3    \
-        -MP       \
-        -MT $2    \
-        $(CFlags) \
-        $1
-endef
+    gcc -Wall -std=c99 -shared -o bot.so bot.o
+    
+     gcc -Wall main.c -o main -ldl
