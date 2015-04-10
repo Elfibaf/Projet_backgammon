@@ -27,7 +27,9 @@ git push
 
 -Enfin pour compiler le main :
     gcc -Wall main.c -o main -ldl
-    
+
+gcc -Wall main2.c arbitrage.c gui/gui.c -o main `sdl2-config --cflags --libs` -ldl -lSDL2_image -lSDL2_ttf
+
     
     
     
