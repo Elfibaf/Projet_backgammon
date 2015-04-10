@@ -1,3 +1,23 @@
+#ifndef FONCTION_H
+	#define FONCTION_H
+
+
+typedef enum Etat Etat;
+enum Etat
+{
+    NORMAL, TRANSITION, FIN
+};
+
+
+typedef struct {
+	Player color;
+	Player enemy;
+	unsigned int targetScore;
+	
+} SBotInfo;
+
+
+
 /**
  * fonctions permettant de trouver le min ou le max
  * @param int a
@@ -95,8 +115,11 @@ int NbDiceLeft(int *dice, int sizeDice);
  */
 void ApplyMove(unsigned int *nbMove, SMove moves[4], int caseSrc, int *dice, int j);
 
-/** Définition des diffénrents Etats
+/** Définition des différents Etats
  * @param const SGameState * const gameState
  * 	état courant du jeu
  */
 Etat DefEtat(const SGameState * const gameState);
+
+
+#endif

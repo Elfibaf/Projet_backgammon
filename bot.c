@@ -1,5 +1,5 @@
 //// Fichier pour la stratégie ////
-#include "bot.h"
+#include "api.h"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -10,22 +10,10 @@
 // Dans la librairie
 //
 
-typedef enum Etat Etat;
-enum Etat
-{
-    NORMAL, TRANSITION, FIN
-};
 
 
-typedef struct {
-	Player color;
-	Player enemy;
-	unsigned int targetScore;
-	
-} SBotInfo;
 
-Etat etatJeu;
-SBotInfo bot;
+SBotInfo bot; // Structure qui contient les infos dont l'IA a besoin entre les tours
 
 
 void InitLibrary(char name[50])
@@ -42,7 +30,7 @@ void StartMatch(const unsigned int target_score)
 
 void StartGame(Player p)
 {
-	
+	//On sauvegarde la couleur de l'IA et de l'ennemi
 	bot.color = p;
 	if(p == 1) bot.enemy = BLACK;
 	else bot.enemy = WHITE;
@@ -61,19 +49,31 @@ void EndMatch()
 }
 
 int DoubleStack(const SGameState * const gameState)
-{
-	printf("DoubleStack\n");
-	return(0);
+{	
+	// On demande à doubler la mise si on a au moins 5 pions d'avance dans le out par rapport à l'ennemi
+	if(gameState->out[bot.color] > (gameState->out[bot.enemy] + 4))
+	{
+		return(1);
+	}
+	else
+	{
+		return(0);
+	}
+	
 }
 
 int TakeDouble(const SGameState * const gameState)
 {
-	printf("TakeDouble\n");
-	return(1);
+	// On accepte le double si on a au moins 5 pions d'avance dans le out OU si le score cible sera atteint à la fin de la game
+	if((gameState->out[bot.color] > (gameState->out[bot.enemy] + 4)) || ((max(gameState->whiteScore,gameState->blackScore) + gameState->stake) >= bot.targetScore))
+	{
+		return(1);
+	}
+	else return 0;
 }
 
 
-
+// Retourne le minimum entre 2 nombres
 int min(int a, int b)
 {
 	if(a<b) return a;
@@ -81,6 +81,7 @@ int min(int a, int b)
 	
 }
 
+// Retourne le maximum entre 2 nombres
 int max(int a,int b)
 {
 	if(a>b) return a;
@@ -93,10 +94,10 @@ int max(int a,int b)
 // Vérifie que la case sur laquelle le pion va se déplacer est libre, de sa couleur ou n'a qu'un pion dessus
 int IsMoveRight(int numCaseDep, int dice, const SGameState * const gameState)
 {
-	
+	// Verification que la case d'arrivée est bien dans le plateau et que le dé n'est pas utilisé
 	if(((numCaseDep + dice) <= 23) && (numCaseDep + dice >=0) && (!IsDiceUsed(dice)) && (bot.color == WHITE))
 	{
-	
+		// Vérification que la case d'arrivée n'est pas possédée par l'ennemi ou qu'il n'y a qu'un pion dessus
 		if ((gameState->board[(numCaseDep + dice)].owner != bot.enemy) || (gameState->board[(numCaseDep + dice)].nbDames == 1))
 		{
 	
@@ -104,7 +105,7 @@ int IsMoveRight(int numCaseDep, int dice, const SGameState * const gameState)
 		}
 		else return 0;
 	}
-		
+	// On fait les même vérifications pour le joueur noir
 	else if ((bot.color == BLACK) && ((numCaseDep - dice) <= 23) && (numCaseDep - dice >=0) && (!IsDiceUsed(dice)))
 	{
 		if ((gameState->board[(numCaseDep - dice)].owner != bot.enemy) || (gameState->board[(numCaseDep - dice)].nbDames == 1))
@@ -123,7 +124,8 @@ int IsMoveRight(int numCaseDep, int dice, const SGameState * const gameState)
 int IsCaseOurs(int numCase, int dice, const SGameState * const gameState)
 {
 	if (bot.color == WHITE)
-	{
+	{	
+		//On vérifie que la case d'arrivée est bien de la couleur du bot et que la case est dans le plateau
 		if ((gameState->board[numCase + dice].owner == bot.color) && ((numCase +dice) < 24) && ((numCase + dice) >= 0))
 		{
 			return 1;
@@ -133,6 +135,7 @@ int IsCaseOurs(int numCase, int dice, const SGameState * const gameState)
 	
 	else if (bot.color == BLACK)
 	{
+		//Idem pour le black
 		if ((gameState->board[numCase - dice].owner == bot.color) && ((numCase - dice) < 24) && ((numCase - dice) >= 0))
 		{
 			return 1;
@@ -143,15 +146,6 @@ int IsCaseOurs(int numCase, int dice, const SGameState * const gameState)
 }
 
 
-//Vérifie qu'une case est dans le Jan intérieur
-int IsCaseJanInt(int numCase)
-{
-	if ((numCase>= 18) && (numCase <=23))
-	{
-		return(1);
-	}
-	else return (0);
-}
 
 
 //Indique si le dé a été utilisé ou non (1 s'il a déjà été utilisé, 0 sinon)
@@ -175,7 +169,7 @@ int IsDiceDouble(const unsigned char dice[2])
 }
 
 
-//Indique si la case a été vidée de ses pions lors du tour courant
+//Indique si la case a été vidée de ses pions lors du tour courant en comptant le nombre de déplacements effectués à partir de cette case
 int IsCaseEmpty(int caseDep, int nbMove, SMove moves[4], const SGameState * const gameState)
 {
 	int i,j=0;
@@ -225,30 +219,34 @@ int NbDiceLeft(int *dice, int sizeDice)
 	return(nb);
 }
 
-
+// Définit les différents états dans lesquels peut entrer le bot
 Etat DefEtat(const SGameState * const gameState)
 {
 	int i,j;
 	int sum1 = 0, sum2 = gameState->out[bot.color];
-
+	
+	// Si il y a des pions dans le bar on entre dans l'etat NORMAL
 	if(gameState->bar[bot.color] != 0)
 	{
 		return(NORMAL);
 	}
 	
+
 	if(bot.color == WHITE)
 	{
 		
 		for(j=18;j<24;j++)
 		{
+			
 			if(gameState->board[j].owner == bot.color)
 			{
-				
+				// On compte le nombre de pions dans le jan intérieur du bot
 				sum2 = sum2 + gameState->board[j].nbDames;
 				
 			}
 		}
 		
+		//Si ils y sont tous, il passe dans l'etat de fin
 		if(sum2 == 15)
 		{
 			return FIN;	
@@ -273,6 +271,8 @@ Etat DefEtat(const SGameState * const gameState)
 		
 		return NORMAL;
 	}
+	
+	//Meme manip pour le BLACK
 	else
 	{
 		
@@ -316,7 +316,7 @@ Etat DefEtat(const SGameState * const gameState)
 }
 
 
-
+//Fonction qui determine les sources et dest des mouvements que veut faire le bot
 void ApplyMove(unsigned int *nbMove, SMove moves[4], int caseSrc, int *dice, int j)
 {
 	if(bot.color == WHITE)
@@ -329,7 +329,7 @@ void ApplyMove(unsigned int *nbMove, SMove moves[4], int caseSrc, int *dice, int
 		moves[*nbMove].src_point = caseSrc + 1;
 		moves[*nbMove].dest_point = caseSrc - dice[j] + 1;
 	}
-	
+	//On incrémente le nombre de moves et on indique que le dé a été utilisé
 	*nbMove = *nbMove + 1;
 	dice[j] = -1;
 }
@@ -338,20 +338,20 @@ void ApplyMove(unsigned int *nbMove, SMove moves[4], int caseSrc, int *dice, int
 
 void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], SMove moves[4], unsigned int *nbMove, unsigned int tries)
 {
-	int sortie = 1;
+	int sortie = 1; //Permet de sortir de la boucle principale
 
-	int i,j = 0;
+	int i,j = 0; 
 	int casesPionsBot[15];		// Tableau contenant les indices des cases appartenant au bot
 	int dim; 	// Dimension du tableau contenant les indices des cases appartenant au bot
-	unsigned int sizeDice;
+	unsigned int sizeDice; //Nombre de dés
 	int nbMoveInter, numCaseInter, sumInter;	// Variables utiles lorsque le bot doit faire des mouvements combinés (ex : de 2 à 5 puis de 5 à 10...)
-	
+	Etat etatJeu; //Etat du bot (NORMAL, TRANSITION ou FIN)
 	
 	*nbMove = 0;
 	
 	/*** Transformation du dé en int (prise en compte des doubles) ***/
 	
-	
+	//Determination du nombre de dés en fonction de si ce sont des doubles
 	if (IsDiceDouble(dices))
 	{
 		sizeDice = 4;
@@ -361,6 +361,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 		sizeDice = 2;
 	}
 	
+	//Création du tableau dynamique contenant les dés
 	int *dice = (int *)malloc(sizeDice*sizeof(int));
 	if(sizeDice == 4)
 	{
@@ -368,18 +369,18 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 		dice[1] = (int)dices[0];
 		dice[2] = (int)dices[0];
 		dice[3] = (int)dices[0];
-		printf("Double\n");
+		
 	}
 	else
 	{
 		dice[0]=(int)dices[0];
 		dice[1]=(int)dices[1];
-		printf("Pas double\n");
+		
 	}
 	
 	
-	printf("Nombre de dés : %d\n",NbDiceLeft(dice,sizeDice));
-	
+
+	// Recuperation de l'etat du bot+
 	etatJeu = DefEtat(gameState);
 	
 	
@@ -387,14 +388,14 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 	
 	while(sortie)
 	{
-	
+		
 		switch(etatJeu)
 		{
 			//Etat dans lequel on ramene les pions les plus éloignés en priorité
 			case TRANSITION :
 			
-				printf("\n Etat TRANSITION\n");
-				//Remplissage tableau contenant les indices des cases sur lesquelles sont présents les pions du bot
+				
+				//Remplissage tableau contenant les indices des cases sur lesquelles sont présents les pions du bot (en fonction de la couleur du bot)
 				if(bot.color == BLACK)
 				{
 					for(i=23;i>=0;i--)
@@ -421,11 +422,13 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				
 				
 				
-				//On bouge l'ancre en priorité
+				//On bouge l'ancre en priorité de plusieurs cases si possible
 				
 				nbMoveInter = 0;
 				numCaseInter = 0;
 				sumInter = 0;
+				
+				
 				if((IsMoveRight(casesPionsBot[0],SumDice(dice,sizeDice),gameState)) && (!IsCaseEmpty(casesPionsBot[0],*nbMove,moves,gameState)))
 				{
 					for(j=0;j<sizeDice;j++)
@@ -434,12 +437,13 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 						{
 							sumInter += dice[j];
 						}
-							
+						
 						if(IsMoveRight(casesPionsBot[0],sumInter,gameState))
 						{
 							nbMoveInter++;
 						}
 					}
+					// Si le nombre de moves intermédiaires est égal au nombre de dés alors on effectue la suite de mouvements
 					if(nbMoveInter == NbDiceLeft(dice,sizeDice))
 					{
 						for(j=0;j<sizeDice;j++)
@@ -448,13 +452,13 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 							{
 								ApplyMove(nbMove,moves,casesPionsBot[0],dice,j);
 								numCaseInter = 1;
-								printf("Longue dist move 1\n");
+								
 								
 							}
 							else if((!IsDiceUsed(dice[j])) && (numCaseInter != 0))
 							{
 								ApplyMove(nbMove,moves,moves[*nbMove-1].dest_point-1, dice, j);
-								printf("Longue dist move 2\n");
+								
 							}
 							if (*nbMove == sizeDice)
 							{
@@ -465,12 +469,13 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 					}
 				}
 				
+				//Si on peut pas faire de long move on fait un move simple
 				for(j=0;j<sizeDice;j++)
 				{
 					if((IsMoveRight(casesPionsBot[0],dice[j],gameState)) && (!IsCaseEmpty(casesPionsBot[0],*nbMove,moves,gameState)))
 					{
 						ApplyMove(nbMove,moves,casesPionsBot[0], dice, j);
-						printf("Move ancre\n");
+						
 					}
 				}
 				
@@ -489,16 +494,17 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 					
 			
 				
-				printf("\nEtat NORMAL\n");
+			
 				
-				/***Lorsque l'on est dans le bar (prison) ***/
+				/***Lorsque l'on a des pions dans le bar  ***/
 				
 				if (gameState->bar[bot.color] != 0)
 				{
-					/* On parcourt */
+					/* On parcourt le bar*/
 					   
 					for(i=0;i<gameState->bar[bot.color];i++)
 					{
+						//Pour chaque dé on vérifie si le move potentiel est bon en fonction de la couleur, et on fait le move
 						for(j=0;j<sizeDice;j++)
 						{
 							
@@ -520,6 +526,8 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 							}
 						}
 					}
+					
+					//Si on a fait moins de moves que de pions dans le bar on n'a pas le droit de jouer donc on return, idem si on a fait autant de moves qu'il y a de dés
 					if((*nbMove < gameState->bar[bot.color]) || (*nbMove == sizeDice))
 					{
 						free(dice);
@@ -585,7 +593,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 									
 									moves[1].src_point = max(casesPionsBot[i],casesPionsBot[j])+1;
 									moves[1].dest_point = moves[1].src_point + min(dice[0],dice[1]);
-									printf("Move Safe 2 pions\n");
+									
 									free(dice);
 									return;
 								}
@@ -597,7 +605,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 									
 									moves[1].src_point = max(casesPionsBot[i],casesPionsBot[j])+1;
 									moves[1].dest_point = moves[1].src_point - max(dice[0],dice[1]);
-									printf("Move Safe 2 pions\n");
+									
 									free(dice);
 									return;
 								}
@@ -609,13 +617,14 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				
 				
 				
-				/*** QUAND ON A UN DOUBLE : on bouge 2 pions de la même case sur une autre case ***/
+				/*** QUAND ON A UN DOUBLE + 2 ou 4 dés dispos : on bouge 2 pions de la même case sur une autre case ***/
 				
 				if((IsDiceDouble(dices)) && (NbDiceLeft(dice,sizeDice)%2 == 0)) 
 				{
-					printf("cond\n");
+					
 					for(i=1;i<dim;i++)
 					{
+						//On vérifie que les mouvements intermédiaires sont bons et que la case d'arrivée est libre (4 dés)
 						numCaseInter = 0;
 						if(((gameState->board[casesPionsBot[i]].nbDames == 2) || (gameState->board[casesPionsBot[i]].nbDames > 3)) && (NbDiceLeft(dice,sizeDice) == 4) && (IsMoveRight(casesPionsBot[i],((int)dices[0])*2,gameState)) && (IsMoveRight(casesPionsBot[i],(int)dices[0],gameState)) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
 						{
@@ -630,6 +639,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 							
 						
 						}
+						// (2 dés)
 						else if(((gameState->board[casesPionsBot[i]].nbDames == 2) || (gameState->board[casesPionsBot[i]].nbDames > 3)) && (NbDiceLeft(dice,sizeDice) == 2) && (IsMoveRight(casesPionsBot[i],(int)dices[0],gameState)) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
 						{
 							if(bot.color == WHITE)
@@ -645,7 +655,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 								free(dice);
 								return;
 							}
-							else
+							else //BLACK
 							{
 								moves[*nbMove].src_point = casesPionsBot[i] + 1;
 								moves[*nbMove].dest_point = casesPionsBot[i] - (int)dices[0] + 1;
@@ -663,8 +673,8 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				}
 				
 				
-				/***** A FAIRE : EN BOUGER UN SUR UNE LONGUE DISTANCE, BETTER *****/
 				
+				// On fait bouger un pion de la somme des dés
 				for(i=1;i<dim;i++)
 				{
 					nbMoveInter = 0;
@@ -692,7 +702,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 								{
 									ApplyMove(nbMove, moves, casesPionsBot[i], dice, j);
 									numCaseInter = 1;
-									printf("Longue dist\n");
+									
 									
 								}
 								else if((!IsDiceUsed(dice[j])) && (numCaseInter != 0))
@@ -717,7 +727,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				{
 					for(j=0;j<sizeDice;j++)
 					{
-
+						
 						if((IsCaseOurs(casesPionsBot[i],dice[j],gameState)) && (!IsDiceUsed(dice[j])) && (!IsCaseEmpty(casesPionsBot[i],*nbMove,moves,gameState)))
 						{
 							ApplyMove(nbMove,moves,casesPionsBot[i],dice,j);
@@ -735,7 +745,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				
 				
 					/*** Si on a réussi à faire aucun des moves d'avant ou s'il reste des moves à faire, on va bouger le ou les pions les plus éloignés 
-					(en partant de l'avant derniere case de notre couleur pour garder une ancre) sur une case dispo où une case où il n'y a qu'un pion  ***/
+					(en partant de l'avant derniere case de notre couleur pour garder une ancre) sur une case dispo où une case où il n'y a qu'un pion ennemi ***/
 					
 					
 					
@@ -760,7 +770,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				}
 				
 				
-				//Mouv de l'ancre si vraiment on ne peut rien faire d'autre
+				//Mouvement de l'ancre si vraiment on ne peut rien faire d'autre
 				for(j=0;j<sizeDice;j++)
 				{
 					if((IsMoveRight(casesPionsBot[0],dice[j],gameState)) && (!IsCaseEmpty(casesPionsBot[0],*nbMove,moves,gameState)))
@@ -804,6 +814,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 				dim = j;
 				
 				
+				// Ici on regarde si on peut bouger un pion directement dans le out
 				for(i=0;i<dim;i++)
 				{
 					printf("Case %d : %d \n",casesPionsBot[i]+1,gameState->board[casesPionsBot[i]].nbDames );
@@ -826,6 +837,8 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 					}
 				}
 				
+				
+				// Ici on regarde si on peut bouger le pion le plus éloigné sur une case plus proche du out
 				for(i=dim-1;i>=0;i--)
 				{
 					for(j=0;j<sizeDice;j++)
@@ -842,6 +855,8 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 					}
 				}
 				
+				
+				//Ici on regarde (si les mouvements d'avant n'ont pas été faits -> on a le droit) si on peut bouger un pion dans le out alors que la valeur du dé est plus élevée 
 				for(i=0;i<dim;i++)
 				{
 					for(j=0;j<sizeDice;j++)
@@ -882,17 +897,8 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 	
 
 	
-	/* Sinon si possible : déplacement d'un pion de la somme des dés sur une case à nous
-	 */
 	
 	
-	/** Maybe faire un enum dans la structure bot pour faire des etats (allié et ennemi, peut être utile pour savoir si on double ou non la mise)
-	(debut/milieu de partie + fin de partie avec le ruch de l'ancre, plus besoin de se soucier de se faire prendre des pions) **/
-	
-	
-	printf("max : %d\n",max(5,2));
-	
-	printf("bot : %d\n",(int)bot.color);
 	
 	printf("PlayTurn\n");
 	return;
